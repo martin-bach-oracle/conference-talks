@@ -1,3 +1,9 @@
 .DS_Store
 afiedt.buf
 tools/Wallet*
+tools/*.ora
+tools/*.pem
+**/*/*.log
+**/*/*.log.lck
+**/.env
+**/node_modules
