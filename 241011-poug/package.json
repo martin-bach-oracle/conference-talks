@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3",
+    "oracledb": "^6.6.0"
+  },
+  "type": "module",
+  "name": "241011-poug",
+  "description": "This talk is concerned with **Advanced JavaScript in Oracle Database 23ai.**",
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --env-file .env 01_mle_modules/testing.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
