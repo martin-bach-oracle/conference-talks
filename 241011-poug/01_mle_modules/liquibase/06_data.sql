@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset mcb:r1-06 failonerror:true labels:r1
+--changeset mcb:r1-06 failonerror:true labels:r1 runOnChange:true
 
 insert into demo_warehouse (id,name) values ('1','las vegas');
 insert into demo_warehouse (id,name) values ('2','seattle');

@@ -17,7 +17,7 @@ export function validatePrice(price) {
             allow_negatives: false,
             digits_after_decimal: [1,2]
         }
-    ) && parseFloat(price) <= 99999.99
+    ) && Number.parseFloat(price) <= 99999.99
 }
 
 /**
@@ -61,9 +61,13 @@ export function closest99Cent(inputPrice) {
     
     if (inputPrice < 1) {
         return 0.99;
-    } else if (inputPrice - Math.trunc(inputPrice) === 0.99) {
+    } 
+    // biome-ignore lint: this is needed after all
+    else if (inputPrice - Math.trunc(inputPrice) === 0.99) {
         return inputPrice;
-    } else {
+    } 
+    // biome-ignore lint: this is needed after all
+    else {
         return Math.trunc(inputPrice) - 1 + .99;
     }
 }
@@ -93,7 +97,7 @@ export function consolidateThingWarehouses(thingID) {
     );
 
     // iterate over all the duplicate entries
-    for (let row of result.rows) {
+    for (const row of result.rows) {
 
         // consolidate all stock in the first warehouse found in the table
         session.execute(

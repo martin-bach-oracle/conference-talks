@@ -5,11 +5,12 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
   
-    <include file="01_demo_thing_categories.sql" />
-    <include file="02_demo_things.sql" />
-    <include file="03_demo_warehouse.sql" />
-    <include file="04_demo_thing_stock.sql" />
-    <include file="06_data.sql" />
-    <include file="07_validator_module.sql" />
+    <include file="liquibase/01_demo_thing_categories.sql" />
+    <include file="liquibase/02_demo_things.sql" />
+    <include file="liquibase/03_demo_warehouse.sql" />
+    <include file="liquibase/04_demo_thing_stock.sql" />
+    <include file="liquibase/05_things.xml" />
+    <include file="liquibase/06_data.sql" />
+    <include file="liquibase/07_business_logic_calL_specs.sql" />
 
 </databaseChangeLog> 

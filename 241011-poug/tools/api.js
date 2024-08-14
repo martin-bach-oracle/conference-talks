@@ -1,8 +1,5 @@
 import oracledb from 'oracledb';
-
-/**
- * run as follows: `node --env-file .env 01_mle_modules/testing.js`
- */
+import dbConfig from './dbConfig.js'
 
 // ------------------------------------------------------------------------------------ constants
 const POOL_NAME = 'mle';            // used for oracledb.getPool() and createPool()
@@ -64,53 +61,63 @@ async function addToGlobalThis(connection) {
 /**
  * Initialise database connections. 
  * 
- * @param {object} connectionOptions - connection properties ({ pool: true|false, adb: true|false})
+ * @param {object} options - connection properties ({env: test, pool: false, adb: true})
  */
-export async function init(connectionOptions) {
+export async function init(options) {
+
+    // defaults
+    let localOptions = {
+        env: "test",
+        adb: false,
+        pool: false
+    }
+
+    // override defaults
+    if (options !== undefined) {
+        localOptions.adb = options.adb !== undefined ? options.adb : false;
+        localOptions.pool = options.pool !== undefined ? options.pool : false;
+        localOptions.env = options.env !== undefined ? options.env : false;
+    }
 
     // is the code running inside the database using MLE or on the client?
+    // no need to deal with MLE, it has a built-in session object.
     if (isClientRuntime()) {
 
-        if (connectionOptions === undefined) {
-            connectionOptions = {
-                adb: false,
-                pool: false
-            };
-        }
-
-        let options = {
-            user: process.env.username,
-            password: process.env.password,
-            connectionString: process.env.connectionString
+        let oracleDBptions = {
+            user:             dbConfig[localOptions.env].username,
+            password:         dbConfig[localOptions.env].password,
+            connectionString: dbConfig[localOptions.env].connectionString
         };
 
-        if (connectionOptions.adb) {
-            options.configDir = process.env.configDir;
-            options.walletLocation = process.env.walletLocation;
-            options.walletPassword = process.env.walletPassword;
+        if (localOptions.adb) {
+            oracleDBptions.configDir      = dbConfig[localOptions.env].configDir;
+            oracleDBptions.walletLocation = dbConfig[localOptions.env].walletLocation;
+            oracleDBptions.walletPassword = dbConfig[localOptions.env].walletPassword;
         }
 
         let connection;
 
-        if (connectionOptions.pool) {
+        if (localOptions.pool) {
 
-            options.poolAlias = POOL_NAME;
+            // create/start the database connection pool if needed
+            oracleDBptions.poolAlias = POOL_NAME;
 
-            // test if the pool exists
+            // there is no need to start _another_ connection pool
+            // if one exists already.
             try {
 
-                oracledb.getPool(options.poolAlias);
+                oracledb.getPool(oracleDBptions.poolAlias);
             } catch(err) {
 
                 // pool does not exist, let's create it
-                await oracledb.createPool(options);
+                await oracledb.createPool(oracleDBptions);
             }
 
             connection = await oracledb.getConnection();
         } else {
 
-            // most likely server-side code (aka "MLE")
-            connection = await oracledb.getConnection(options);
+            // "just" a database session
+            connection = await oracledb.getConnection(oracleDBptions);
         }
 
         if (connection === undefined || connection === null) {

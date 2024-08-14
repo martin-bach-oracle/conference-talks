@@ -1,3 +1,6 @@
+--liquibase formatted sql
+--changeset mcb:r1-07 failonerror:true labels:r1 endDelimiter:/ stripComments:false
+
 /**
  * Bundled by jsDelivr using Rollup v2.79.1 and Terser v5.19.2.
  * Original file: /npm/validator@13.12.0/index.js
