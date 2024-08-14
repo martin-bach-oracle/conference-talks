@@ -12,7 +12,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/241011-poug/01_mle_modules/testing.js",
+            "program": "${workspaceFolder}/241011-poug/01_mle_modules/complete.test.js",
             "envFile": "${workspaceFolder}/241011-poug/.env"
         }
     ]
