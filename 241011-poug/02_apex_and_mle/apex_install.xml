@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+-->
+<databaseChangeLog 
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext" 
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+<changeSet id="INSTALL_103" author="EMILY"      >
+    <n0:runApexScript objectName="install" objectType="SCRIPT" ownerName="EMILY" sourceType="STRING" >
+        <n0:source><![CDATA[
+declare 
+
+  -- sqlcl version      = 24.2.0.0 
+  -- override_schema    = ${lb.apex.schema} 
+  -- override_alias     = ${lb.apex.alias} 
+  -- override_workspace = ${lb.apex.workspace} 
+  -- override_app_id    = ${lb.apex.appId} 
+
+  l_app_id apex_applications.application_id%type := q'[103]';  
+  l_workspace apex_workspaces.workspace%type := q'[EMILY_WS]'; 
+
+  l_override_workspace apex_workspaces.workspace%type := q'[${lb.apex.workspace}]'; 
+  l_override_schema apex_workspace_schemas.schema%type := q'[${lb.apex.schema}]';  
+  l_override_alias apex_applications.alias%type := q'[${lb.apex.alias}]';  
+  l_override_app_id apex_applications.application_id%type := q'[${lb.apex.appId}]';  
+  l_generate_offset boolean := false;
+begin  
+  apex_application_install.clear_all(); 
+  -- set workspace 
+   if (l_override_workspace is not null and l_override_workspace != l_workspace) then 
+      apex_application_install.set_workspace(l_override_workspace);  
+  else 
+      apex_application_install.set_workspace(l_workspace); 
+  end if; 
+     commit;  
+  -- set app id 
+  if (l_override_app_id is not null and l_override_app_id != l_app_id) then 
+      apex_application_install.set_application_id(l_override_app_id);  
+      l_generate_offset := true;
+  else  
+      apex_application_install.set_application_id(l_app_id); 
+  end if; 
+  -- ensure supporting objects get installed
+   apex_application_install.set_auto_install_sup_obj(p_auto_install_sup_obj => true); 
+  -- set schema if not same 
+  if (l_override_schema is not null) then 
+      apex_application_install.set_schema(l_override_schema);  
+  end if; 
+  -- set alias 
+  if (l_override_alias is not null ) then 
+      apex_application_install.set_application_alias(l_override_alias); 
+      l_generate_offset := true;
+  end if;         
+  -- generate offset if necessary
+  if (l_generate_offset)  then
+     apex_application_install.generate_offset();
+  end if;
+end;  
+/
+@@f103.sql
+        ]]></n0:source>
+    </n0:runApexScript>
+</changeSet>
+</databaseChangeLog> 
