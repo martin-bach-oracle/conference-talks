@@ -54,10 +54,6 @@ begin
             options.skip = req.query_parameters.offset
         }
 
-        if ( req.query_parameters.debug !== undefined ) {
-            options.debug = true
-        }
-
         data = getThings(options);
     }
 
