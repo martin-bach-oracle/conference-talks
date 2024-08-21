@@ -107,9 +107,43 @@ export function getThings(
 }
 
 export function getThing(id) {
-	return {
-		todo: "implement me: getThing()",
-	};
+
+    // check if the ID is valid
+    if (id === undefined || Number.isNaN(id)) {
+        return {
+            error: 'please provide a valid numeric ID to this API call'
+        }
+    }
+
+    // return an error in case the duality view cannot be opened
+	const collection = soda.openCollection("THINGS");
+	if (collection === null) {
+
+		return {
+            error: 'unable to access the THINGS duality view. Has it been created?'
+        }
+	}
+	
+    try {
+        const doc = collection
+            .find()
+            .filter( { "_id": { "$eq": Number.parseInt(id) } } )
+            .getOne();
+        
+        const content = doc.getContent();
+        content._metadata.etag = toHexString(content._metadata.etag);
+        content._metadata.asof = toHexString(content._metadata.asof);
+
+        const items = [
+            content
+        ];
+
+        return items;
+    } catch (err) {
+        return {
+            error: `cannot find a document with id ${id} (${err})`
+        }
+    }
 }
 
 export function postThing(thing) {
