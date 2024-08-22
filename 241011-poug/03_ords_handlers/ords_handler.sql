@@ -10,7 +10,9 @@ begin
         p_comments       => 'ORDS handlers written in JavaScript implementing the Things API'
     );
 
-    -- entrypoint to managing all things
+    -- entrypoint to managing many things. Required for the following handlers
+    -- * GET
+    -- * POST
     ords.define_template(
         p_module_name    => c_module_name,
         p_pattern        => 'things/',
@@ -20,7 +22,10 @@ begin
         p_comments       => 'entrypoint to managing all things'
     );
 
-    -- entrypoint to managing single things
+    -- entrypoint to managing single things. Required for the following handlers
+    -- * GET
+    -- * DELETE
+    -- * PUT
     ords.define_template(
         p_module_name    => c_module_name,
         p_pattern        => 'things/:id',
@@ -97,7 +102,45 @@ begin
 }
 ~'
     );
- 
+
+    -- POST handler
+    ords.define_handler(
+        p_module_name    => c_module_name,
+        p_pattern        => 'things/',
+        p_method         => 'POST',
+        p_source_type    => 'mle/javascript',
+        p_mle_env_name   => 'JAVASCRIPT_DEMO_ENV_THINGS',
+        p_items_per_page => 0,
+        p_mimes_allowed  => null,
+        p_comments       => 'post (insert) a new thing',
+        p_source         => q'~
+(req, resp) => {
+
+    const { postThing } = await import ('ords');
+
+    let data;
+
+    if (typeof req.body !== 'object') {
+        data = {
+            error: 'please provide a valid thing'
+        };
+    } else {
+        const result = postThing(req.body);
+        if (result.success) {
+            resp.status = 200;
+            return;
+        } else {
+            data = {
+                error: result.error
+            }
+        }
+    }
+
+    resp.json(data);
+}
+~'
+    );
+
     commit;
  
 end;
