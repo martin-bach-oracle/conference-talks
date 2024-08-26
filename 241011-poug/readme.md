@@ -14,7 +14,7 @@ The code was developed with, and tested against an _Always Free_ Oracle Autonomo
 
 ## Introduction
 
-`introduction.sql` demonstrates how to create a new account suitable for developing server-side JavaScript applications. A few additional examples, to be executed either in `sqlcl` or SQLDeveloper Next, provide a couple of use cases including
+[`introduction.sql`](./introduction.sql) demonstrates how to create a new account suitable for developing server-side JavaScript applications. A few additional examples, to be executed either in `sqlcl` or SQLDeveloper Next, provide a couple of use cases including
 
 - inline functions
 - creation of call specifications in standalone functions and PL/SQL packages
