@@ -36,3 +36,5 @@ create index demo_thing_stock_i1 on
         thing_id
     )
 /
+
+-- rollback drop table demo_thing_stock;

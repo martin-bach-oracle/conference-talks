@@ -12,6 +12,7 @@
     <include file="liquibase/05_things.xml" />
     <include file="liquibase/06_data.sql" />
     <include file="liquibase/07_validator_module.xml" />
-    <include file="liquibase/08_business_logic_calL_specs.sql" />
+    <include file="liquibase/08_business_logic.xml" />
+    <include file="liquibase/09_business_logic_calL_specs.sql" />
 
 </databaseChangeLog> 

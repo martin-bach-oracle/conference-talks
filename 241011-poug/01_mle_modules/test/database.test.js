@@ -3,7 +3,11 @@
  *
  * Using vitest to perform unit tests against JavaScript code deployed against the
  * database. The tests are controlled using vitest run, whereas the code is executed
- * in Oracle Database 23ai.
+ * within Oracle Database 23ai.
+ * 
+ * Requires
+ * - Instanct Client 23.3 or later
+ * - Database connection properties defined in tools/dbConfig.js
  */
 
 import * as api from "../../tools/api.js";
@@ -17,6 +21,7 @@ describe("unit testing using vitest", () => {
 			adb: true,
 			pool: false,
 			env: "test",
+			thick: true
 		};
 
 		await api.init(options);

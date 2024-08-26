@@ -103,9 +103,10 @@ export function getModuleAction() {
 /
 
 -- the module's source code can be found in user_source
+set pages 100
 select
     line,
-    text
+    replace(text, chr(10), '') text
 from
     user_source
 where

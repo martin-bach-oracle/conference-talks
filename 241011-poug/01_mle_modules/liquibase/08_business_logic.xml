@@ -1,9 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+ 
+   <changeSet
+    id="mcb001"
+    author="martincarstenbach"
+    failOnError="true"
+        runOnChange="false"
+        runAlways="false">
+        <n0:runOracleScript objectName="example-module" ownerName="EMILY" sourceType="STRING">
+            <n0:source><![CDATA[
+ 
+-- it is possible to add directives to the script
+set define off
+set verify off
+ 
+create mle module demo_things_module language javascript as
 /**
  * Based on https://diveintoapex.com/2024/03/05/simplify-apex-app-rest-apis-with-json-duality-views/
- * 
- * TODO
- * - create rollup/webpack plugin to conver this into SQLcl/Liquibase format (this has been
- *      done manually - ../liquibase/08_business_logic.xml)
  */
 
 import validator from 'validator';
@@ -157,3 +175,14 @@ export function default_missing_warehouses(thingID) {
                 )`
     );
 }
+/
+
+create mle env JAVASCRIPT_DEMO_ENV_THINGS imports (
+    'demo'      module DEMO_THINGS_MODULE,
+    'validator' module VALIDATOR_MODULE
+)
+
+]]></n0:source>
+    </n0:runOracleScript>
+  </changeSet>
+</databaseChangeLog>

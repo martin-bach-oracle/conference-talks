@@ -103,7 +103,7 @@ begin
 ~'
     );
 
-    -- POST handler
+    -- POST handler (insert)
     ords.define_handler(
         p_module_name    => c_module_name,
         p_pattern        => 'things/',
@@ -124,6 +124,8 @@ begin
         data = {
             error: 'please provide a valid thing'
         };
+        resp.status = 400;              // bad request
+
     } else {
         const result = postThing(req.body);
         if (result.success) {
@@ -133,10 +135,121 @@ begin
             data = {
                 error: result.error
             }
+            resp.status = 500;          // internal server error
         }
     }
 
     resp.json(data);
+}
+~'
+    );
+
+    -- PUT handler (update)
+    ords.define_handler(
+        p_module_name    => c_module_name,
+        p_pattern        => 'things/:id',
+        p_method         => 'POST',
+        p_source_type    => 'mle/javascript',
+        p_mle_env_name   => 'JAVASCRIPT_DEMO_ENV_THINGS',
+        p_items_per_page => 0,
+        p_mimes_allowed  => null,
+        p_comments       => 'put (update) a thing',
+        p_source         => q'~
+(req, resp) => {
+
+    const { putThing, isEmpty } = await import ('ords');
+
+    let data;
+
+    if (typeof req.body !== 'object') {
+        data = {
+            error: 'please provide a valid thing with the request'
+        };
+        
+        resp.status = 400;              // bad request
+    }
+
+    if (isEmpty(req.uri_parameters)) {
+        data = {
+            error: 'please provide an ID of the thing you want to update'
+        }
+
+        resp.status = 400;              // bad request
+    }
+
+    const status = putThing(
+        req.uri_parameters.id,
+        req.body
+    );
+
+    if (status.success) {
+        
+        resp.status = 200;
+
+    } else {
+        resp.status = 500;              // internal server error
+
+        data = {
+            error: status.error
+        };
+    }
+
+    return data;
+}
+~'
+    );
+
+
+    -- DELETE handler (delete)
+    ords.define_handler(
+        p_module_name    => c_module_name,
+        p_pattern        => 'things/:id',
+        p_method         => 'DELETE',
+        p_source_type    => 'mle/javascript',
+        p_mle_env_name   => 'JAVASCRIPT_DEMO_ENV_THINGS',
+        p_items_per_page => 0,
+        p_mimes_allowed  => null,
+        p_comments       => 'delete a thing',
+        p_source         => q'~
+(req, resp) => {
+
+    const { deleteThing, isEmpty } = await import ('ords');
+
+    let data;
+
+    if (isEmpty(req.uri_parameters)) {
+        data = {
+            error: 'please provide an ID of the thing you want to update'
+        }
+
+        resp.status = 400;              // bad request
+    }
+
+    if (req.uri_parameters.id === undefined) {
+        data = {
+            error: 'please provide an ID of the thing you want to update'
+        }
+
+        resp.status = 400;              // bad request
+    }
+
+    const status = deleteThing(
+        req.uri_parameters.id
+    );
+
+    if (status.success) {
+        
+        resp.status = 200;
+
+    } else {
+        resp.status = 500;              // internal server error
+
+        data = {
+            error: status.error
+        };
+    }
+
+    return data;
 }
 ~'
     );

@@ -26,3 +26,5 @@ create index demo_things_i1 on
         category
     )
 /
+
+-- rollback drop table demo_things;

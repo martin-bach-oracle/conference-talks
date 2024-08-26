@@ -11,3 +11,5 @@ create or replace package DEMO_THINGS_PKG as
 
 end DEMO_THINGS_PKG;
 /
+
+-- rollback drop package DEMO_THINGS_PKG;

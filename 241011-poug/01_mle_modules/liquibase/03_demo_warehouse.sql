@@ -11,3 +11,5 @@ create table demo_warehouse (
 	constraint warehouse_name_unq unique ( name )
 		using index enable
 );
+
+-- rollback drop table demo_warehouse;

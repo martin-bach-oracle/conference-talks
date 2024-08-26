@@ -11,3 +11,5 @@ create table demo_thing_categories (
 	constraint thing_categories_name_unq unique ( name )
 		using index enable
 );
+
+-- rollback drop table demo_thing_categories;

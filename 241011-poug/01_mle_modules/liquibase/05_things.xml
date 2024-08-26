@@ -14,7 +14,7 @@
    <JSON_DUALITY></JSON_DUALITY>
    <DEFAULT_COLLATION>USING_NLS_COMP</DEFAULT_COLLATION>
    <ANNOTATION_LIST></ANNOTATION_LIST>
-   <SUBQUERY>demo_things @insert @update
+   <SUBQUERY>demo_things @insert @update @delete
 {
     _id         : id
     name        : name
@@ -39,5 +39,8 @@
 }</SUBQUERY>
 </VIEW>]]></n0:source>
 		</n0:createSxmlObject>
+        <!-- <rollback>
+            <n0:dropSxmlObject
+        </rollback> -->
 	</changeSet>
 </databaseChangeLog>

@@ -12,18 +12,16 @@
  *   - delete a thing by ID
  */
 
-import * as businessLogic from 'demo';
-import * as utils from 'utils';
+import * as businessLogic from "demo";
+import * as utils from "utils";
 
 /**
  * GET handler (select)
+ * 
  * Query the relational duality view to return all rows, or a subset. It is possible
  * to optionally provide a search string, offset, and limit clause. Uses the SODA
  * noSQL document API to interact with the database. If no data is found, an empty
  * items array is returned. If errors occur, they will be reported, too.
- *
- * TODO:
- * - use getDocuments() instead of document cursor
  *
  * @param {object} options optional search string, offset, and limit
  * @returns {object} The result set; empty array if no data found; error if one occurred
@@ -35,40 +33,30 @@ export function getThings(options) {
 		searchTerm: "%",
 	};
 
-	// biome-ignore lint: make sure options are properly configured without any undefined ones
+	// biome-ignore lint: make sure options are properly configured
 	options = utils.mergeOptions(defaults, options);
 
 	// pagination: limit the number of pages
-	if (options.limit !== undefined) {
-		if (!Number.isNaN(options.limit)) {
-			options.limit = Number.parseInt(options.limit);
-		} else {
-			return {
-				error: `limit ${options.limit} is not a number`,
-			};
-		}
+	if (!Number.isNaN(options.limit)) {
+		options.limit = Number.parseInt(options.limit);
 	} else {
-		options.limit = 0;
+		return {
+			error: `limit ${options.limit} is not a number`,
+		};
 	}
 
 	// pagination: define an offset (called `skip` in SODA)
-	if (options.skip !== undefined) {
-		if (!Number.isNaN(options.skip)) {
-			options.skip = Number.parseInt(options.skip);
-		} else {
-			return {
-				error: `limit ${options.skip} is not a number`,
-			};
-		}
+	if (!Number.isNaN(options.skip)) {
+		options.skip = Number.parseInt(options.skip);
 	} else {
-		options.skip = 0;
+		return {
+			error: `limit ${options.skip} is not a number`,
+		};
 	}
 
-	// the $like QBE requires the search term to be surrounded with percent signs
-	if (options.searchTerm !== undefined) {
+	// the $like QBE requires the search term to be surrounded by percent signs
+	if (options.searchTerm !== '%') {
 		options.searchTerm = `%${options.searchTerm}%`;
-	} else {
-		options.searchTerm = "%";
 	}
 
 	// return an error in case the duality view cannot be opened
@@ -79,6 +67,9 @@ export function getThings(options) {
 		};
 	}
 
+	// if the search term is defined it may either match the name or title of the
+	// thing. converting name, description and search term to upper case to make
+	// sure we find a match if there is one
 	const qbe = {
 		$or: [
 			{ name: { $upper: { $like: options.searchTerm.toUpperCase() } } },
@@ -86,19 +77,15 @@ export function getThings(options) {
 		],
 	};
 
-	options.qbe = qbe;
-
-	const docCursor = collection
+	const docs = collection
 		.find()
 		.filter(qbe)
 		.skip(options.skip)
 		.limit(options.limit)
-		.getCursor();
+		.getDocuments();
 
-	let doc;
 	const items = [];
-	// biome-ignore lint/suspicious/noAssignInExpressions: workaround until the iterable interface is implemented
-	while ((doc = docCursor.getNext())) {
+	for (const doc of docs) {
 		const content = doc.getContent();
 		content._metadata.etag = toHexString(content._metadata.etag);
 		content._metadata.asof = toHexString(content._metadata.asof);
@@ -106,15 +93,15 @@ export function getThings(options) {
 		items.push(content);
 	}
 
-	docCursor.close();
-
+	// return the search result the same way auto-REST would
 	return { items };
 }
 
 /**
  * GET handler (select)
- * Query the duality view by primary key. Returns the result set or an empty items array
- * in case no data is found. Errors are returned if appropriate
+ * 
+ * Query the duality view by primary key using SODA. Returns the result set or an
+ * empty items array in case no data is found. Errors are returned if appropriate
  *
  * @param {string} id the table/duality view's primary key
  * @returns {object} The result set; empty array if no data found; error if one occurred
@@ -141,6 +128,7 @@ export function getThing(id) {
 			.filter({ _id: { $eq: Number.parseInt(id) } })
 			.getOne();
 
+		// format the ETAG and ASOF to match those returned by node-oracledb
 		const content = doc.getContent();
 		content._metadata.etag = toHexString(content._metadata.etag);
 		content._metadata.asof = toHexString(content._metadata.asof);
@@ -157,66 +145,21 @@ export function getThing(id) {
 
 /**
  * POST handler (insert)
- * Update a thing after verification
+ * 
+ * Update a thing after verification. No need to specify the top-level _id, the
+ * duality view will populate it. Reuses the same business logic as the application.
  *
- * @param {object} thing - an object representing the updated thing
+ * @param {object} thing an object representing the updated thing
  * @returns {boolean} an object containing the status and an error message (if any)
  */
 export function postThing(thing) {
-
-	// consolidate multiple entries for stock in the same warehouse into one
-	// before the validation begins
-	const tracker = new Map();
-	thing.stock = thing.stock.reduce((acc, value) => {
-		if (tracker.has(value.warehouse)) {
-			acc[tracker.get(value.warehouse)].quantity += value.quantity;
-		} else {
-			tracker.set(value.warehouse, acc.push(value) - 1);
-		}
-		return acc;
-	}, []);
-
+	
 	// make sure the new thing adheres to our rules about things
-
-	const status = checkRequiredFields(thing);
-	if (!status.success) {
-		return {
-			success: false,
-			error: `failed to insert a thing: ${status.error}`,
-		};
+	const status = beforeInsertOrUpdate(thing, 'insert');
+	if (! status.success) {
+		return status;
 	}
 
-	if (!checkAtLeastOneWarehouse(thing.stock)) {
-		return {
-			success: false,
-			error: "failed to insert a thing: all stock require at least 1 warehouse",
-		};
-	}
-
-	if (!businessLogic.validateAvailable(thing.available.toString())) {
-		return {
-			success: false,
-			error: "failed to insert a thing: failed availability verification",
-		};
-	}
-
-	if (!businessLogic.validatePrice(thing.price.toString())) {
-		return {
-			success: false,
-			error: "failed to insert a thing: price must be in range [0.1;100000[",
-		};
-	}
-
-	if (!validateWareHouseAndQuantity(thing.stock)) {
-		return {
-			success: false,
-			error: "failed to insert a thing: quantities must be whole integers > 0",
-		};
-	}
-
-	thing.price = businessLogic.closest99Cent(thing.price.toString());
-
-	// should be good - new let's insert the thing
 	try {
 		const collection = soda.openCollection("THINGS");
 		if (collection === null) {
@@ -228,7 +171,6 @@ export function postThing(thing) {
 
 		collection.insertOne(thing);
 		session.commit();
-
 	} catch (err) {
 		return {
 			success: false,
@@ -238,26 +180,102 @@ export function postThing(thing) {
 
 	return {
 		success: true,
-		error: ''
-	}
+		error: undefined,
+	};
 }
 
 /**
  * PUT handler (update)
- * @param {} id
- * @param {*} newThing
- * @returns
+ * 
+ * @param {number} id the thing to update
+ * @param {object} updatedThing the updated information concerning the thing
+ * @returns {object} a status object containing status (boolean) and an error if necessary
  */
-export function putThing(id, newThing) {
-	return {
-		todo: "implement me: putThing()",
-	};
+export function putThing(id, updatedThing) {
+
+	// make sure the updated thing adheres to our rules about things
+	const status = beforeInsertOrUpdate(updatedThing, 'update');
+	if (! status.success) {
+		return status;
+	}
+	
+	const collection = soda.openCollection("THINGS");
+	if (collection === null) {
+		return {
+			success: false,
+			error: "unable to access the THINGS duality view. Has it been created?",
+		};
+	}
+
+	// the key of the original document, which is needed for replaceOne(). SodaCollection.save()
+	// is not yet available for JSON Relational Duality Views but is being worked on.
+	let key;
+
+	// get the original document in preparation of the update (need to fetch the document's key)
+	try {
+		const doc = collection
+			.find()
+			.filter({ _id: { $eq: Number.parseInt(id) } })
+			.getOne();
+		
+		key = doc.key;
+	} catch (err) {
+		return {
+			success: false,
+			error: `could not find a thing with id ${id}`
+		};
+	}
+
+	// finally, perform the update
+	try {
+
+		collection
+			.find()
+			.key(key)
+			.replaceOne(updatedThing);
+		
+		session.commit();
+	} catch (err) {
+		return {
+			success: false,
+			error: `could not update thing with id ${id}: ${err}`
+		}; 
+	}
+
+    return {
+        success: true,
+        error: undefined
+    }
 }
 
 export function deleteThing(id) {
-	return {
-		todo: "implement me: deleteThing()",
-	};
+
+	const collection = soda.openCollection("THINGS");
+	if (collection === null) {
+		return {
+			success: false,
+			error: "unable to access the THINGS duality view. Has it been created?",
+		};
+	}
+
+    const result = collection
+        .find()
+        .filter({"_id": id})
+        .remove();
+    
+    session.commit();
+    
+    if (result.count === 0) {
+        return {
+            success: false,
+            error: `no thing found with an id of ${id}`
+        }
+    }
+
+    return {
+        success: true,
+        error: undefined
+    }
 }
 
 // ---------------------------------------------------------------------- auxiliary functions
@@ -290,10 +308,98 @@ export function isEmpty(obj) {
 }
 
 /**
+ * Perform validation of a thing prior to inserting and updating. Reuses the same code
+ * as the browser-based APEX application. Note that APEX treats page items as strings,
+ * which is why they were validated using validatorjs. This function therefore needs
+ * to cast numbers to strings prior to handing them to validatorjs.
+ * 
+ * @param {object} thing the thing to update or insert
+ * @param {string} operation one of `insert` or `update`
+ * @returns status object containing the success and optionally an error message
+ */
+function beforeInsertOrUpdate(thing, operation = 'update') {
+
+    if (thing === undefined || typeof thing !== 'object') {
+        return {
+            success: false,
+            error: 'you must provide a valid thing'
+        }
+    }
+
+	// consolidate multiple entries for stock in the same warehouse into one
+	// before the validation begins. This would have been done in after_insert_or_update
+	// but is easier this way.
+	const tracker = new Map();
+	thing.stock = thing.stock.reduce((acc, value) => {
+		if (tracker.has(value.warehouse)) {
+			acc[tracker.get(value.warehouse)].quantity += value.quantity;
+		} else {
+			tracker.set(value.warehouse, acc.push(value) - 1);
+		}
+		return acc;
+	}, []);
+
+	const status = checkRequiredFields(thing);
+	if (!status.success) {
+		return {
+			success: false,
+			error: `failed to insert a thing: ${status.error}`,
+		};
+	}
+
+	if (!checkAtLeastOneWarehouse(thing.stock)) {
+		return {
+			success: false,
+			error: "failed to insert a thing: all stock require at least 1 warehouse",
+		};
+	}
+
+    // avoid ORA-42603 by ensuring that an _id is present for updates
+    if (operation === 'update' && thing._id === undefined) {
+        return {
+            success: false,
+            error: 'when updating a thing you must provide its _id, which is missing'
+        };
+    }
+
+	if (operation === 'insert' && !businessLogic.validateAvailable(thing.available.toString())) {
+		return {
+			success: false,
+			error: "failed to insert a thing: failed availability verification",
+		};
+	}
+
+	if (!businessLogic.validatePrice(thing.price.toString())) {
+		return {
+			success: false,
+			error: "failed to insert a thing: price must be in range [0.1;100000[",
+		};
+	}
+
+	// validate_category() not implemented
+	
+	if (!validateWareHouseAndQuantity(thing.stock)) {
+		return {
+			success: false,
+			error: "failed to insert a thing: quantities must be whole integers > 0",
+		};
+	}
+
+	thing.price = businessLogic.closest99Cent(thing.price.toString());
+
+	// adjust_missing_or_null_qty not implemented, quantities have already been vetted
+
+    return {
+        success: true,
+        error: undefined
+    }
+}
+
+/**
  * Check if the required fields for a given thing are present prior to inserting
  * or updating
  *
- * @param {object} thing - a thing
+ * @param {object} thing a thing
  * @returns {object} a status object containing status and an error should one have occurred
  */
 function checkRequiredFields(thing) {
@@ -320,7 +426,7 @@ function checkRequiredFields(thing) {
 		case "none":
 			return {
 				success: true,
-				error: "none",
+				error: undefined,
 			};
 		default:
 			return {
