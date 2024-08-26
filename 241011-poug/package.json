@@ -13,6 +13,6 @@
   "scripts": {
     "test": "npx vitest run --reporter=verbose"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Martin Bach (martin.b.bach@oracle.com)",
+  "license": "MIT"
 }
