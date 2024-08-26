@@ -148,7 +148,7 @@ begin
     ords.define_handler(
         p_module_name    => c_module_name,
         p_pattern        => 'things/:id',
-        p_method         => 'POST',
+        p_method         => 'PUT',
         p_source_type    => 'mle/javascript',
         p_mle_env_name   => 'JAVASCRIPT_DEMO_ENV_THINGS',
         p_items_per_page => 0,
@@ -219,7 +219,7 @@ begin
 
     if (isEmpty(req.uri_parameters)) {
         data = {
-            error: 'please provide an ID of the thing you want to update'
+            error: 'please provide an ID of the thing you want to delete'
         }
 
         resp.status = 400;              // bad request
@@ -227,7 +227,7 @@ begin
 
     if (req.uri_parameters.id === undefined) {
         data = {
-            error: 'please provide an ID of the thing you want to update'
+            error: 'please provide an ID of the thing you want to delete'
         }
 
         resp.status = 400;              // bad request

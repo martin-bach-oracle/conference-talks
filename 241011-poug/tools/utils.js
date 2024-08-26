@@ -7,12 +7,11 @@
  * @param {object} defaults - the default options
  * @returns {object} merged options
  */
-export function mergeOptions( defaults, opts = {}) {
+export function mergeOptions( defaults, options = {}) {
     for (const key in defaults) {
-        if (typeof opts.key === 'undefined') {
-            opts.key = defaults.key;
+        if (typeof options[key] === 'undefined') {
+            options[key] = defaults[key];
         }
-    }
-
-    return opts;
+      }
+      return options;
 }
