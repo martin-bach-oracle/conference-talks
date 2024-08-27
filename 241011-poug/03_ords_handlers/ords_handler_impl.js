@@ -193,6 +193,13 @@ export function postThing(thing) {
  */
 export function putThing(id, updatedThing) {
 
+	if (id === undefined || Number.isNaN(id)) {
+		return {
+			success: false,
+			error: 'please provide a valid primary key of the thing you want to update'
+		};
+	}
+
 	// make sure the updated thing adheres to our rules about things
 	const status = beforeInsertOrUpdate(updatedThing, 'update');
 	if (! status.success) {
@@ -248,7 +255,20 @@ export function putThing(id, updatedThing) {
     }
 }
 
+/**
+ * Delete a thing from the JSON Relational Duality View
+ * 
+ * @param {number} id the ID of the thing to delete
+ * @returns {object} an object indicating success or failure of the operation
+ */
 export function deleteThing(id) {
+
+	if (id === undefined || Number.isNaN(id)) {
+        return {
+            success: false,
+            error: "please provide the primary key of the thing to delete"
+        };
+    }
 
 	const collection = soda.openCollection("THINGS");
 	if (collection === null) {
@@ -260,7 +280,7 @@ export function deleteThing(id) {
 
     const result = collection
         .find()
-        .filter({"_id": id})
+        .filter({"_id": { $eq: Number.parseInt(id) }})
         .remove();
     
     session.commit();
@@ -268,7 +288,7 @@ export function deleteThing(id) {
     if (result.count === 0) {
         return {
             success: false,
-            error: `no thing found with an id of ${id}`
+            error: `no thing found with an id of ${id} to delete`
         }
     }
 
