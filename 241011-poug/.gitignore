@@ -8,6 +8,6 @@ tools/*.sso
 **/*/*.log.lck
 **/dbConfig.js
 **/node_modules
-**/.env
+**/.env*
 **/test.js
 **/tns
