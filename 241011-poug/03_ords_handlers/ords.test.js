@@ -20,7 +20,7 @@ describe('testing ORDS handlers using the fetch() API', () => {
             validator
                 .isURL(
                     import.meta.env.VITE_ORDS_URL,
-                    { protocols: ['http', 'https'], require_protocol: true, allow_fragments: false, }))
+                    { protocols: ['http', 'https'], require_protocol: true, allow_fragments: false, require_tld: false }))
                 .toBe(true);
 
     })

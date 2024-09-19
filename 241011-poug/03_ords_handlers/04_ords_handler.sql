@@ -1,3 +1,6 @@
+--liquibase formatted sql
+--changeset mcb:r3-04 failonerror:true labels:r3 endDelimiter:/ stripComments:false
+
 declare
     c_module_name   constant varchar2(32) := 'demo_module';
 begin
