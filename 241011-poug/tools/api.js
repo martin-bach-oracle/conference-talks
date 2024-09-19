@@ -41,6 +41,7 @@ async function addToGlobalThis(connection) {
 		writable: false,
 	});
 
+
 	Object.defineProperty(globalThis, "oracledb", {
 		value: oracledb,
 		enumerable: false,

@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-   <changeSet
+  <changeSet
     id="r1-08"
     author="mcb"
     failOnError="true"

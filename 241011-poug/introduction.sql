@@ -18,8 +18,6 @@ grant execute on javascript to emily;
 grant execute dynamic mle to emily;
 alter user emily default role all;
 
-------------------------------------------------------------------------------------------------------- connect as EMILY
-
 begin
     ords.enable_schema;
     commit;
@@ -47,6 +45,7 @@ select to_char (
         1728597600
     ),
     'dd.mm.yyyy hh24:mi:ss'
+
 ) poug_day;
 
 ------------------------------------------------------------------------------------------------------------------------

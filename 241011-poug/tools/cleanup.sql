@@ -23,6 +23,7 @@ drop table if exists demo_thing_categories cascade constraints purge;
 drop table if exists demo_things cascade constraints purge;
 drop table if exists demo_warehouse cascade constraints purge;
 drop table if exists demo_thing_stock cascade constraints purge;
+
 drop view if exists things;
 
 -- mle modules and envs as well as dependent objects
@@ -36,6 +37,7 @@ drop mle env if exists javascript_demo_env_things;
 drop mle env if exists utils_env;
 
 drop package if exists utils_pkg;      
+
 drop package if exists demo_things_pkg;
 
 -- the rest
