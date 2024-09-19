@@ -6,6 +6,8 @@
 
 ------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------- let's create the user
+drop user if exists emily cascade;
+
 create user emily identified by "&yourPreferredPassword"
 default tablespace users quota 100m on users
 temporary tablespace temp;
@@ -15,6 +17,12 @@ grant soda_app to emily;
 grant execute on javascript to emily;
 grant execute dynamic mle to emily;
 alter user emily default role all;
+
+begin
+    ords.enable_schema;
+    commit;
+end;
+/
 
 ------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------- example 01
@@ -37,7 +45,8 @@ select to_char (
         1728597600
     ),
     'dd.mm.yyyy hh24:mi:ss'
-);
+
+) poug_day;
 
 ------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------- example 02

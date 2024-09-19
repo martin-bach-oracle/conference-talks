@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset mcb:r1-07 failonerror:true labels:r1 endDelimiter:/ stripComments:false
+--changeset mcb:r1-09 failonerror:true labels:r1 endDelimiter:/ stripComments:false
 
 create or replace package DEMO_THINGS_PKG as
 
@@ -11,5 +11,3 @@ create or replace package DEMO_THINGS_PKG as
 
 end DEMO_THINGS_PKG;
 /
-
--- rollback drop package DEMO_THINGS_PKG;

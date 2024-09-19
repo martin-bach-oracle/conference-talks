@@ -18,10 +18,10 @@ describe("unit testing using vitest", () => {
 	beforeAll(async () => {
 		const options = {
 			// used in combination with dbConfig.js
-			adb: true,
+			adb: false,
 			pool: false,
 			env: "test",
-			thick: true
+			thick: false
 		};
 
 		await api.init(options);

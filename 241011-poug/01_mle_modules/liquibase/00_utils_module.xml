@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+   <changeSet
+    id="r1-08"
+    author="mcb"
+    failOnError="true"
+    runOnChange="false"
+    runAlways="false">
+
+        <n0:runOracleScript objectName="example-module" ownerName="EMILY" sourceType="STRING">
+            <n0:source><![CDATA[
+-- it is possible to add directives to the script
+set define off
+set verify off
+
+create or replace mle module utils_module
+language javascript
+version '1.0.0.0'
+as
+
+/**
+ * Use dbms_application_info to set module and action
+ * @param {string} module the module name to be set 
+ * @param {string} action the corresponding action
+ */
+export function setModuleAction(module, action) {
+
+    if (typeof module !== 'string' || typeof action !== 'string') {
+        throw new Error('please provide valid strings as module and action pair');
+    }
+
+    session.execute(
+        `begin
+            dbms_application_info.set_module(
+                module_name => :module,
+                action_name => :action
+            );
+        end;`,
+        [
+            module,
+            action
+        ]
+    );
+}
+
+/**
+ * Read current module and action and return them to the caller
+ * @returns {object} the saved module and action
+ */
+export function getModuleAction() {
+
+    const result = session.execute(`
+        begin 
+            dbms_application_info.read_module(
+                :module, 
+                :action); 
+            end;`,
+        {
+            module: {
+                dir: oracledb.BIND_OUT,
+                type: oracledb.STRING
+            },
+            action: {
+                dir: oracledb.BIND_OUT,
+                type: oracledb.STRING
+            }
+        }
+    );
+
+    return {
+        module: result.outBinds.module,
+        action: result.outBinds.action
+    };
+}
+
+
+/**
+ * Merge function's options with the defaults. To be used with node exclusively,
+ * the function is part of the introduction.sql file.
+ * 
+ * @param {object} opts - options passed to the function
+ * @param {object} defaults - the default options
+ * @returns {object} merged options
+ */
+export function mergeOptions( defaults, options = {}) {
+    for (const key in defaults) {
+        if (typeof options[key] === 'undefined') {
+            options[key] = defaults[key];
+        }
+      }
+      return options;
+}
+/
+
+
+]]></n0:source>
+    </n0:runOracleScript>
+  </changeSet>
+</databaseChangeLog>

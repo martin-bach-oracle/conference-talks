@@ -4,10 +4,11 @@ tools/Wallet*
 tools/*.ora
 tools/*.pem
 tools/*.sso
-**/*/*.log
+**/*.log
 **/*/*.log.lck
 **/dbConfig.js
 **/node_modules
 **/.env*
 **/test.js
 **/tns
+**/cheat*.md

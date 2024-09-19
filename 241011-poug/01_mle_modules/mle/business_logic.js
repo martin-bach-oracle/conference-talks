@@ -4,6 +4,8 @@
  * TODO
  * - create rollup/webpack plugin to conver this into SQLcl/Liquibase format (this has been
  *      done manually - ../liquibase/08_business_logic.xml)
+ * 
+ * DO NOT DELETE - this file is required for local unit tests in ../test
  */
 
 import validator from 'validator';

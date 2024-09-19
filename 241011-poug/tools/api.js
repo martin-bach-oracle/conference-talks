@@ -41,12 +41,6 @@ async function addToGlobalThis(connection) {
 		writable: false,
 	});
 
-	Object.defineProperty(globalThis, "soda", {
-		value: connection.getSodaDatabase(),
-		enumerable: false,
-		configurable: false,
-		writable: false,
-	});
 
 	Object.defineProperty(globalThis, "oracledb", {
 		value: oracledb,
