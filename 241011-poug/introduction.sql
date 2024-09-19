@@ -18,6 +18,9 @@ grant execute on javascript to emily;
 grant execute dynamic mle to emily;
 alter user emily default role all;
 
+------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------- connect as EMILY
+
 begin
     ords.enable_schema;
     commit;

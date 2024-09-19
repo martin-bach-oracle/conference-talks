@@ -137,7 +137,16 @@ The equivalent for a local containerised environment is shown here
 
 ## APEX and MLE
 
-Before you can run this example you need to create an APEX (24.1 or later) workspace based on the existing `EMILY` schema. Once the workspace is created, log in as the workspace administrator/developer and create the application by importing `02_apex_and_mle/f103.sql`. Run the application and experiment with it.
+Before you can run this example you need to create an APEX (24.1 or later) workspace based on the existing `EMILY` schema. Rather than doing that manually, a little bit of code does it. Connect as `SYSTEM` to freepdb1 and run `setup.sql`
+
+Once the workspace is created, switch back to the `EMILY` user session and import the APEX app into the new workspace:
+
+```
+cd ~/devel/javascript/conference-talks/241011-poug/02_apex_and_mle 
+lb update -changelog-file apex_install.xml -override-app-workspace POUG_WS
+```
+
+Run the application and experiment with it.
 
 Page 3 allows you to create/edit _things_. Using the code provided in the previous example it is possible to seamlessly process page items using JavaScript.
 
@@ -195,5 +204,7 @@ $ npx vitest run 03_ords_handlers/ords.test.js
    Start at  11:16:45
    Duration  1.63s (transform 37ms, setup 0ms, collect 45ms, tests 1.38s, environment 0ms, prepare 54ms)
 ```
+
+In case of errors related to self-signed certificates when testing your local build, `export NODE_TLS_REJECT_UNAUTHORIZED=0` to accept these.
 
 Happy coding!
