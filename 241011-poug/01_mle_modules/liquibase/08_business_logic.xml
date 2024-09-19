@@ -5,13 +5,14 @@
    xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
- 
+
    <changeSet
-    id="mcb001"
-    author="martincarstenbach"
+    id="r1-08"
+    author="mcb"
     failOnError="true"
-        runOnChange="false"
-        runAlways="false">
+    runOnChange="false"
+    runAlways="false">
+
         <n0:runOracleScript objectName="example-module" ownerName="EMILY" sourceType="STRING">
             <n0:source><![CDATA[
  
@@ -22,6 +23,10 @@ set verify off
 create mle module demo_things_module language javascript as
 /**
  * Based on https://diveintoapex.com/2024/03/05/simplify-apex-app-rest-apis-with-json-duality-views/
+ * 
+ * TODO
+ * - create rollup/webpack plugin to conver this into SQLcl/Liquibase format (this has been
+ *      done manually - ../liquibase/08_business_logic.xml)
  */
 
 import validator from 'validator';

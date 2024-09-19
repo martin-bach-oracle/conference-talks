@@ -5,7 +5,7 @@
    xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext"
 xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
-   <changeSet id="runScriptString" author="jdoe">
+   <changeSet id="r1-07" author="mcb" failOnError="true"   runOnChange="false" runAlways="false"  >
 <n0:runOracleScript objectName="VALIDATOR_MODULE" ownerName="EMILY"
 sourceType="STRING">
 <n0:source><![CDATA[
