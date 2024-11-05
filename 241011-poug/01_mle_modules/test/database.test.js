@@ -6,7 +6,7 @@
  * within Oracle Database 23ai.
  * 
  * Requires
- * - Instanct Client 23.3 or later
+ * - Instant Client 23.3 or later
  * - Database connection properties defined in tools/dbConfig.js
  */
 

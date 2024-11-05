@@ -27,7 +27,7 @@ begin
         p_email_address => 'martin.b.bach@oracle.com',
         p_default_schema => 'EMILY',
         p_allow_access_to_schemas => 'EMILY',
-        p_web_password => 'welcome',
+        p_web_password => 'welcome1',
         p_developer_privs => 'ADMIN:CREATE:DATA_LOADER:EDIT:HELP:MONITOR:SQL',
         p_change_password_on_first_use => 'Y'
     );
@@ -38,7 +38,7 @@ begin
         p_email_address => 'martin.b.bach@oracle.com',
         p_default_schema => 'EMILY',
         p_allow_access_to_schemas => 'EMILY',
-        p_web_password => 'welcome',
+        p_web_password => 'welcome1',
         p_developer_privs => 'CREATE:DATA_LOADER:EDIT:HELP:MONITOR:SQL',
         p_change_password_on_first_use => 'Y'
     );

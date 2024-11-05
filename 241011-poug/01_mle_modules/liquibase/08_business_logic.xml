@@ -13,7 +13,7 @@
     runOnChange="false"
     runAlways="false">
 
-        <n0:runOracleScript objectName="example-module" ownerName="EMILY" sourceType="STRING">
+        <n0:runOracleScript objectName="BUSINESS_LOGIC" ownerName="EMILY" sourceType="STRING">
             <n0:source><![CDATA[
  
 -- it is possible to add directives to the script
@@ -186,6 +186,7 @@ create mle env JAVASCRIPT_DEMO_ENV_THINGS imports (
     'demo'      module DEMO_THINGS_MODULE,
     'validator' module VALIDATOR_MODULE
 )
+/
 
 ]]></n0:source>
     </n0:runOracleScript>

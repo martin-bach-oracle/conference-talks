@@ -1,5 +1,6 @@
 -- select 'drop table if exists ' || lower(table_name) || ' cascade constraints purge;' from tabs;
 
+whenever sqlerror exit
 declare
     l_user varchar2(255);
 begin
@@ -11,6 +12,9 @@ begin
     end if;
 end;
 /
+
+whenever sqlerror continue
+set echo on
 
 -- liquibase tables
 drop table if exists databasechangelog_actions cascade constraints purge;
@@ -57,3 +61,5 @@ from
     user_objects
 order by
     object_type;
+
+set echo off
