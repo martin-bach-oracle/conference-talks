@@ -8,10 +8,10 @@ Instead of a "main" repository containing a subdirectory per presentation, you w
 
 Please use the relevant branch if you want to see the code. Main _won't_ contain code, it remains empty except for the readme (this file) and a license.
 
-
-| Date | Event | Presentation |
+| Date | Event | Branch Name |
 | --   | --    | --           |
-| 10-OCT-2024 | Annual Meeting of the Polish Oracle User Group ([event website](https://poug.org/en/edycja/poug2024/)) | [Advanced JavaScript in Oracle Database 23ai](241011-poug/readme.md) |
+| 10-OCT-2024 | Annual Meeting of the Polish Oracle User Group ([event website](https://poug.org/en/edycja/poug2024/)) | `241011_poug` |
+| 21-MAR-2025 | APEX World ([event website](https://poug.org/en/edycja/poug2024/)) | `250321_apex_world` |
 
 Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
 
