@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"rootDir": "src/typescript",
+		"outDir": "dist",
+		"noEmitOnError": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+        "moduleResolution": "bundler",
+		"skipLibCheck": false,
+		"lib": ["ES6", "ES2017", "ES2021"]
+	}
+}

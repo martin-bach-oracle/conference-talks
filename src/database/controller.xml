@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+  <include file="01_table_em_email_1.sql"/>
+  <include file="02_trigger_em_email_biu.sql"/>
+  <include file="03_mle_sample_data_module.sql"/>
+  <include file="04_proc_sample_data_proc.sql"/>
+</databaseChangeLog> 

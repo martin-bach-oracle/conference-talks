@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@faker-js/faker": "^9.6.0",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "mle-js": "^23.7.0",
+    "rollup": "^4.34.9",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "lint": "npx biome lint --verbose --write src/typescript",
+    "format": "npx biome format --verbose --write src/typescript",
+    "deploy": "utils/deploy.sh"
+  }
+}

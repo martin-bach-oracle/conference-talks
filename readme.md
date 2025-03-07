@@ -1,22 +1,38 @@
-# Conference talks
+# APEX World 2025
 
-This repository contains code I used during my various conference talks since 10/2024. Please let me know if you have questions or comments.
+This branch contains the source code for the APEX World presentation.
 
 ## Overview
 
-Instead of a "main" repository containing a subdirectory per presentation, you will now find a branch per conference talk. This makes a great many things easier, especially with regards to JavaScript and Python environments. 
+The presentation is mainly demo-driven and consists of 3 parts:
 
-Please use the relevant branch if you want to see the code. Main _won't_ contain code, it remains empty except for the readme (this file) and a license.
+1. Using APEX Gen AI Services to crete a table that will be used in subsequent examples
+1. Create sample data using [fakerjs](https://fakerjs.dev/) ([GitHub](https://github.com/faker-js/faker))
+1. Load [validator.js](https://github.com/validatorjs/validator.js) into the database and use it to validate a page item
 
-| Date | Event | Branch Name |
-| --   | --    | --           |
-| 10-OCT-2024 | Annual Meeting of the Polish Oracle User Group ([event website](https://poug.org/en/edycja/poug2024/)) | `241011_poug` |
-| 21-MAR-2025 | APEX World ([event website](https://poug.org/en/edycja/poug2024/)) | `250321_apex_world` |
+## APEX Gen AI Services
 
-Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
+The following prompts have been tested/used to generate the table:
 
-## DISCLAIMER
+- "create and run script table via APEX"
+- "create data model with AI"
+- "please create a table for emailing with json column"
+- "please create a table for emailing with json column with 10 example data"
+- "please create a table for emailing with json column with 10 example data including always email <sonja.meyer@oracle.com>"
+- "create email table json column incl 10 example data"
 
-This repository provides code, and although every effort has been undertaken to ensure it works and does not break anything, it's provided _as is_ without any guarantees or warranties. Refer to the LICENSE.txt file for more details.
+Resulting table DDL can be found in `src/database`
 
-Furthermore, I won't update the demos, they are supposed to reflect the talk, they aren't living and breathing projects.
+## Sample Data Creation
+
+Sample data can be generated using on faker-js. Source code can be found in `src/database/sampleData.ts`. It features many nice things about developing MLE in Typescript:
+
+- linting (via [Biome](https://biomejs.dev/))
+- formatting (also via [Biome](https://biomejs.dev/))
+- type checking (with a nod to [Typescript](https://www.typescriptlang.org/))
+
+Deploy the code via `npm run deploy`. See [utils/deploy.sh](./utils/deploy.sh) for details.
+
+## Page Item Validation
+
+TODO
