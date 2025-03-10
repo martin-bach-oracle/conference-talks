@@ -2,7 +2,9 @@ conn -n apexworld
 
 set echo on
 
-drop table if exists EM_EMAIL_1 purge;
+drop table if exists EML_EMAIL_CONTENT purge;
+drop table if exists EML_RECIPIENTS purge;
+
 drop table if exists DATABASECHANGELOG_ACTIONS purge;
 drop table if exists DATABASECHANGELOG purge;
 drop table if exists DATABASECHANGELOGLOCK purge;

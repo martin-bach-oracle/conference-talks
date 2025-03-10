@@ -1,6 +1,5 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": []
@@ -10,7 +9,9 @@
 		"indentStyle": "space",
 		"indentWidth": 4,
 		"lineWidth": 120,
-		"ignore": [ "./**/*.js" ]
+		"ignore": [
+			"./**/*.js"
+		]
 	},
 	"organizeImports": {
 		"enabled": true
@@ -23,7 +24,8 @@
 	},
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "double"
+			"quoteStyle": "double",
+			"lineWidth": 120
 		}
 	}
 }

@@ -21,7 +21,9 @@ The following prompts have been tested/used to generate the table:
 - "please create a table for emailing with json column with 10 example data including always email <sonja.meyer@oracle.com>"
 - "create email table json column incl 10 example data"
 
-Resulting table DDL can be found in `src/database`
+Resulting table DDL can be found in `src/database`.
+
+At the end of this demo step the application should have been created.
 
 ## Sample Data Creation
 
@@ -35,4 +37,10 @@ Deploy the code via `npm run deploy`. See [utils/deploy.sh](./utils/deploy.sh) f
 
 ## Page Item Validation
 
-TODO
+Create a custom JavaScript module in APEX page designer:
+
+```javascript
+
+export function validateMetadata() {
+    
+}

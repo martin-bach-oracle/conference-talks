@@ -12,6 +12,7 @@
     "build": "npx tsc",
     "lint": "npx biome lint --verbose --write src/typescript",
     "format": "npx biome format --verbose --write src/typescript",
-    "deploy": "utils/deploy.sh"
+    "prod": "utils/deploy.sh production",
+    "dev": "utils/deploy.sh development"
   }
 }
