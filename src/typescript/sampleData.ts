@@ -4,12 +4,16 @@ import { faker } from "@faker-js/faker";
 
 /**
  * Generate a number of example rows in the eml_recipients table. This is the parent
- * table, must be populated first.
+ * table, must be populated first. Based on faker.internet.email to generate realistic,
+ * yet fake, email addresses in the EN locale.
+ *
  * @param {number} numRows the number of sample recipients to generate
  */
 export function generateSampleRecipients(numRows: number): void {
     for (let i = 0; i < numRows; i++) {
         const recipient = faker.internet.email();
+
+        session.execute;
 
         session.execute(
             `insert into eml_recipients (
@@ -23,18 +27,31 @@ export function generateSampleRecipients(numRows: number): void {
 }
 
 /**
- * Generate a user-definable number of sample rows
- * @param {number} numRows - number of rows to be created
+ * Generate a user-definable number of sample emails. Must run _after_ email
+ * recipients have been added (either manually or via generateSampleRecipients())
+ * since this is the child table. Starts off by pulling all email recipients into an array,
+ * then creates a bunch of emails.
+ *
+ * @param {number} numRows - number of emails to be created
  */
 export function generateSampleEmail(numRows: number): void {
-    // create an array of recipients in random order
+    // make sure parent rows exist. If this were production code this should
+    // be done slightly differently to prevent fetching of millions of rows,
+    // which would blow memory consumption out of the water.
     let result = session.execute("select id from eml_recipients");
-
     if (result.rows === undefined || result.rows.length === 0) {
         throw new Error("could not locate any email recipients in the database");
     }
-    const recipients = result.rows;
 
+    // Store the recipient (IDs) in a variable. Recipients is an array of JavaScript
+    // objects like this: [{"ID":1},{"ID":2},{"ID":3},{"ID":4},{"ID":5}]
+    // Grab a random one for the insert statement. For large data volumes modify the
+    // select and add "order by dbms_random.random" to the query. If needed, limit to
+    // x rows to prevent memory issues.
+    const recipients = result.rows;
+    const randomRecipientId = recipients[Math.floor(Math.random() * recipients?.length)].ID;
+
+    // start the generation of emails (= child rows to eml_recipient)
     for (let i = 0; i < numRows; i++) {
         const emailTimestamp = faker.date.between({ from: "2020-01-01T00:00:00.000Z", to: "2025-01-01T00:00:00.000Z" });
 
@@ -50,20 +67,20 @@ export function generateSampleEmail(numRows: number): void {
             emailPriority = "high";
         }
 
-        // metadata must provide a priority and a timestamp
+        // metadata must provide a priority and a timestamp as per the data model
         const metadata = {
             priority: emailPriority,
             timestamp: emailTimestamp,
         };
 
-        // email subject
+        // email subject will be a sentence of 3 to 5 words
         const subject = faker.lorem.sentence({ min: 3, max: 5 });
 
-        // email body
+        // te email body is provided as JSON
         let body: object;
         if (i % 10 === 0) {
             body = {
-                greeting: "hello",
+                greeting: "yo!",
                 message: faker.hacker.phrase(),
             };
         } else {
@@ -72,8 +89,6 @@ export function generateSampleEmail(numRows: number): void {
                 message: faker.lorem.paragraphs(5),
             };
         }
-
-        const randomRecipientId = recipients[Math.floor(Math.random() * recipients?.length)].ID;
 
         // insert the sample data into the database
         result = session.execute(
