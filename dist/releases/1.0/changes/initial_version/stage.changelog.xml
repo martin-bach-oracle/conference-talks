@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+<include file="demouser/tables/todo_categories.sql" relativeToChangelogFile="true"/>
+<include file="demouser/tables/todo_items.sql" relativeToChangelogFile="true"/>
+<include file="demouser/tables/todo_users.sql" relativeToChangelogFile="true"/>
+<include file="demouser/ref_constraints/todo_categories_fk_user.sql" relativeToChangelogFile="true"/>
+<include file="demouser/ref_constraints/todo_items_fk_category.sql" relativeToChangelogFile="true"/>
+<include file="demouser/ref_constraints/todo_items_fk_user.sql" relativeToChangelogFile="true"/>
+</databaseChangeLog>
