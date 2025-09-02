@@ -1,0 +1,50 @@
+{
+  "project" : "cicd",
+  "sqlcl" : {
+    "connectionName" : "development",
+    "version" : "25.2.2.0"
+  },
+  "schemas" : [ "DEMOUSER" ],
+  "lastReleaseVersion" : "",
+  "export" : {
+    "format" : {
+      "enable" : true
+    },
+    "setTransform" : {
+      "collationClause" : "NEVER",
+      "constraints" : true,
+      "constraintsAsAlter" : true,
+      "emitSchema" : false,
+      "force" : true,
+      "partitioning" : false,
+      "segmentAttributes" : false,
+      "sizeByteKeyword" : true,
+      "sqlterminator" : true,
+      "storage" : false,
+      "tablespace" : false
+    },
+    "apex" : {
+      "exptype" : [ "READABLE_YAML", "APPLICATION_SOURCE" ],
+      "expAclAssignments" : false,
+      "expComments" : false,
+      "skipExportDate" : true,
+      "expirNotif" : false,
+      "expOriginalIds" : false,
+      "expSavedReports" : false,
+      "expPubReports" : true,
+      "expSubscriptions" : false,
+      "expSupportingObjects" : "N",
+      "expTranslations" : false,
+      "auditType" : "NULL"
+    }
+  },
+  "git" : {
+    "protectedBranches" : [ "main", "master", "251118_doag_git" ],
+    "defaultBranch" : "251118_doag_git"
+  },
+  "stage" : {
+    "excludeObjects" : [ "ALL.user" ],
+    "generatedFormat" : "liquibase",
+    "softObjectIsolation" : "change"
+  }
+}
