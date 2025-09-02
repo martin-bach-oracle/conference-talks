@@ -301,4 +301,10 @@ But this time let's not stop here: let's involve the remote repository.
 ! git push -u origin sample_data
 ```
 
-Let's address another ticket, the addition of an API and unit tests.
+Let's address another ticket, the addition of an API and unit tests. But before that, change this file and commit it against the repository.
+
+```
+! git status
+! git add .
+! git commit -m 'doc: amend demo instructions in preparation for cherry picking'
+```
