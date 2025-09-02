@@ -307,4 +307,13 @@ Let's address another ticket, the addition of an API and unit tests. But before 
 ! git status
 ! git add .
 ! git commit -m 'doc: amend demo instructions in preparation for cherry picking'
+
+-- push to the remote repository
+! git push
 ```
+
+## Summary
+
+Git is a very useful collaboration tool. For some reason it's not as popular with database developers as it is with front-end devs. This doesn't need to be the case!
+
+You can employ DevOps principles with databases just in the same way you do with stateless applications rendering cat pictures 😀
