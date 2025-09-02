@@ -1,0 +1,55 @@
+/* 
+Comma separated list of predicates to be fine-tuned for individual project. 
+Run 
+       project export -debug 
+to double check the dictionary queries 
+with internal and custom filters applied. 
+
+Reference list of export_types from internal.fixed.filters 
+        'ALL_OBJECTS',
+        'ALL_INDEXES',
+        'ALL_TRIGGERS',
+        'ALL_SYNONYMS',
+        'ALL_COL_COMMENTS',
+        'ALL_TAB_COMMENTS',
+        'ALL_TAB_PRIVS',
+        'ALL_MVIEW_LOGS',
+        'ALL_QUEUE_TABLES',
+        'ALL_QUEUES',
+        'ALL_DEPENDENCIES',
+        'APEX_APPLICATIONS', 
+        'ORDS_SCHEMA',
+        'USER'                 
+*/    
+
+-- Liquibase Tables
+object_type != 'TABLE' or object_name not in ('DATABASECHANGELOG',
+                                              'DATABASECHANGELOGLOCK',
+                                              'DATABASECHANGELOG_ACTIONS'
+                                              ),
+not (object_type = 'VIEW'    and object_name ='DATABASECHANGELOG_DETAILS'),
+not (object_type = 'TRIGGER' and object_name ='DATABASECHANGELOG_ACTIONS_TRG'),
+
+
+-- DM generated tables
+--not (object_type = 'TABLE' and object_name like 'DM$%' ),
+--not (object_type = 'VIEW' and object_name like 'DM$V%' ),
+object_name not like 'DM$%',      -- covers tables, views, indexes 
+object_name not like 'I_MLOG$%',      -- covers Materialized Views Logs Indexes
+object_name not like 'I_SNAP$%',
+
+export_type not in ('USER'),
+
+-- Exclude certain database object types:
+-- object_type not in ('CONTEXT', 'SCHEDULE'),         
+
+-- Export APEX application only:
+-- export_type = 'APEX_APPLICATIONS',
+
+-- Export applications 200 and 300:
+-- application_id in (200, 300),
+
+-- More APEX filters:
+-- is_working_copy = 'Yes', -- Yes/No
+-- main_application_id is null, -- if this has a value then it's WC
+------------------------------^ The final trailing comma is optional
