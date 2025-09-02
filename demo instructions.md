@@ -198,9 +198,9 @@ project stage -debug -verbose
 
 This command:
 
-- Compares your current branch with the main branch
+- Compares your current branch with the main branch as per the configuration (it's `251118_doag_git` in this case, `main` for most others)
 - Creates deployment scripts under the `dist/next` directory
-- Requires changes to be committed to Git first
+- Requires previous changes to be committed to Git first
 
 > [!NOTE]
 > The `next` directory under `dist` is a convention in SQLcl projects, representing changes pending for the next release.
@@ -223,7 +223,7 @@ Time to commit these to git!
 ! git commit -m "feat: create release 1.0"
 ```
 
-Your branch ("initial_version") is now ready to be merged into production!
+Your branch-`initial_version`-is now ready to be merged into production! Well, only in the context of this tutorial, this wouldn't be done that way in the real world. More about that in example 2.
 
 ### Merging changes into your main branch
 
