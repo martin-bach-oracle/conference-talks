@@ -184,3 +184,56 @@ Review the status using `! git status` and if everything is fine, commit.
 ! git add .
 ! git commit -m "feat: add initial data model"
 ```
+
+### Prepare for Release 1.0
+
+Now we'll stage the changes for our first release. First, stage the changes using `project stage`, like so:
+
+```sql
+-- Compare current branch with main and prepare deployment artifacts
+-- -debug: Shows detailed progress
+-- -verbose: Provides additional information about operations
+project stage -debug -verbose
+```
+
+This command:
+
+- Compares your current branch with the main branch
+- Creates deployment scripts under the `dist/next` directory
+- Requires changes to be committed to Git first
+
+> [!NOTE]
+> The `next` directory under `dist` is a convention in SQLcl projects, representing changes pending for the next release.
+
+### Create version 1.0 of your application
+
+With the changes staged, you can create the first release! In a real-world scenario you'd of course have unit and integration tests added at this stage, but for the sake of keeping this tutorial short, these steps have been omitted.
+
+```sql
+project release -version 1.0 -verbose
+```
+
+You will see the directory structure under `dist` change again, with everything that used to be under `next` moved to `1.0`, the release's name.
+
+Time to commit these to git!
+
+```sql
+! git status
+! git add .
+! git commit -m "feat: create release 1.0"
+```
+
+Your branch ("initial_version") is now ready to be merged into production!
+
+### Merging changes into your main branch
+
+Most projects protect the main branch, because it's their _production_ code. The code in main should always be _clean_ and _production ready_. Those who implement CI/CD to the letter are able to deploy main at the drop of the hat, thus rolling out a new version at any time.
+
+This tutorial shows you the basic steps for merging into the main branch (`251118_doag_git` in this case). You will learn more about real-world examples in a bit. Rarely do you merge into the protected branch in this way, if ever.
+
+```sql
+! git switch 251118_doag_git
+! git merge initial_version
+```
+
+You typically generate  `project gen-artifact -format zip -version 1.0` next, followed by an upload to your artefactory.
