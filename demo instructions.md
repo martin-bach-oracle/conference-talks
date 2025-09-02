@@ -82,3 +82,105 @@ Let's commit the changes made to the repository.
 ```
 
 Alternatively perform these operations via your favourite IDE.
+
+### Create the initial version of the application
+
+The app maintains a list of items to be done, aka a todo list. Multiple users are supported, each user has the ability to assign priorities for a todo item, and they can categorize each item.
+
+Our application is a multi-user todo list manager where:
+
+- Each user has their own todo items
+- Items can be organized into user-defined categories
+- Each item tracks creation and target dates
+
+Let's create the data model, starting with the users table:
+
+```sql
+-- use the stored connection created by init.sql
+connect -n development
+
+create table todo_users (
+    user_id      number generated always as identity not null enable,
+    username     varchar2(30 byte) not null enable,
+    email        varchar2(255 byte) not null enable,
+    created_date date default sysdate not null enable
+);
+
+alter table todo_users
+    add constraint todo_users_pk primary key (user_id)
+        using index enable;
+alter table todo_users
+    add constraint todo_users_username_uk unique (username)
+        using index enable;
+alter table todo_users
+    add constraint todo_users_email_uk unique (email)
+        using index enable;
+
+create table todo_categories (
+    category_id   number generated always as identity not null enable,
+    user_id       number not null enable,
+    category_name varchar2(50 byte) not null enable,
+    created_date  date default sysdate not null enable
+);
+
+alter table todo_categories
+    add constraint todo_categories_pk primary key (category_id)
+        using index enable;
+alter table todo_categories
+    add constraint todo_categories_uk unique (user_id, category_name)
+        using index enable;
+alter table todo_categories
+    add constraint todo_categories_fk_user foreign key (user_id)
+        references todo_users(user_id) on delete cascade;
+
+create table todo_items (
+    item_id         number
+        generated always as identity
+    not null enable,
+    user_id         number not null enable,
+    category_id     number,
+    title           varchar2(200 byte) not null enable,
+    description     clob,
+    priority        varchar2(10 byte) not null enable,
+    target_date     date,
+    completion_date date,
+    created_date    date default sysdate not null enable
+);
+
+alter table todo_items
+    add constraint todo_items_pk primary key ( item_id )
+        using index enable;
+
+alter table todo_items
+    add constraint todo_items_priority_chk
+        check ( priority in ( 'LOW', 'NORMAL', 'HIGH', 'low', 'normal', 'high' ) ) enable;
+
+alter table todo_items
+    add constraint todo_items_fk_category
+        foreign key ( category_id )
+            references todo_categories ( category_id )
+                on delete set null
+        enable;
+
+alter table todo_items
+    add constraint todo_items_fk_user
+        foreign key ( user_id )
+            references todo_users ( user_id )
+                on delete cascade
+        enable;
+```
+
+After the data model has been created locally it's time to export it for use with SQLcl's project command. You don't do this in MAIN (or `251118_doag_git` like in this example), you create a new short-lived branch for that.
+
+```sql
+! git switch -c "initial_version"
+
+project export
+```
+
+Review the status using `! git status` and if everything is fine, commit.
+
+```sql
+! git add .
+! git commit -m "feat: add initial data model"
+```
