@@ -294,16 +294,11 @@ Before moving on, let's commit those changes to the branch.
 ! git commit -m 'feat: finished adding sample data'
 ```
 
-### Adding an API
+But this time let's not stop here: let's involve the remote repository.
 
-Most applications these days are REST-enabled, the frontend typically uses REST or GraphQL commands to perform operations. [Oracle REST Data Services](https://www.oracle.com/database/technologies/appdev/rest.html) are probably the most widely used solution talking GET, POST, PUT and DELETE to your database. Let's start by creating an API to create, modify and delete users.
+```sql
+-- push the local branch to the remote repository
+! git push -u origin sample_data
+```
 
-### Adding unit tests
-
-Unit testing, along with Linting, code coverage and compliance checks are an integral part of every development pipeline. Let's simulate a simple CI/CD pipeline's operation by adding a few unit tests.
-
-## Summary
-
-Git is a very useful collaboration tool. For some reason it's not as popular with database developers as it is with front-end devs. This doesn't need to be the case!
-
-You can employ DevOps principles with databases just in the same way you do with stateless applications rendering cat pictures 😀
+Let's address another ticket, the addition of an API and unit tests.
