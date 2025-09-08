@@ -18,8 +18,7 @@ Please use the relevant branch if you want to see the code. Main _won't_ contain
 
 Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
 
-## DISCLAIMER
-
-This repository provides code, and although every effort has been undertaken to ensure it works and does not break anything, it's provided _as is_ without any guarantees or warranties. Refer to the LICENSE.txt file for more details.
+> [!CAUTION]
+> This repository provides code, and although every effort has been undertaken to ensure it works and does not break anything, it's provided _as is_ without any guarantees or warranties. Refer to the LICENSE.txt file for more details.
 
 Furthermore, I won't update the demos, they are supposed to reflect the talk, they aren't living and breathing projects.
