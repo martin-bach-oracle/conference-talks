@@ -16,3 +16,7 @@ variable "vcn_cidr" {
 variable "public_subnet_cidr" {
   default = "192.168.0.0/24"
 }
+
+variable "private_sn_cidr_block" {
+  default = "192.168.1.0/24"
+}

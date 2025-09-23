@@ -62,9 +62,9 @@ resource "oci_core_instance" "doag_compute_instance" {
 
   create_vnic_details {
 
-    assign_public_ip = true
+    assign_public_ip = false
     hostname_label   = "doag"
-    subnet_id        = oci_core_subnet.public_subnet.id
+    subnet_id        = oci_core_subnet.private_subnet.id
 
   }
 
@@ -90,7 +90,7 @@ resource "oci_core_instance" "doag_compute_instance" {
       name          = "Compute Instance Monitoring"
     }
     plugins_config {
-      desired_state = "DISABLED"
+      desired_state = "ENABLED"
       name          = "Bastion"
     }
   }
@@ -104,7 +104,6 @@ resource "oci_core_instance" "doag_compute_instance" {
   source_details {
 
     # https://docs.oracle.com/en-us/iaas/Content/Compute/References/images.htm
-    # Canonical-Ubuntu-24.04-2024.06.26-0
     source_id   = data.oci_core_images.oracle_linux.images[0].id
     source_type = "image"
 
@@ -112,10 +111,4 @@ resource "oci_core_instance" "doag_compute_instance" {
   }
 
   preserve_boot_volume = false
-}
-
-# ------------------------------------------------------------------------------------------------
-# output
-output "doag_compute_instance" {
-  value = oci_core_instance.doag_compute_instance.public_ip
 }
