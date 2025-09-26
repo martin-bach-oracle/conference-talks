@@ -30,11 +30,10 @@ resource "oci_bastion_session" "doag_bastionsession" {
     session_type       = "PORT_FORWARDING"
     target_resource_id = oci_core_instance.doag_compute_instance.id
 
-    target_resource_operating_system_user_name = "opc"
     target_resource_port                       = "22"
   }
 
-  session_ttl_in_seconds = 3600
+  session_ttl_in_seconds = 7200
 
   display_name = "bastionsession-private-host"
 }
