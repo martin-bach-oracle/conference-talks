@@ -1,0 +1,82 @@
+# -------------------------------------------------------------------- Folder structure
+
+- name: Create all necessary directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: oracle
+    group: oinstall
+    mode: "0755"
+  loop:
+    - "/home/oracle/autoupgrade/logs"
+    - "/home/oracle/autoupgrade/patches"
+    - "/home/oracle/autoupgrade/conf"
+    - "/u01/app/oracle/product/dbhome_1928"
+    - "/u01/app/oraInventory"
+    - "/u01/oradata"
+    - "/u01/fast_recovery_area"
+
+# -------------------------------------------------------------------- AutoUpgrade
+
+- name: Download AutoUpgrade
+  ansible.builtin.get_url:
+    url: https://download.oracle.com/otn-pub/otn_software/autoupgrade.jar
+    dest: /home/oracle/autoupgrade/
+    owner: oracle
+    group: oinstall
+    checksum: "sha256:e6d8b40cda4b4ee0392bda2fb4ebccc0015e861d9efb2c2e54cb39cca324a804"
+    mode: "0644"
+  become: true
+  become_user: oracle
+
+- name: Deploy AutoUpgrade configuration file
+  ansible.builtin.template:
+    src: "templates/install-home.j2"
+    dest: "/home/oracle/autoupgrade/conf/install-home.cfg"
+    mode: "0644"
+
+- name: Run AutoUpgrade's create home command
+  ansible.builtin.shell:
+    cmd: |
+      cd /home/oracle/autoupgrade/
+      java -jar autoupgrade.jar -config conf/install-home.cfg -mode create_home
+  become: true
+  become_user: oracle
+  register: au_state
+  args:
+    creates: /u01/app/oracle/product/dbhome_1928/root.sh
+  failed_when: au_state.rc not in [0, 6]
+
+# todo: remove this
+- debug: var=au_state
+
+- name: run root.sh
+  ansible.builtin.shell:
+    cmd: /u01/app/oracle/product/dbhome_1928/root.sh
+
+- name: run orainstRoot.sh
+  ansible.builtin.shell:
+    cmd: /u01/app/oraInventory/orainstRoot.sh
+
+- name: Run dbca to create a database
+  ansible.builtin.shell:
+    cmd: |
+      ${ORACLE_HOME}/bin/dbca -silent \
+      -createDatabase \
+      -templateName General_Purpose.dbc \
+      -gdbName ORCL \
+      -createAsContainerDatabase true \
+      -redoLogFileSize 250 \
+      -totalMemory 8192 \
+      -recoveryAreaDestination /u01/fast_recovery_area \
+      -datafileDestination /u01/oradata \
+      -useLocalUndoForPDBs true \
+      -useOMF true \
+      -sysPassword changeOnInstall \
+      -systemPassword changeOnInstall
+  environment:
+    ORACLE_HOME: /u01/app/oracle/product/dbhome_1928
+  become: true
+  become_user: oracle
+  args:
+    creates: /u01/app/oracle/product/dbhome_1928/cfgtoollogs/dbca/ORCL.log

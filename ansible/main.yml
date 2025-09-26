@@ -1,0 +1,24 @@
+---
+- name: Install Oracle Database 19c in a fully automated way
+  hosts: demo
+  become: true
+  tasks:
+    - name: Check for Oracle Linux
+      ansible.builtin.fail:
+        msg: "This playbook requires Oracle Linux 9, this is  {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+      when: ansible_distribution == "OracleLinux" and ansible_distribution_major_version != "9"
+
+    - name: Ensure Intel x86-64
+      ansible.builtin.fail:
+        msg: "This playbook requires Oracle Linux 9, this is  {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+      when: ansible_architecture != "x86_64"
+
+    - name: Complete the host configuration
+      ansible.builtin.include_role:
+        name: hostconfig
+      tags: hostconfig
+
+    - name: Install the Oracle Database
+      ansible.builtin.include_role:
+        name: database
+      tags: database
