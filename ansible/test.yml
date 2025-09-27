@@ -1,0 +1,15 @@
+- name: Automate all the things - DOAG 2025
+  hosts: demo
+  become: true
+  tasks:
+    - name: Get the name of the JDK8 java binary
+      ansible.builtin.shell:
+        cmd: rpm -ql java-1.8.0-openjdk-headless | grep 'bin/java'
+      register: java8_binary
+
+    - name: Define the binary name as an Ansible fact 
+      set_fact:
+        java_binary: "{{ java8_binary.stdout_lines[0] }}"
+    
+    - stat:
+        path: "{{ java_binary }}"

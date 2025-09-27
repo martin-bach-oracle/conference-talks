@@ -1,0 +1,13 @@
+[Unit]
+Description=Oracle REST Data Services (ORDS)
+After=network.target oracle.service
+
+[Service]
+Type=simple
+User=oracle
+WorkingDirectory={{ ords_home }}
+ExecStart={{ ords_home }}/bin/ords serve
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

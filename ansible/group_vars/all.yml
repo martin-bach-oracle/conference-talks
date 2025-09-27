@@ -1,0 +1,3 @@
+oracle_home: /u01/app/oracle/product/dbhome_1928
+oracle_base: /u01/app/oracle
+oracle_inventory: /u01/app/oraInventory

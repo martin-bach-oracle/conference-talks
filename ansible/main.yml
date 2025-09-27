@@ -1,5 +1,5 @@
 ---
-- name: Install Oracle Database 19c in a fully automated way
+- name: Automate all the things - DOAG 2025
   hosts: demo
   become: true
   tasks:
@@ -18,7 +18,12 @@
         name: hostconfig
       tags: hostconfig
 
-    - name: Install the Oracle Database
+    - name: Install Oracle Database release 19c and create a database
       ansible.builtin.include_role:
         name: database
       tags: database
+
+    - name: Install and configure ORDS
+      ansible.builtin.include_role:
+        name: ords
+      tags: ords

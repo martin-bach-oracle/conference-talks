@@ -27,6 +27,7 @@
       - sysstat
       - oracle-database-preinstall-19c
       - java-1.8.0-openjdk
+      - graalvm22-ee-17-jdk
 
 # -------------------------------------------------------------------- Space Management
 

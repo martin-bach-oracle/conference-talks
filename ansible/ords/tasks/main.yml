@@ -1,0 +1,103 @@
+# -------------------------------------------------------------------- Folder structure
+- name: Create all necessary directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: oracle
+    group: oinstall
+    mode: "0755"
+  loop:
+    - "{{ ords_base }}"
+    - "{{ ords_home }}"
+    - "{{ ords_conf }}"
+    - "{{ ords_certs }}"
+    - "{{ ords_logs }}"
+
+# -------------------------------------------------------------------- Switch to JDK 17 if needed
+
+- name: Get default Java version
+  ansible.builtin.command: java -version
+  register: java_version
+  failed_when: false
+  changed_when: false
+
+- name: Set the JDK to 1.17 if needed
+  when: "'version \"17.' not in java_version.stderr"
+  block:
+
+    - name: Get the exact binary path
+      ansible.builtin.shell:
+        cmd: /usr/bin/rpm -ql graalvm22-ee-17-jdk | grep 'bin/java\b'
+      register: java17_binary
+
+    - name: Define the binary name as an Ansible fact 
+      ansible.builtin.set_fact:
+        java_binary: "{{ java17_binary.stdout_lines[0] }}"
+
+    - name: Ensure JDK 17 is used for ORDS
+      ansible.builtin.shell:
+        cmd: "alternatives --set java {{ java_binary }}"
+      register: alternatives_out
+      changed_when: alternatives_out.rc == 0
+
+# -------------------------------------------------------------------- ORDS 25.2.3
+
+- name: Download ORDS
+  ansible.builtin.get_url:
+    url: https://download.oracle.com/otn_software/java/ords/ords-25.2.3.224.1517.zip
+    dest: "{{ ords_home }}/ords.zip"
+    owner: oracle
+    group: oinstall
+    checksum: "sha1:924c3ef1234f8e08320a102a649c05587cfad152"
+    mode: "0644"
+  become: true
+  become_user: oracle
+
+- name: Unzip ORDS
+  ansible.builtin.unarchive:
+    src: "{{ ords_home }}/ords.zip"
+    dest: "{{ ords_home }}"
+    remote_src: true
+    creates: "{{ ords_home }}/ords.war"
+
+  become: true
+  become_user: oracle
+
+- name: Install and configure ORDS in the database
+  ansible.builtin.shell:
+    cmd: |
+      cd {{ ords_home }} || {
+        echo "failed to change directory to {{ ords_home }}"
+        exit
+      }
+
+      ./bin/ords --config {{ ords_conf }} install \
+      --admin-user SYS \
+      --proxy-user \
+      --db-hostname \
+      localhost --db-port 1521 --db-servicename pdb1 \
+      --log-folder {{ ords_logs }} \
+      --feature-sdw true \
+      --password-stdin << EOF
+      changeOnInstall
+      changeOnInstall
+      EOF
+  environment: 
+    JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
+  become: true
+  become_user: oracle
+
+- name: Copy systemd unit file for ORDS
+  ansible.builtin.template:
+    src: templates/ords.service.j2
+    dest: /etc/systemd/system/ords.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start the newly deployed service
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    name: ords.service
+    state: started
+    enabled: true

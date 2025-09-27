@@ -16,6 +16,34 @@
     - "/u01/oradata"
     - "/u01/fast_recovery_area"
 
+# -------------------------------------------------------------------- Set JDK 1.8
+
+# Only JDK 8 and 11 are supported with AU - else you risk errors
+- name: Get default Java version
+  ansible.builtin.command: java -version
+  register: java_version
+  failed_when: false
+  changed_when: false
+
+- name: Set the JDK to 1.8 if needed
+  when: "'version \"1.8.' not in java_version.stderr"
+  block:
+
+    - name: Get the exact binary path
+      ansible.builtin.shell:
+        cmd: /usr/bin/rpm -ql java-1.8.0-openjdk-headless | grep 'bin/java'
+      register: java8_binary
+
+    - name: Define the binary name as an Ansible fact 
+      ansible.builtin.set_fact:
+        java_binary: "{{ java8_binary.stdout_lines[0] }}"
+
+    - name: Ensure JDK 8 is used for Auto Upgrade
+      ansible.builtin.shell:
+        cmd: "alternatives --set java {{ java_binary }}"
+      register: alternatives_out
+      changed_when: alternatives_out.rc == 0
+
 # -------------------------------------------------------------------- AutoUpgrade
 
 - name: Download AutoUpgrade
@@ -44,21 +72,26 @@
   become_user: oracle
   register: au_state
   args:
-    creates: /u01/app/oracle/product/dbhome_1928/root.sh
+    creates: "{{ oracle_home }}/root.sh"
   failed_when: au_state.rc not in [0, 6]
 
 # todo: remove this
-- debug: var=au_state
+- ansible.builtin.debug:
+    var: au_state # noqa: fcqn[action-core], name[missing]
 
-- name: run root.sh
-  ansible.builtin.shell:
-    cmd: /u01/app/oracle/product/dbhome_1928/root.sh
+- name: Run root.sh
+  ansible.builtin.command:
+    cmd: "{{ oracle_home }}/root.sh"
+  register: root_sh_state
+  changed_when: root_sh_state.rc != 0
 
-- name: run orainstRoot.sh
-  ansible.builtin.shell:
-    cmd: /u01/app/oraInventory/orainstRoot.sh
+- name: Run orainstRoot.sh
+  ansible.builtin.command:
+    cmd: "{{ oracle_inventory }}/orainstRoot.sh"
+  register: orainst_state
+  changed_when: orainst_state.rc != 0
 
-- name: Run dbca to create a database
+- name: Run dbca to create a database # noqa: command-instead-of-shell
   ansible.builtin.shell:
     cmd: |
       ${ORACLE_HOME}/bin/dbca -silent \
@@ -75,8 +108,40 @@
       -sysPassword changeOnInstall \
       -systemPassword changeOnInstall
   environment:
-    ORACLE_HOME: /u01/app/oracle/product/dbhome_1928
+    ORACLE_HOME: "{{ oracle_home }}"
   become: true
   become_user: oracle
   args:
-    creates: /u01/app/oracle/product/dbhome_1928/cfgtoollogs/dbca/ORCL.log
+    creates: "{{ oracle_base }}/cfgtoollogs/dbca/ORCL/ORCL.log"
+
+- name: Deploy the script to create PDB1
+  ansible.builtin.template:
+    src: "templates/pdb1.j2"
+    dest: "/home/oracle/pdb1.sql"
+    mode: "0644"
+
+- name: Add a PDB to the container database using the previously deployed script
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/pdb1.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: pdb_creation_out
+  become: true
+  become_user: oracle
+  changed_when: "'successfully created PDB1' in pdb_creation_out.stdout"
+
+- name: Deploy the systemd unit file to start database and listener
+  ansible.builtin.template:
+    src: templates/oracle.service.j2
+    dest: /etc/systemd/system/oracle.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start the newly deployed service
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    name: oracle.service
+    state: started
+    enabled: true
