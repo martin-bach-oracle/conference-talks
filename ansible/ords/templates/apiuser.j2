@@ -1,0 +1,41 @@
+alter session set container = pdb1;
+set serveroutput on
+whenever sqlerror exit 99
+
+declare
+    l_count number := 0;
+begin
+    select
+        count(*) into l_count
+    from
+        dba_users
+    where
+        username = 'APIUSER';
+    
+    if l_count = 0 then
+
+        execute immediate 'create user apiuser identified by changeOnInstall default tablespace users quota 100m on users';
+        dbms_output.put_line('API user account has been succesfully created');
+
+    else
+        dbms_output.put_line('The API user account has already been created');
+    end if;
+end;
+/
+
+grant dba to apiuser;
+grant pdb_dba to apiuser;
+
+connect apiuser/changeOnInstall@localhost/pdb1
+
+begin
+    ords.enable_schema(
+        p_enabled => true,
+        p_url_mapping_pattern => 'api'
+    );
+    commit;
+end;
+/
+
+
+exit

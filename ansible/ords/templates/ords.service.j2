@@ -6,7 +6,7 @@ After=network.target oracle.service
 Type=simple
 User=oracle
 WorkingDirectory={{ ords_home }}
-ExecStart={{ ords_home }}/bin/ords serve
+ExecStart={{ ords_home }}/bin/ords --config {{ ords_conf }} serve
 Restart=on-failure
 
 [Install]

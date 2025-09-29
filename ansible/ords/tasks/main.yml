@@ -63,6 +63,8 @@
   become: true
   become_user: oracle
 
+# ORDS will be installed against the CDB - you don't normally do this UNLESS
+# you want to use the PDB lifecycle management API like we do ...
 - name: Install and configure ORDS in the database
   ansible.builtin.shell:
     cmd: |
@@ -75,7 +77,7 @@
       --admin-user SYS \
       --proxy-user \
       --db-hostname \
-      localhost --db-port 1521 --db-servicename pdb1 \
+      localhost --db-port 1521 --db-servicename ORCL \
       --log-folder {{ ords_logs }} \
       --feature-sdw true \
       --password-stdin << EOF
@@ -101,3 +103,104 @@
     name: ords.service
     state: started
     enabled: true
+
+# -------------------------------------------------------------------- Auxiliary tasks and accounts
+
+- name: Deploy the API user creation script
+  ansible.builtin.template:
+    src: templates/apiuser.j2
+    dest: /home/oracle/apiuser.sql
+    mode: 0644
+    owner: oracle
+    group: oinstall
+
+- name: Create the local API admin user in PDB1
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/apiuser.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: user_creation_out
+  become: true
+  become_user: oracle
+  changed_when: "'API user account has been succesfully created' in user_creation_out.stdout"
+
+- name: Deploy the SCOTT user creation script
+  ansible.builtin.template:
+    src: templates/demobld.j2
+    dest: /home/oracle/demobld.sql
+    mode: 0644
+    owner: oracle
+    group: oinstall
+
+- name: Create SCOTT in PDB1
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/demobld.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: user_creation_out
+  become: true
+  become_user: oracle
+  changed_when: true
+
+# -------------------------------------------------------------------- PDB lifecycle management API
+
+- name: Deploy the C##DBAPI_CDB_ADMIN user creation script
+  ansible.builtin.template:
+    src: templates/dbapi_cdb_admin.j2
+    dest: /home/oracle/dbapi_cdb_admin.sql
+    mode: 0644
+    owner: oracle
+    group: oinstall
+
+- name: Create C##DBAPI_CDB_ADMIN for the PDB lifecycle management API
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/dbapi_cdb_admin.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: user_creation_out
+  become: true
+  become_user: oracle
+  changed_when: "'C##DBAPI_CDB_ADMIN user has been successfully created' in user_creation_out.stdout"
+
+- name: Register C##DBAPI_CDB_ADMIN with ORDS
+  ansible.builtin.shell:
+    cmd: |
+      {{ ords_home }}/bin/ords \
+      --config {{ ords_conf }} \
+      config set db.cdb.adminUser "C##DBAPI_CDB_ADMIN as SYSDBA"
+  register: ords_out
+  become: true
+  become_user: oracle
+  changed_when: "'The setting named: db.cdb.adminUser was set to: C##DBAPI_CDB_ADMIN as SYSDBA' in ords_out.stdout"
+
+- name: Store C##DBAPI_CDB_ADMIN password with ORDS
+  ansible.builtin.shell:
+    cmd: |
+      {{ ords_home }}/bin/ords \
+      --config {{ ords_conf }} \
+      config secret --password-stdin \
+      db.cdb.adminUser.password <<EOF
+      changeOnInstall
+      EOF
+  register: ords_out
+  become: true
+  become_user: oracle
+  changed_when: "'The setting named: db.cdb.adminUser was set to' in ords_out.stdout"
+
+- name: Create an ORDS user account to invoke the PDB lifecycle API via curl
+  ansible.builtin.shell:
+    cmd: |
+      {{ ords_home }}/bin/ords \
+      --config {{ ords_conf }} \
+      config user add --password-stdin \
+      devops "SQL Administrator,SQL Developer" \
+      <<EOF
+      changeOnInstall
+      EOF
+  register: ords_out
+  become: true
+  become_user: oracle
+  changed_when: "'Created user devops in file' in ords_out.stdout"
