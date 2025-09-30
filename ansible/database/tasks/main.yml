@@ -29,16 +29,18 @@
   when: "'version \"1.8.' not in java_version.stderr"
   block:
 
-    - name: Get the exact binary path
+    - name: Get the exact binary path.    # noqa: command-instead-of-module
       ansible.builtin.shell:
-        cmd: /usr/bin/rpm -ql java-1.8.0-openjdk-headless | grep 'bin/java'
+        cmd: |
+          set -o pipefail && /usr/bin/rpm -ql java-1.8.0-openjdk-headless | grep 'bin/java'
       register: java8_binary
+      changed_when: false
 
-    - name: Define the binary name as an Ansible fact 
+    - name: Define the binary name as an Ansible fact
       ansible.builtin.set_fact:
         java_binary: "{{ java8_binary.stdout_lines[0] }}"
 
-    - name: Ensure JDK 8 is used for Auto Upgrade
+    - name: Ensure JDK 8 is used for Auto Upgrade      # noqa: command-instead-of-shell
       ansible.builtin.shell:
         cmd: "alternatives --set java {{ java_binary }}"
       register: alternatives_out
@@ -67,17 +69,13 @@
   ansible.builtin.shell:
     cmd: |
       cd /home/oracle/autoupgrade/
-      java -jar autoupgrade.jar -config conf/install-home.cfg -mode create_home
+      java -jar autoupgrade.jar -config conf/install-home.cfg -mode create_home -noconsole
   become: true
   become_user: oracle
   register: au_state
   args:
     creates: "{{ oracle_home }}/root.sh"
   failed_when: au_state.rc not in [0, 6]
-
-# todo: remove this
-- ansible.builtin.debug:
-    var: au_state # noqa: fcqn[action-core], name[missing]
 
 - name: Run root.sh
   ansible.builtin.command:

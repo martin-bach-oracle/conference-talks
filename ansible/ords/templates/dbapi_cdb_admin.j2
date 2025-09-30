@@ -13,7 +13,7 @@ begin
     where
         username = 'C##DBAPI_CDB_ADMIN';
     
-    if l_count != 0 then
+    if l_count = 0 then
 
         execute immediate 'create user C##DBAPI_CDB_ADMIN identified by changeOnInstall';
         execute immediate 'grant sysdba to C##DBAPI_CDB_ADMIN container=all';
