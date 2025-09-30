@@ -25,16 +25,17 @@
   when: "'version \"17.' not in java_version.stderr"
   block:
 
-    - name: Get the exact binary path
+    - name: Get the exact binary path       # noqa: command-instead-of-module
       ansible.builtin.shell:
-        cmd: /usr/bin/rpm -ql graalvm22-ee-17-jdk | grep 'bin/java\b'
+        cmd: set -o pipefail && /usr/bin/rpm -ql graalvm22-ee-17-jdk | grep 'bin/java\b'
       register: java17_binary
+      changed_when: false
 
-    - name: Define the binary name as an Ansible fact 
+    - name: Define the binary name as an Ansible fact
       ansible.builtin.set_fact:
         java_binary: "{{ java17_binary.stdout_lines[0] }}"
 
-    - name: Ensure JDK 17 is used for ORDS
+    - name: Ensure JDK 17 is used for ORDS     # noqa: command-instead-of-shell
       ansible.builtin.shell:
         cmd: "alternatives --set java {{ java_binary }}"
       register: alternatives_out
@@ -84,10 +85,12 @@
       changeOnInstall
       changeOnInstall
       EOF
-  environment: 
+  environment:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
   become: true
   become_user: oracle
+  register: ords_out
+  changed_when: "'Completed installation for Oracle REST Data Services' in ords_out.stdout"
 
 - name: Copy systemd unit file for ORDS
   ansible.builtin.template:
@@ -95,7 +98,7 @@
     dest: /etc/systemd/system/ords.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Start the newly deployed service
   ansible.builtin.systemd_service:
@@ -110,7 +113,7 @@
   ansible.builtin.template:
     src: templates/apiuser.j2
     dest: /home/oracle/apiuser.sql
-    mode: 0644
+    mode: "0644"
     owner: oracle
     group: oinstall
 
@@ -129,7 +132,7 @@
   ansible.builtin.template:
     src: templates/demobld.j2
     dest: /home/oracle/demobld.sql
-    mode: 0644
+    mode: "0644"
     owner: oracle
     group: oinstall
 
@@ -150,7 +153,7 @@
   ansible.builtin.template:
     src: templates/dbapi_cdb_admin.j2
     dest: /home/oracle/dbapi_cdb_admin.sql
-    mode: 0644
+    mode: "0644"
     owner: oracle
     group: oinstall
 
