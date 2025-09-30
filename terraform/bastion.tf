@@ -33,7 +33,7 @@ resource "oci_bastion_session" "doag_bastionsession" {
     target_resource_port                       = "22"
   }
 
-  session_ttl_in_seconds = 7200
+  session_ttl_in_seconds = 10800
 
   display_name = "bastionsession-private-host"
 }
