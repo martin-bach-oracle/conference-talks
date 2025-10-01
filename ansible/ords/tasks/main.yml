@@ -77,20 +77,19 @@
       ./bin/ords --config {{ ords_conf }} install \
       --admin-user SYS \
       --proxy-user \
-      --db-hostname \
-      localhost --db-port 1521 --db-servicename ORCL \
+      --db-hostname localhost --db-port 1521 --db-servicename ORCL \
       --log-folder {{ ords_logs }} \
       --feature-sdw true \
       --password-stdin << EOF
-      changeOnInstall
-      changeOnInstall
+      {{ dba_password }}
+      {{ dba_password }}
       EOF
   environment:
     JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
   become: true
   become_user: oracle
   register: ords_out
-  changed_when: "'Completed installation for Oracle REST Data Services' in ords_out.stdout"
+  changed_when: "'Completed CDB installation for Oracle REST Data Services' in ords_out.stdout"
 
 - name: Copy systemd unit file for ORDS
   ansible.builtin.template:
@@ -186,12 +185,12 @@
       --config {{ ords_conf }} \
       config secret --password-stdin \
       db.cdb.adminUser.password <<EOF
-      changeOnInstall
+      {{ dba_password }}
       EOF
   register: ords_out
   become: true
   become_user: oracle
-  changed_when: "'The setting named: db.cdb.adminUser was set to' in ords_out.stdout"
+  changed_when: "'The setting named: db.cdb.adminUser.password' in ords_out.stdout"
 
 - name: Create an ORDS user account to invoke the PDB lifecycle API via curl
   ansible.builtin.shell:
@@ -201,7 +200,7 @@
       config user add --password-stdin \
       devops "SQL Administrator,SQL Developer" \
       <<EOF
-      changeOnInstall
+      {{ dba_password }}
       EOF
   register: ords_out
   become: true

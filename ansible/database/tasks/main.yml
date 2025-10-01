@@ -103,14 +103,20 @@
       -datafileDestination /u01/oradata \
       -useLocalUndoForPDBs true \
       -useOMF true \
-      -sysPassword changeOnInstall \
-      -systemPassword changeOnInstall
+      -sysPassword {{ dba_password }} \
+      -systemPassword {{ dba_password }}
   environment:
     ORACLE_HOME: "{{ oracle_home }}"
   become: true
   become_user: oracle
   args:
     creates: "{{ oracle_base }}/cfgtoollogs/dbca/ORCL/ORCL.log"
+
+- name: Mark the new database to be started when the system boots
+  ansible.builtin.lineinfile:
+    path: /etc/oratab
+    regexp: '^ORCL'
+    line: "ORCL:{{ oracle_home }}:Y"
 
 - name: Deploy the script to create PDB1
   ansible.builtin.template:

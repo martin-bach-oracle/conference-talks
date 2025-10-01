@@ -14,7 +14,7 @@ begin
     
     if l_count = 0 then
 
-        execute immediate 'create user apiuser identified by changeOnInstall default tablespace users quota 100m on users';
+        execute immediate 'create user apiuser identified by {{ dba_password }} default tablespace users quota 100m on users';
         dbms_output.put_line('API user account has been succesfully created');
 
     else
@@ -26,7 +26,7 @@ end;
 grant dba to apiuser;
 grant pdb_dba to apiuser;
 
-connect apiuser/changeOnInstall@localhost/pdb1
+connect apiuser/{{ dba_password }}@localhost/pdb1
 
 begin
     ords.enable_schema(
