@@ -1,0 +1,73 @@
+# -------------------------------------------------------------------- SELinux
+
+- name: Set SELinux to permissive mode
+  # YMMV-this is a demo, your environment might be prod. In which case you
+  # shouldn't do this. It's for educational purpose only
+  ansible.posix.selinux:
+    state: permissive
+    policy: targeted
+  when:
+    - ansible_selinux.mode != "permissive"
+    - ansible_selinux.config_mode != "permissive"
+
+# -------------------------------------------------------------------- RPMs
+
+- name: Install required packages
+  ansible.builtin.dnf:
+    name: "{{ packages }}"
+    state: installed
+  vars:
+    packages:
+      - perl
+      - perl-Data-Dumper
+      - perl-Digest-MD5
+      - unzip
+      - tmux
+      - gcc
+      - sysstat
+      - oracle-database-preinstall-19c
+      - java-1.8.0-openjdk
+      - graalvm22-ee-17-jdk
+
+# -------------------------------------------------------------------- Space Management
+
+- name: Read device information
+  community.general.parted:
+    device: /dev/oracleoci/oraclevda
+    unit: MiB
+  register: sda_data
+
+- name: Extend the root volume group
+  when: sda_data.partitions | length < 4
+  block:
+
+    - name: Determine the necessary offset
+      ansible.builtin.set_fact:
+        start_loc: "{{ ((sda_data.partitions[2].end + 1)) | int }}"
+
+    - name: Add another physical partition for LVM
+      community.general.parted:
+        device: /dev/sda
+        number: 4
+        part_start: "{{ start_loc }}MiB"
+        part_type: primary
+        resize: true
+        state: present
+        label: gpt
+        unit: MiB
+        flags: [lvm]
+
+    - name: Extend the volume group
+      community.general.lvg:
+        vg: ocivolume
+        pvs:
+          - /dev/sda3
+          - /dev/sda4
+        state: present
+
+    - name: Grow the root - LV
+      community.general.lvol:
+        vg: ocivolume
+        lv: root
+        size: 100%FREE
+        resizefs: true

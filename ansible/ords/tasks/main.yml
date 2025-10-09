@@ -1,0 +1,216 @@
+# -------------------------------------------------------------------- Folder structure
+- name: Create all necessary directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: oracle
+    group: oinstall
+    mode: "0755"
+  loop:
+    - "{{ ords_base }}"
+    - "{{ ords_home }}"
+    - "{{ ords_conf }}"
+    - "{{ ords_certs }}"
+    - "{{ ords_logs }}"
+
+# -------------------------------------------------------------------- Switch to JDK 17 if needed
+
+- name: Get default Java version
+  ansible.builtin.command: java -version
+  register: java_version
+  failed_when: false
+  changed_when: false
+
+- name: Set the JDK to 1.17 if needed
+  when: "'version \"17.' not in java_version.stderr"
+  block:
+
+    - name: Get the exact binary path       # noqa: command-instead-of-module
+      ansible.builtin.shell:
+        cmd: set -o pipefail && /usr/bin/rpm -ql graalvm22-ee-17-jdk | grep 'bin/java\b'
+      register: java17_binary
+      changed_when: false
+
+    - name: Define the binary name as an Ansible fact
+      ansible.builtin.set_fact:
+        java_binary: "{{ java17_binary.stdout_lines[0] }}"
+
+    - name: Ensure JDK 17 is used for ORDS     # noqa: command-instead-of-shell
+      ansible.builtin.shell:
+        cmd: "alternatives --set java {{ java_binary }}"
+      register: alternatives_out
+      changed_when: alternatives_out.rc == 0
+
+# -------------------------------------------------------------------- ORDS 25.2.3
+
+- name: Download ORDS
+  ansible.builtin.get_url:
+    url: https://download.oracle.com/otn_software/java/ords/ords-25.3.0.267.1248.zip
+    dest: "{{ ords_home }}/ords.zip"
+    owner: oracle
+    group: oinstall
+    checksum: "sha1:0158b18055dc2b70942e15f6df57051a72f1e073"
+    mode: "0644"
+  become: true
+  become_user: oracle
+
+- name: Unzip ORDS
+  ansible.builtin.unarchive:
+    src: "{{ ords_home }}/ords.zip"
+    dest: "{{ ords_home }}"
+    remote_src: true
+    creates: "{{ ords_home }}/ords.war"
+
+  become: true
+  become_user: oracle
+
+# ORDS will be installed against the CDB - you don't normally do this UNLESS
+# you want to use the PDB lifecycle management API like we do ...
+- name: Install and configure ORDS in the database
+  ansible.builtin.shell:
+    cmd: |
+      cd {{ ords_home }} || {
+        echo "failed to change directory to {{ ords_home }}"
+        exit
+      }
+
+      ./bin/ords --config {{ ords_conf }} install \
+      --admin-user SYS \
+      --proxy-user \
+      --db-hostname localhost --db-port 1521 --db-servicename ORCL \
+      --log-folder {{ ords_logs }} \
+      --feature-sdw true \
+      --password-stdin << EOF
+      {{ dba_password }}
+      {{ dba_password }}
+      EOF
+  environment:
+    JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
+  become: true
+  become_user: oracle
+  register: ords_out
+  changed_when: "'Completed CDB installation for Oracle REST Data Services' in ords_out.stdout"
+
+- name: Copy systemd unit file for ORDS
+  ansible.builtin.template:
+    src: templates/ords.service.j2
+    dest: /etc/systemd/system/ords.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start the newly deployed service
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    name: ords.service
+    state: started
+    enabled: true
+
+# -------------------------------------------------------------------- Auxiliary tasks and accounts
+
+- name: Deploy the API user creation script
+  ansible.builtin.template:
+    src: templates/apiuser.j2
+    dest: /home/oracle/apiuser.sql
+    mode: "0644"
+    owner: oracle
+    group: oinstall
+
+- name: Create the local API admin user in PDB1
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/apiuser.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: user_creation_out
+  become: true
+  become_user: oracle
+  changed_when: "'API user account has been succesfully created' in user_creation_out.stdout"
+
+- name: Deploy the SCOTT user creation script
+  ansible.builtin.template:
+    src: templates/demobld.j2
+    dest: /home/oracle/demobld.sql
+    mode: "0644"
+    owner: oracle
+    group: oinstall
+
+- name: Create SCOTT in PDB1
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/demobld.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: user_creation_out
+  become: true
+  become_user: oracle
+  changed_when: true
+
+# -------------------------------------------------------------------- PDB lifecycle management API
+
+- name: Deploy the C##DBAPI_CDB_ADMIN user creation script
+  ansible.builtin.template:
+    src: templates/dbapi_cdb_admin.j2
+    dest: /home/oracle/dbapi_cdb_admin.sql
+    mode: "0644"
+    owner: oracle
+    group: oinstall
+
+- name: Create C##DBAPI_CDB_ADMIN for the PDB lifecycle management API
+  ansible.builtin.shell:
+    cmd: ${ORACLE_HOME}/bin/sqlplus / as sysdba @/home/oracle/dbapi_cdb_admin.sql
+  environment:
+    ORACLE_HOME: "{{ oracle_home }}"
+    ORACLE_SID: ORCL
+  register: user_creation_out
+  become: true
+  become_user: oracle
+  changed_when: "'C##DBAPI_CDB_ADMIN user has been successfully created' in user_creation_out.stdout"
+
+- name: Register C##DBAPI_CDB_ADMIN with ORDS
+  ansible.builtin.shell:
+    cmd: |
+      {{ ords_home }}/bin/ords \
+      --config {{ ords_conf }} \
+      config set db.cdb.adminUser "C##DBAPI_CDB_ADMIN as SYSDBA"
+  register: ords_out
+  become: true
+  become_user: oracle
+  changed_when: "'The setting named: db.cdb.adminUser was set to: C##DBAPI_CDB_ADMIN as SYSDBA' in ords_out.stdout"
+
+- name: Store C##DBAPI_CDB_ADMIN password with ORDS
+  ansible.builtin.shell:
+    cmd: |
+      {{ ords_home }}/bin/ords \
+      --config {{ ords_conf }} \
+      config secret --password-stdin \
+      db.cdb.adminUser.password <<EOF
+      {{ dba_password }}
+      EOF
+  register: ords_out
+  become: true
+  become_user: oracle
+  changed_when: "'The setting named: db.cdb.adminUser.password' in ords_out.stdout"
+
+- name: Create an ORDS user account to invoke the PDB lifecycle API via curl
+  ansible.builtin.shell:
+    cmd: |
+      {{ ords_home }}/bin/ords \
+      --config {{ ords_conf }} \
+      config user add --password-stdin \
+      devops "SQL Administrator,SQL Developer" \
+      <<EOF
+      {{ dba_password }}
+      EOF
+  register: ords_out
+  become: true
+  become_user: oracle
+  changed_when: "'Created user devops in file' in ords_out.stdout"
+
+- name: Restart ORDS to pick up all these changes
+  ansible.builtin.systemd_service:
+    ansible.builtin.systemd_service:
+    daemon_reload: false
+    name: ords.service
+    state: restarted
+    enabled: true

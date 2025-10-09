@@ -1,0 +1,6 @@
+ords_base: /opt/oracle/ords
+ords_version: "25.3.0"
+ords_home: "{{ ords_base }}/{{ ords_version }}"
+ords_conf: "{{ ords_base }}/conf"
+ords_certs: "{{ ords_base }}/certs"
+ords_logs: "{{ ords_base }}/logs"
