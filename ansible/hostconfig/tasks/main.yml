@@ -33,12 +33,12 @@
 
 - name: Read device information
   community.general.parted:
-    device: /dev/sda
+    device: /dev/oracleoci/oraclevda
     unit: MiB
   register: sda_data
 
 - name: Extend the root volume group
-  when: sda_data.partitions  | length < 4
+  when: sda_data.partitions | length < 4
   block:
 
     - name: Determine the necessary offset
