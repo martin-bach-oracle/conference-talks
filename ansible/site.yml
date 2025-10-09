@@ -3,6 +3,12 @@
   hosts: demo
   become: true
   tasks:
+    # DBA password must be passed as an extra-variable
+    - name: Ensure DBA password is available
+      ansible.builtin.fail:
+        msg: Make sure to pass the dba_password as an extra variable to the playbook
+      when: dba_password is undefined
+
     - name: Check for Oracle Linux
       ansible.builtin.fail:
         msg: "This playbook requires Oracle Linux 9, this is  {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
