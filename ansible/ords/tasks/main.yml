@@ -45,11 +45,11 @@
 
 - name: Download ORDS
   ansible.builtin.get_url:
-    url: https://download.oracle.com/otn_software/java/ords/ords-25.2.3.224.1517.zip
+    url: https://download.oracle.com/otn_software/java/ords/ords-25.3.0.267.1248.zip
     dest: "{{ ords_home }}/ords.zip"
     owner: oracle
     group: oinstall
-    checksum: "sha1:924c3ef1234f8e08320a102a649c05587cfad152"
+    checksum: "sha1:0158b18055dc2b70942e15f6df57051a72f1e073"
     mode: "0644"
   become: true
   become_user: oracle
@@ -206,3 +206,11 @@
   become: true
   become_user: oracle
   changed_when: "'Created user devops in file' in ords_out.stdout"
+
+- name: Restart ORDS to pick up all these changes
+  ansible.builtin.systemd_service:
+    ansible.builtin.systemd_service:
+    daemon_reload: false
+    name: ords.service
+    state: restarted
+    enabled: true
