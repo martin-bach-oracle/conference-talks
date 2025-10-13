@@ -8,15 +8,12 @@ package com.example.demo.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 
 @Entity
 public class Todo {
     private @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="todo_seq")
-    @SequenceGenerator(name="todo_seq", sequenceName="todo_seq", allocationSize = 1)
+    @GeneratedValue
     Long id;
     private String task;
     private Boolean done;
