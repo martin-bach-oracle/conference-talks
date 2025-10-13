@@ -2,13 +2,11 @@ package com.example.demo.controllers;
 
 // as per https://spring.io/guides/tutorials/rest
 
-import java.sql.SQLException;
 import java.util.List;
 
 import com.example.demo.models.Todo;
 import com.example.demo.repositories.TodoRepository;
-
-import com.example.demo.services.TodoNotFoundException;
+import com.example.demo.utilities.TodoNotFoundException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

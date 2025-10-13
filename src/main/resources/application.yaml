@@ -1,14 +1,17 @@
-#management:
-#  tracing:
-#    sampling:
-#      # Send 100% of spans
-#      probability: 1
-#  zipkin:
-#    tracing:
-#      # Default Zipkin tracing endpoint from Docker compose
-#      endpoint: http://localhost:9411/api/v2/spans
+management:
+ tracing:
+   sampling:
+     # Send 100% of spans
+     probability: 1
+ zipkin:
+   tracing:
+     # Default Zipkin tracing endpoint from Docker compose
+     endpoint: http://localhost:9411/api/v2/spans
+
+
 
 spring:
+
   jpa:
     show-sql: true
     hibernate:

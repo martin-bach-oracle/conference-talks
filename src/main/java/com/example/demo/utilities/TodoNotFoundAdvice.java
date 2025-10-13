@@ -1,4 +1,4 @@
-package com.example.demo.services;
+package com.example.demo.utilities;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

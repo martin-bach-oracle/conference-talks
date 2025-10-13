@@ -1,8 +1,9 @@
 package com.example.demo.models;
 
 /**
- * create sequence todo_seq
+ * create sequence todo_seq cache 50
  * create table todo(id number primary key, task varchar2(255) not null, done boolean default false not null);
+ * create using src/main/resources/db/changelog/db.changelog-master.xml
  */
 
 import jakarta.persistence.Entity;
@@ -14,9 +15,8 @@ import jakarta.persistence.SequenceGenerator;
 @Entity
 public class Todo {
     private @Id
-    // @GeneratedValue 
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="todo_seq")
-    @SequenceGenerator(name="todo_seq", sequenceName="todo_seq", allocationSize=1)
+    @SequenceGenerator(name="todo_seq", sequenceName="todo_seq", allocationSize = 1)
     Long id;
     private String task;
     private Boolean done;
