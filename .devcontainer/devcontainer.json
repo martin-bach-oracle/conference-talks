@@ -1,5 +1,5 @@
 {
-	"name": "Oracle Database Free",
+	"name": "Frankfurter IT-Tage",
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
@@ -9,7 +9,6 @@
 		}
 	},
 	"forwardPorts": [1521],
-	"postCreateCommand": "docker run --rm -d --name some-oracle --publish 1521:1521 -e APP_USER=demouser -e APP_USER_PASSWORD=demouser -e ORACLE_PASSWORD=changeOnInstall",
 	"customizations": {
 		"vscode": {
 			"extensions": ["oracle.sql-developer"]
