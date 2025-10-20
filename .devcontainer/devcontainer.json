@@ -1,8 +1,14 @@
 {
 	"name": "Frankfurter IT-Tage",
-	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+	"image": "mcr.microsoft.com/devcontainers/java:21",
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+		"ghcr.io/devcontainers/features/java:1": {
+      		"version": "none",
+      		"installMaven": "true",
+      		"installGradle": "false"
+    	},
+    	"ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:3": {
 			"version": "latest",
 			"enableNonRootDocker": "true",
 			"moby": "true"
@@ -11,7 +17,10 @@
 	"forwardPorts": [1521],
 	"customizations": {
 		"vscode": {
-			"extensions": ["oracle.sql-developer"]
+			"extensions": [
+				"oracle.sql-developer",
+				"vscjava.vscode-java-pack"
+			]
 		}
 	}
 }
