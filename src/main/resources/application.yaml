@@ -15,8 +15,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      # We are running our own DDL scripts for strict schema control.
-      ddl-auto: none
+      ddl-auto: validate
   jmx:
     enabled: true
   application:
