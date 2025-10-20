@@ -3,16 +3,19 @@ package com.example.demo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
 @SpringBootApplication
 public class ClientProperties
@@ -20,8 +23,16 @@ public class ClientProperties
 
     private static final Logger log = LoggerFactory.getLogger(ClientProperties.class);
 
-    @Autowired
-    private DataSource dataSource;
+    private final DataSource dataSource;
+
+    private static final String CLIENT_INFO_MODULE = "OCSID.MODULE";
+    private static final String CLIENT_INFO_ACTION = "OCSID.ACTION";
+    private static final String CLIENT_INFO_CLIENTID = "OCSID.CLIENTID";
+    private static final String WHOAMI_SQL = "select user";
+
+    public ClientProperties(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public static void main(String... args) {
         SpringApplication.run(ClientProperties.class, args);
@@ -31,38 +42,43 @@ public class ClientProperties
     public void run(String... args) throws SQLException {
         log.info("Starting the execution now");
 
-        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (Connection conn = Objects.requireNonNull(dataSource.getConnection(), "Failed to obtain a connection")) {
+            log.info("Managed to obtain a connection");
 
-        log.info("Managed to obtain a connection");
+            conn.setClientInfo(CLIENT_INFO_MODULE, "demo module");
+            conn.setClientInfo(CLIENT_INFO_ACTION, "runing a live demo at IT-Tage");
+            conn.setClientInfo(CLIENT_INFO_CLIENTID, "the guy _running_ the demo");
 
-        try {
-            conn.setClientInfo("OCSID.MODULE", "IT-Tage");
-            conn.setClientInfo("OCSID.ACTION", "starting the command line runner");
-            conn.setClientInfo("OCSID.CLIENTID", "the guy running this demo");
+            log.info("Client info set (module/action/clientId). You can check v$session now but it's not yet updated.");
+            log.info("Example: select sid, serial#, username, module, action, client_identifier from v$session where username = USER");
 
-            log.info("Module/Action set - v$session still empty");
-            log.info("select sid,serial#,username,module,action,client_identifier from v$session where username = 'DEMOUSER'");
+            sleepSafely(Duration.ofSeconds((30)));
 
-            Thread.sleep(30000);
+            try (PreparedStatement pstmt = conn.prepareStatement(WHOAMI_SQL);
+                 ResultSet rs = pstmt.executeQuery()) {
 
-            ResultSet rs = conn.createStatement().executeQuery("select user");
-
-            log.info("Database query executed - check v$session again");
-
-            while (rs.next()) {
-                System.out.println("you are connected as " + rs.getString(1));
+                log.info("Database query executed - check v$session again");
+                while (rs.next()) {
+                    String currentUser = rs.getString(1);
+                    log.info("Connected as {}", currentUser);
+                }
             }
-            
-            Thread.sleep(100000);
 
-            rs.close();
-            
-        } catch(InterruptedException e1) {
-            // nothing
-        } catch(SQLException e2) {
-            // nothing
-        } finally {
-            DataSourceUtils.releaseConnection(conn, dataSource);
+            sleepSafely(Duration.ofSeconds(30));
+        } catch (SQLException e) {
+            log.error("Database operation failed", e);
+        }
+    }
+
+    private void sleepSafely(Duration duration) {
+        if (duration == null || duration.isNegative() || duration.isZero()) {
+            return;
+        }
+        try {
+            TimeUnit.MILLISECONDS.sleep(duration.toMillis());
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            log.warn("Sleep interrupted, continuing");
         }
     }
 }
