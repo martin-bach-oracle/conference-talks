@@ -2,3 +2,5 @@ target
 .vscode
 .env
 **/Wallet*
+afiedt.buf
+setup/adb.sh
