@@ -488,11 +488,15 @@ jobs:
 
       - name: Deploy the backend part of the application
         run: |
-          sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1 @dist/install.sql
+          {
+            echo "whenever sqlerror exit"
+            echo "start dist/install.sql"
+          } | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
       - name: Execute all unit tests
         run: |
           {
             echo "set serveroutput on"
+            echo "whenever sqlerror exit"
             echo "exec ut.run(ut_documentation_reporter(), a_color_console=>true);"
           } | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
 
@@ -524,15 +528,15 @@ Time to commit and push!
 ! git commit -m "feat: add GitHub Actions CI/CD pipeline"
 ```
 
-The next push should trigger the CI pipeline. If that was successfull, add the unit tests to the application and mark release 1.0.1
+The next push should trigger the CI pipeline. If that was successful, add the unit tests to the application and mark release 1.0.1
 
-```
+```sql
 project stage -verbose
 project release -version 1.0.1
 ! git status -uall
 ! git add .
 ! git commit -m 'feat: add unit tests and create release 1.0.1'
-! git push
+! git push -u origin cicd
 ```
 
 Now switch to the GitHub project and watch the CI pipeline.
