@@ -33,7 +33,7 @@ alter system set db_create_file_dest = '/opt/oracle/oradata' scope = both;
 -- create your simulated "production" environment. It's intentionally created before
 -- the PDB clone to allow a subset of privileges to be granted to the production
 -- user/schema.
-create pluggable database prodpdb from freepdb1;
+create pluggable database if not exists prodpdb from freepdb1;
 alter pluggable database prodpdb open;
 alter pluggable database prodpdb save state;
 
@@ -41,6 +41,8 @@ alter pluggable database prodpdb save state;
 alter session set container = freepdb1;
 
 accept v_freepdb1_pwd prompt 'choose a password for your account in freepdb1: '
+
+drop user if exists demouser cascade;
 
 create user demouser identified by "&v_freepdb1_pwd"
   default tablespace users
@@ -53,6 +55,8 @@ grant db_developer_role to demouser;
 alter session set container = prodpdb;
 
 accept v_prodpdb_pwd prompt 'choose a password for your account in prodpdb: '
+
+drop user if exists demouser cascade;
 
 -- you shouldn't grant db_developer_role to a production account. Only grant
 -- the privileges that are absolutely necessary. In this case they are direct
