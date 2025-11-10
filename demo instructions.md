@@ -347,7 +347,7 @@ end;
 /
 ```
 
-Test the new functionality. Since the sample data insert didn't use the sequence (identity column), these need resetting:
+Test the new functionality. If you get primary key violations something has gone wrong. It might be necessary to reset the sequences mapped to the identity columns. This _should_ have happened when the sample data was inserted.
 
 ```sql
 alter table todo_categories modify
@@ -463,6 +463,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+      ords:
+        image: container-registry.oracle.com/database/ords:25.3.1
+        env:
+          DBSERVICENAME: FREEPDB1
+          DBHOST: oracle
+          DBPORT: 1521
+          ORACLE_PWD: ${{ secrets.ORACLE_PASSWORD }}
+        ports:
+          - 8080:8080
+          - 8443:8443
 
     steps:
       - uses: actions/checkout@v4
