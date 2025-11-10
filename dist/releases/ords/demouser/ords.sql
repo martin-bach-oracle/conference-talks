@@ -1,6 +1,6 @@
 -- liquibase formatted sql
--- changeset DEMOUSER:1756842901445 stripComments:false  logicalFilePath:ords/demouser/ords.sql runAlways:false runOnChange:true replaceIfExists:true failOnError:true
--- sqlcl_snapshot {"hash":"943af4cf9199d4081b9df4411fb2b6b06c20cb3c","type":"ORDS_SCHEMA","name":"ords","schemaName":"DEMOUSER","sxml":""}
+-- changeset DEMOUSER:1762775919001 stripComments:false  logicalFilePath:ords/demouser/ords.sql
+-- sqlcl_snapshot {"hash":"667623ef66d8095d8201771e6c705004fc090e7b","type":"ORDS_SCHEMA","name":"ords","schemaName":"DEMOUSER","sxml":""}
 --
         
 DECLARE
@@ -55,5 +55,6 @@ BEGIN
 COMMIT;
 
 END;
+/
 
 

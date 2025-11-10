@@ -1,0 +1,74 @@
+name: Continuous Integration and Delivery
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+
+  unit-tests-and-build:
+    runs-on: ubuntu-latest
+    services:
+      oracle:
+        image: gvenzl/oracle-free:23.9-slim
+        env:
+          ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
+          APP_USER: demouser
+          APP_USER_PASSWORD: ${{ secrets.APP_USER_PASSWORD }}
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      ords:
+        image: container-registry.oracle.com/database/ords:25.3.1
+        env:
+          DBSERVICENAME: FREEPDB1
+          DBHOST: oracle
+          DBPORT: 1521
+          ORACLE_PWD: ${{ secrets.ORACLE_PASSWORD }}
+        ports:
+          - 8080:8080
+          - 8443:8443
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup SQLcl
+        uses: gvenzl/setup-oracle-sqlcl@v1
+        
+      - name: install utPLSQL 3.1.14
+        run: |
+          curl -LO https://github.com/utPLSQL/utPLSQL/releases/download/v3.1.14/utPLSQL.zip
+          unzip -q utPLSQL.zip
+          sql sys/${{ secrets.ORACLE_PASSWORD }}@localhost/FREEPDB1 as sysdba @utPLSQL/source/install_headless.sql
+
+      - name: Deploy the backend part of the application
+        run: |
+          {
+            echo "whenever sqlerror exit"
+            echo "start dist/install.sql"
+          } | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
+      - name: Execute all unit tests
+        run: |
+          {
+            echo "set serveroutput on"
+            echo "whenever sqlerror exit"
+            echo "exec ut.run(ut_documentation_reporter(), a_color_console=>true);"
+          } | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
+
+      - name: Extract commit SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: build the SQLcl artifact
+        run: |
+          TAG=${{ steps.vars.outputs.sha_short }}
+          echo "project gen-artifact -debug -version $TAG" | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
+
+      - name: upload the SQLcl build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlcl-artifacts
+          path: artifact
