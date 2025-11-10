@@ -53,6 +53,7 @@ BEGIN
 COMMIT;
 
 END;
+/
 
 
--- sqlcl_snapshot {"hash":"943af4cf9199d4081b9df4411fb2b6b06c20cb3c","type":"ORDS_SCHEMA","name":"ords","schemaName":"DEMOUSER","sxml":""}
+-- sqlcl_snapshot {"hash":"667623ef66d8095d8201771e6c705004fc090e7b","type":"ORDS_SCHEMA","name":"ords","schemaName":"DEMOUSER","sxml":""}
