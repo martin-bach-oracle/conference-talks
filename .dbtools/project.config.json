@@ -5,7 +5,7 @@
     "version" : "25.3.0.0"
   },
   "schemas" : [ "DEMOUSER" ],
-  "lastReleaseVersion" : "1.0",
+  "lastReleaseVersion" : "1.1",
   "export" : {
     "format" : {
       "enable" : true
