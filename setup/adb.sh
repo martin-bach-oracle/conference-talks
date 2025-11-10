@@ -7,16 +7,20 @@
 set -euxo pipefail
 
 DISPLAYNAME=ittage
-ME=$(curl https://ifconfig.me)
+ME=$(curl -4fsS https://api.ipify.org ) || { 
+    echo "ERR: failed to get my external IPv4" >&2;
+    exit 1
+}
 
 function usage {
 set +x
     cat <<EOF
+
 usage: ${0} <start|stop|status|create|drop|wallet>
 
-Requires the OCI CLI to be in the path and the COMPARTMENT_OCID
-to be exported.
+Requires the OCI CLI to be in the path and the COMPARTMENT_OCID to be exported.
 
+Create/start/stop/drop/get status of the ADB instance with display name ${DISPLAYNAME}
 Pull the wallet into the cwd by calling the script with the wallet option
 EOF
 }
