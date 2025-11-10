@@ -47,11 +47,15 @@ jobs:
 
       - name: Deploy the backend part of the application
         run: |
-          sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1 @dist/install.sql
+          {
+            echo "whenever sqlerror exit"
+            echo "start dist/install.sql"
+          } | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
       - name: Execute all unit tests
         run: |
           {
             echo "set serveroutput on"
+            echo "whenever sqlerror exit"
             echo "exec ut.run(ut_documentation_reporter(), a_color_console=>true);"
           } | sql demouser/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
 
