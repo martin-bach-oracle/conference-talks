@@ -4,7 +4,10 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
-
+  <include file="01_eml_recipients.sql"/>
+  <include file="02_eml_recipients_biu.sql"/>
+  <include file="03_table_eml_email_content.sql"/>
+  <include file="04_eml_email_content_biu.sql"/>
   <include file="05_mle_sample_data_module.sql"/>
   <include file="06_proc_sample_data_proc.sql"/>
 </databaseChangeLog> 
