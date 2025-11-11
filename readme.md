@@ -1,6 +1,13 @@
 # APEX World 2025
 
-This branch contains the source code for the APEX World presentation.
+This branch contains the (updated) source code initially delivered at APEX World 2025 in March in Ede.
+
+## Version history
+
+| Date | Change |
+| -- | -- |
+| 250321 | initial version for APEX World |
+| 251111 | updated for DOAG 2025 |
 
 ## Overview
 
@@ -18,10 +25,10 @@ The following prompts have been tested/used to generate the table:
 - "create data model with AI"
 - "please create a table for emailing with json column"
 - "please create a table for emailing with json column with 10 example data"
-- "please create a table for emailing with json column with 10 example data including always email <sonja.meyer@oracle.com>"
+- "please create a table for emailing with json column with 10 example data including always email <person x>
 - "create email table json column incl 10 example data"
 
-Resulting table DDL can be found in `src/database`.
+Resulting table DDL can be found in `src/database`. It was created before the introduction of SQLcl projects.
 
 At the end of this demo step the application should have been created.
 
@@ -33,14 +40,30 @@ Sample data can be generated using on faker-js. Source code can be found in `src
 - formatting (also via [Biome](https://biomejs.dev/))
 - type checking (with a nod to [Typescript](https://www.typescriptlang.org/))
 
-Deploy the code via `npm run deploy`. See [utils/deploy.sh](./utils/deploy.sh) for details.
+Deploy the code via `npm run <target>` where target is either production or development. See [utils/deploy.sh](./utils/deploy.sh) for details. Requires the availability of named connections:
 
-## Page Item Validation
+- emily_development
+- emily_production
 
-Create a custom JavaScript module in APEX page designer:
+Ideally you connect to separate PDBs in your Oracle AI Database Free instance. Connect to the `CDB$ROOT` as SYSDBA and run the following commands:
 
-```javascript
+```sql
+alter session set db_create_file_dest = '/opt/oracle/oradata';
+create pluggable database prodpdb from freepdb1;
+alter pluggable database prodpdb open;
+alter pluggable database prodpdb save state;
 
-export function validateMetadata() {
-    
-}
+alter session set container = freepdb1;
+
+grant db_developer_role to emily identified by development;
+alter user emily quota 100m on users;
+
+alter session set container = prodpdb;
+
+grant db_developer_role to emily identified by production;
+alter user emily quota 100m on users;
+
+exit;
+```
+
+Create the aforementioned named connections next.

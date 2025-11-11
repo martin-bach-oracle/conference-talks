@@ -1,30 +1,23 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"files": {
-		"ignoreUnknown": false,
-		"ignore": []
-	},
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "space",
 		"indentWidth": 4,
-		"lineWidth": 120,
-		"ignore": [
-			"./**/*.js"
-		]
-	},
-	"organizeImports": {
-		"enabled": true
+		"lineWidth": 120
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"includes": [
+			"src/typescript/*.ts"
+		]
 	},
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "double",
+			"quoteStyle": "single",
 			"lineWidth": 120
 		}
 	}

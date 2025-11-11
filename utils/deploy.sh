@@ -9,24 +9,32 @@ TARGET=${1:-development}
     exit 1
 }
 
+# this check shouldn't be necessary, the deployment is typically triggered
+# via npm run ... but let's be safe rather than sorry
 [[ ! ${TARGET} =~ development|production ]] && {
     echo ERR: target must be either production or development
     exit 1
 }
 
-# simulate a CI/CD pipeline
-# TODO: change connection details
-export PATH=./node_modules/.bin:$PATH && \
-npm run format 2>&1 > /dev/null && \
+# Simulate a CI/CD pipeline
+# 
+# requires that connections have been defined in sqlcl/SQLDev ext for VSCode
+#
+
+npm run format && \
+npm run lint && \
 npm run build && \
-rollup -c && \
-~/devel/tools/sqlcl/bin/sql -cloudconfig ~/Downloads/Wallet_blogpost.zip /nolog <<EOF
+npx esbuild dist/sampleData.js --bundle --outfile=dist/bundle.js --format=esm && \
+
+# ensure SQLcl is in your path
+sql -name "emily_${TARGET}" <<EOF
 
 whenever sqlerror exit
-conn -n apexworld
-lb set engine SQLCL
 
 @utils/cleanup
+
+lb set engine SQLCL
+
 cd src/database
 
 lb update -changelog-file ${TARGET}.xml

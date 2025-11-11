@@ -1,6 +1,6 @@
 /// <reference types="mle-js" />
 
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker';
 
 /**
  * Generate a number of example rows in the eml_recipients table. This is the parent
@@ -38,9 +38,9 @@ export function generateSampleEmail(numRows: number): void {
     // make sure parent rows exist. If this were production code this should
     // be done slightly differently to prevent fetching of millions of rows,
     // which would blow memory consumption out of the water.
-    let result = session.execute("select id from eml_recipients");
+    let result = session.execute('select id from eml_recipients');
     if (result.rows === undefined || result.rows.length === 0) {
-        throw new Error("could not locate any email recipients in the database");
+        throw new Error('could not locate any email recipients in the database');
     }
 
     // Store the recipient (IDs) in a variable. Recipients is an array of JavaScript
@@ -53,18 +53,18 @@ export function generateSampleEmail(numRows: number): void {
 
     // start the generation of emails (= child rows to eml_recipient)
     for (let i = 0; i < numRows; i++) {
-        const emailTimestamp = faker.date.between({ from: "2020-01-01T00:00:00.000Z", to: "2025-01-01T00:00:00.000Z" });
+        const emailTimestamp = faker.date.between({ from: '2020-01-01T00:00:00.000Z', to: '2025-01-01T00:00:00.000Z' });
 
         // 10 percent are high priority emails,
         // 70 are of normal priority,
         // and 20 percent are low priority
         let emailPriority: string;
         if (i % 10 <= 2) {
-            emailPriority = "low";
+            emailPriority = 'low';
         } else if (i % 10 <= 9) {
-            emailPriority = "normal";
+            emailPriority = 'normal';
         } else {
-            emailPriority = "high";
+            emailPriority = 'high';
         }
 
         // metadata must provide a priority and a timestamp as per the data model
@@ -80,12 +80,12 @@ export function generateSampleEmail(numRows: number): void {
         let body: object;
         if (i % 10 === 0) {
             body = {
-                greeting: "yo!",
+                greeting: 'yo!',
                 message: faker.hacker.phrase(),
             };
         } else {
             body = {
-                greeting: "hello",
+                greeting: 'hello',
                 message: faker.lorem.paragraphs(5),
             };
         }

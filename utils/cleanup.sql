@@ -1,13 +1,9 @@
-conn -n apexworld
-
 set echo on
 
-drop table if exists EML_EMAIL_CONTENT purge;
-drop table if exists EML_RECIPIENTS purge;
-
-drop table if exists DATABASECHANGELOG_ACTIONS purge;
-drop table if exists DATABASECHANGELOG purge;
-drop table if exists DATABASECHANGELOGLOCK purge;
-
-drop mle module if exists SAMPLE_DATA_MODULE;
+drop table if exists eml_email_content purge;
+drop table if exists eml_recipients purge;
+drop table if exists databasechangelog_actions purge;
+drop table if exists databasechangelog purge;
+drop table if exists databasechangeloglock purge;
+drop mle module if exists sample_data_module;
 drop mle module if exists fakerjs_module;
