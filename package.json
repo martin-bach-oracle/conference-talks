@@ -14,6 +14,7 @@
     "lint": "npx biome lint --verbose --write src/typescript",
     "format": "npx biome format --verbose --write src/typescript",
     "prod": "utils/deploy.sh production",
-    "dev": "utils/deploy.sh development"
+    "dev": "utils/deploy.sh development",
+    "package": "npm run format && npm run && lint && npm run build && npx esbuild dist/sampleData.js --bundle --outfile=dist/bundle.js --format=esm"
   }
 }
