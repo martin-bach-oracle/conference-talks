@@ -27,17 +27,6 @@ data "oci_identity_availability_domains" "local_ads" {
   compartment_id = var.compartment_ocid
 }
 
-# find latest Oracle Linux 9 image in the target compartment for the chosen shape
-data "oci_core_images" "oracle_linux" {
-  compartment_id           = var.compartment_ocid
-  operating_system         = "Oracle Linux"
-  state                    = "AVAILABLE"
-  shape                    = "VM.Standard.E5.Flex"
-  sort_by                  = "TIMECREATED"
-  sort_order               = "DESC"
-  operating_system_version = 9
-}
-
 
 # ------------------------------------------------------------------------------------------------
 # compute
@@ -104,7 +93,7 @@ resource "oci_core_instance" "doag_compute_instance" {
   source_details {
 
     # https://docs.oracle.com/en-us/iaas/Content/Compute/References/images.htm
-    source_id   = data.oci_core_images.oracle_linux.images[0].id
+    source_id   = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa6n45jpagnnbup4rfglrbr6g2wk4mwna72tfnsmxcyor5poevokha"
     source_type = "image"
 
     boot_volume_size_in_gbs = 250
