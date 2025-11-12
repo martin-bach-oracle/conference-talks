@@ -1,0 +1,19 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "2.3.5",
+    "@types/mle-js": "github:oracle-samples/mle-modules#main",
+    "esbuild": "^0.27.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.1.0"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "lint": "npx biome lint --verbose --write src/typescript",
+    "format": "npx biome format --verbose --write src/typescript",
+    "prod": "utils/deploy.sh production",
+    "dev": "utils/deploy.sh development"
+  }
+}
