@@ -2,9 +2,9 @@
 
 This hands-on tutorial, presented at the German Oracle User Group (DOAG) Conference in November 2025, demonstrates how to integrate Git with Oracle Database development workflows. The session recording and slides are available in the [conference agenda](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6588).
 
-## Database Setup
+## Setup
 
-Before starting, you need an [Oracle Database 23ai](https://www.oracle.com/database/free/) instance. Choose one of these options:
+Before starting, you need an **[Oracle Database 23ai](https://www.oracle.com/database/free/)** instance. Choose one of these options:
 
 - [ ] [Always Free Autonomous Database (Serverless)](https://www.oracle.com/cloud/free/) in Oracle Cloud Infrastructure
 - [ ] Local database installation (preferably containerised, running in podman or docker)
@@ -12,15 +12,17 @@ Before starting, you need an [Oracle Database 23ai](https://www.oracle.com/datab
 
 Each of these options is well [documented online](https://www.oracle.com/database/free/).
 
-This tutorial assumes a **local database instance** listening on port 1521 (default Oracle Net Listener port). If you don't have one, use one of the compose files located in the [JavaScript Blogposts repository](https://github.com/martin-bach-oracle/javascript-blogposts/tree/main/database). After the `{docker,podman} compose -f ... up` completes, complete these steps:
+This tutorial assumes a **local database instance** listening on port 1521 (default Oracle Net Listener port). If you don't have one, use one of the compose files located in the [JavaScript Blogposts repository](https://github.com/martin-bach-oracle/javascript-blogposts/tree/main/database). After the `{docker,podman} compose -f ... up` completes, continue with these steps:
 
 1. Install [SQLcl](https://www.oracle.com/sqlcl) - the command-line interface for Oracle Database
 2. Review and modify `setup/init.sql` according to your environment
 3. Run `setup/init.sql` as a privileged user (SYSDBA) connected to `CDB$ROOT`
 
-You also need utPLSQL installed in FREEPDB1, instructions how to do so can be found on the [project's website](https://www.utplsql.org/utPLSQL/latest/userguide/install.html#headless-installation).
+You also need **utPLSQL** installed in FREEPDB1, instructions how to do so can be found on the [project's website](https://www.utplsql.org/utPLSQL/latest/userguide/install.html#headless-installation).
 
-The repository you're browsing right now marks the reference implementation - you need to create a new repository (including on GitHub) for the demo!
+An **[Oracle REST Data Services](https://www.oracle.com/database/technologies/appdev/rest.html)** instance is optional for this project. If you want to keep it lean, remove the ORDS directory from the project export (see below). Alternatively install ORDS using a compose file (examples for [podman](https://github.com/martin-bach-oracle/javascript-blogposts/blob/main/database/compose-podman-ords-apex.yml) | [Docker](https://github.com/martin-bach-oracle/javascript-blogposts/blob/main/database/compose-docker-ords-apex.yml) are available in the aforementioned repository).
+
+The repository you're browsing right now marks the reference implementation - you need to create a new one for the demo!
 
 ```shell
 [[ -d ~/devel/presentations/git-demo-doag ]] && rm -rvif ~/devel/presentations/git-demo-doag
@@ -228,6 +230,28 @@ This tutorial shows you the basic steps for merging into the main branch. You wi
 
 You typically generate  `project gen-artifact -format zip -version 1.0.0` next, followed by an upload to your artefactory.
 
+### Proof that SQLcl projects workflow is awesome
+
+Here is proof that SQLcl projects is awesome. The following steps generate the artifact and deploy to _production_
+
+```sql
+project gen-artifact -format zip -version 1.0.0
+
+conn -n production
+
+@login
+project deploy -file artifact/cicd-1.0.0.zip 
+```
+
+You should see that all 7 changes have been applied successfully.
+
+Switch back to the development account again:
+
+```sql
+connect -name development
+@login
+```
+
 ## Example 2
 
 The second example takes it to the next level.
@@ -315,7 +339,7 @@ With all the local commits pushed to the remote repository, it is safe to drop t
 Let's address another ticket, the addition of an API and unit tests.
 
 ```sql
-! git switch -c cicd
+! git switch -c add_cicd_pipeline
 ```
 
 Let's add some GitHub Actions involving a unit test. First, we need the unit tests, they are based on utPLSQL
@@ -419,6 +443,7 @@ end;
 Now let's run the test
 
 ```sql
+set serveroutput on
 exec ut.run(ut_documentation_reporter(), a_color_console=>true)
 ```
 
@@ -528,7 +553,7 @@ Time to commit and push!
 ! git commit -m "feat: add GitHub Actions CI/CD pipeline"
 ```
 
-The next push should trigger the CI pipeline. If that was successful, add the unit tests to the application and mark release 1.0.1
+The following push should trigger the CI pipeline. If that was successful, add the unit tests to the application and mark release 1.0.1
 
 ```sql
 project stage -verbose
@@ -536,7 +561,7 @@ project release -version 1.0.1
 ! git status -uall
 ! git add .
 ! git commit -m 'feat: add unit tests and create release 1.0.1'
-! git push -u origin cicd
+! git push -u origin add_cicd_pipeline
 ```
 
 Now switch to the GitHub project and watch the CI pipeline.
