@@ -173,7 +173,7 @@ Review the status using `! git status` and if everything is fine, commit.
 
 Maybe this is a good time to point out [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)?
 
-### Prepare for Release 1.0
+### Prepare for Release 1.0.0
 
 Now we'll stage the changes for our first release. This absolutely requires the files exported in the previous step to be committed to the repository.
 
@@ -188,7 +188,7 @@ project stage -debug -verbose
 
 This command:
 
-- Compares your current branch with the main branch as per the configuration (it's `251118_doag_git` in this case, `main` for most others)
+- Compares your current branch with the main branch as per the configuration
 - Creates deployment scripts under the `dist/next` directory
 - Requires previous changes to be committed to Git first
 
@@ -234,7 +234,7 @@ The second example takes it to the next level.
 
 The previous example demonstrated the use of Git for a single developer. Admittedly, the scenario isn't particularly realistic, but you need to learn how to walk before you can run. Let's pick up the pace and involve a collaboration platform like GitHub.
 
-You will need to add your own Git repository if you want to follow this tutorial. It's perhaps easiest to fork the original repository.
+You will need to add your own Git repository if you want to follow this tutorial.
 
 ### New ticket: add sample data
 
