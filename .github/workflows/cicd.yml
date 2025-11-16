@@ -2,7 +2,7 @@ name: Continuous Integration and Delivery
 on:
   push:
   pull_request:
-  workflow_dispatch:
+
 
 jobs:
 
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       oracle:
-        image: gvenzl/oracle-free:23.9-slim
+        image: gvenzl/oracle-free:23.26.0-slim
         env:
           ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           APP_USER: demouser
