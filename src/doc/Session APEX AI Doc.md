@@ -20,7 +20,7 @@ APEX: 24.2
 ## Create Data Model with A1
 ### SCHEMA GENERATION USING APEX GEN AI SERVICES
 
-please create a table for emailing called “eml_recipients” add metadata column as json format, a subject column as varchar2, a body column as json format and a recipient with 10 example data using email sonja.meyer@oracle.com exclusively and in body create email text like an invitiation for an event on the sunny roof in my database 23ai. please separate email content as child table called “EML_EMAIL_CONTENT” and recipient table as parent table in separate tables.
+please create a table for emailing called “eml_recipients” add metadata column as json format, a subject column as varchar2, a body column as json format and a recipient with 10 example data using email sonja.meyer@oracle.com exclusively and in body create email text like an invitiation for an event on the sunny roof in my database 26ai. please separate email content as child table called “EML_EMAIL_CONTENT” and recipient table as parent table in separate tables.
     
     # unter SQL Scripts: DEMO1_create data model event parent child
 
