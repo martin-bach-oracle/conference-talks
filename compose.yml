@@ -1,0 +1,35 @@
+# THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
+services:
+    oracle:
+        image: gvenzl/oracle-free:23.26.0
+        container_name: oracle
+        ports:
+            - 1522:1521
+        environment:
+            - ORACLE_PASSWORD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
+            - APP_USER=demouser
+            - APP_USER_PASSWORD=${APP_USER_PASSWORD:?Please provide a password for the application user}
+        volumes:
+            - oradata-vol:/opt/oracle/oradata
+            - ./setup:/container-entrypoint-initdb.d
+        networks:
+            - backend
+        healthcheck:
+            test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+    zipkin:
+      image: ghcr.io/openzipkin/zipkin-slim:latest
+      container_name: zipkin
+      environment:
+        - STORAGE_TYPE=mem
+      ports:
+        - 9411:9411
+
+volumes:
+    oradata-vol:
+
+networks:
+    backend:
