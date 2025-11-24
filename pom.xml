@@ -28,6 +28,7 @@
 
 	<modules>
 		<module>otel</module>
+		<module>clientInfo</module>
 	</modules>
 
 	<!-- keeping a clean list of dependencies to avoid issues in each module -->
