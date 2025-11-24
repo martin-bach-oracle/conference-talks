@@ -1,14 +1,12 @@
 management:
- tracing:
-   sampling:
-     # Send 100% of spans
-     probability: 1
- zipkin:
-   tracing:
-     # Default Zipkin tracing endpoint from Docker compose
-     endpoint: http://localhost:9411/api/v2/spans
-
-
+  tracing:
+    sampling:
+      # Send 100% of spans
+      probability: 1
+  zipkin:
+    tracing:
+      # Default Zipkin tracing endpoint from Docker compose
+      endpoint: http://localhost:9411/api/v2/spans
 
 spring:
 
@@ -21,18 +19,18 @@ spring:
   application:
     name: Demo
   profiles:
-    active: scheduleProducer
+    active: OJDBC-Tracing
   datasource:
     username: demouser
-    password: demouser
+    password: ${APP_USER_PASSWORD}
     # Docker compose Oracle Free container
     url: jdbc:oracle:thin:@localhost:1522/freepdb1?oracle.jdbc.provider.traceEventListener=open-telemetry-trace-event-listener-provider
     # Set these to use UCP over Hikari.
     driver-class-name: oracle.jdbc.OracleDriver
     type: oracle.ucp.jdbc.PoolDataSource
     oracleucp:
-      initial-pool-size: 1
+      initial-pool-size: 5
       min-pool-size: 5
       max-pool-size: 5
-      connection-pool-name: UCPSampleApplication
+      connection-pool-name: tracingPool
       connection-factory-class-name: oracle.jdbc.pool.OracleDataSource

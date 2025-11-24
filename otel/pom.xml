@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>demo</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>otel</artifactId>
+    <packaging>jar</packaging>
+
+    <name>otel</name>
+    <description>A simple demo showing Open Telemetry</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+<!--            <version>${spring.version}</version>-->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+<!--            <artifactId>spring-boot-starter-data-jdbc</artifactId>-->
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+<!--            <version>${spring.version}</version>-->
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.spring</groupId>
+            <artifactId>oracle-spring-boot-starter-ucp</artifactId>
+            <version>${oracle.starters.version}</version>
+        </dependency>
+
+
+        <!-- OJDBC Tracing provider -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc-provider-opentelemetry</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+        <!-- Observability / Tracing is implemented in Actuator. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+<!--            <version>3.5.6</version>-->
+        </dependency>
+        <!-- Tracing library. -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+<!--            <version>1.6.0</version>-->
+        </dependency>
+        <!-- Report traces to Zipkin -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-zipkin</artifactId>
+<!--            <version>1.56.0</version>-->
+        </dependency>
+
+    </dependencies>
+
+</project>
