@@ -9,6 +9,7 @@
 
 		<oracle.starters.version>26.0.0</oracle.starters.version>
 		<spring.version>3.5.8</spring.version>
+		<oracle.version>23.26.0.0.0</oracle.version>
 
 		<maven.compiler.target>21</maven.compiler.target>
 		<maven.compiler.source>21</maven.compiler.source>
@@ -29,7 +30,8 @@
 	<modules>
 		<module>otel</module>
 		<module>clientInfo</module>
-	</modules>
+        <module>parsing</module>
+    </modules>
 
 	<!-- keeping a clean list of dependencies to avoid issues in each module -->
 </project>

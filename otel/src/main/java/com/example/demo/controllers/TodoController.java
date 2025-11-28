@@ -45,16 +45,14 @@ public class TodoController {
     }
 
     @PutMapping("/todos/{id}")
-    Todo repaceTodo(@RequestBody Todo newTodo, @PathVariable Long id) {
+    Todo replaceTodo(@RequestBody Todo newTodo, @PathVariable Long id) {
         return repository.findById(id)
                 .map(todo -> {
                     todo.setTask(newTodo.getTask());
                     todo.setDone(newTodo.getDone());
                     return repository.save(todo);
                 })
-                .orElseGet( () -> {
-                    return repository.save(newTodo);
-                });
+                .orElseGet( () -> repository.save(newTodo));
     }
 
     @DeleteMapping("/todos/{id}")

@@ -48,3 +48,16 @@ curl -s http://localhost:8080/todos/1 | jq
 Open the Zipkin interface on localhost [http://localhost:9411/zipkin/](http://localhost:9411/zipkin/) and show the traces.
 
 This concludes the first demo.
+
+### Client Info
+
+Setting client info is a very small, very simple application demonstrating the effect of setting client info, module
+and action in JDBC. You'll notice that the calls don't cause any overhead, simply because they piggy-back on the next
+call to the database, not requiring a dedicated round trip.
+
+Prepare by granting select on `v_$session` to `demouser`, something that should have occurred while the database was
+initially set up. If not, check [the init.sql script](./setup/init.sql) for details.
+
+Once you are ready, start a SQLcl session and connect as demouser. Run the select statements as indicated by the application.
+
+That concludes this demo.
