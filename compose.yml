@@ -5,6 +5,7 @@ services:
         container_name: oracle
         ports:
             - 1522:1521
+            - 5500:5500
         environment:
             - ORACLE_PASSWORD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
             - APP_USER=demouser
@@ -15,7 +16,7 @@ services:
         networks:
             - backend
         healthcheck:
-            test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
+            test: [ "CMD", "/opt/oracle/healthcheck.sh" ]
             interval: 10s
             timeout: 5s
             retries: 10
