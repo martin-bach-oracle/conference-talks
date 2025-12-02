@@ -125,12 +125,20 @@ public class Parsing
     private void showHowItShouldBeDone(Connection conn, long minId, long maxId) {
         long startTime = System.currentTimeMillis();
 
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement("select username from todo_users where user_id = ?");
+        } catch (SQLException e) {
+            log.error("couldn't create the prepared statement - this is bad! {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+
         for (int i = 0; i < numIterations; i++) {
 
             Random random = new Random();
             long randomId = random.nextLong((maxId - minId) + 1) + minId;
 
-            try (PreparedStatement pstmt = conn.prepareStatement("select username from todo_users where user_id = ?")) {
+            try {
                 pstmt.setLong(1, randomId);
 
                 ResultSet rs = pstmt.executeQuery();
