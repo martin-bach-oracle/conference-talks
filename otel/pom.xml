@@ -27,7 +27,11 @@
             <artifactId>oracle-spring-boot-starter-ucp</artifactId>
             <version>${oracle.starters.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>5.0.1</version>
+        </dependency>
 
         <!-- OJDBC Tracing provider -->
         <dependency>

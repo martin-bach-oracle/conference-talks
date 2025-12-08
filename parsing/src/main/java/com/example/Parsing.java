@@ -70,7 +70,6 @@ public class Parsing
         log.info("Starting the execution now - mode is set to: " + this.mode);
 
         Connection conn = this.pds.getConnection();
-
         log.info("Managed to obtain a connection");
 
         long minId = 0, maxId = 0;
@@ -80,37 +79,38 @@ public class Parsing
             minId = rs.getLong(1);
             maxId = rs.getLong(2);
         }
-
         log.info("Found the minimum ID to be {} and the maximum to be {}", minId, maxId);
 
+        Random random = new Random();
+        final long[] randomNumbers = new long[numIterations];
+        for (int i = 0; i < numIterations; i++) {
+            randomNumbers[i] = random.nextLong((maxId - minId) + 1) + minId;
+        }
+
         if (mode.equals("trouble")) {
-            startTrouble(conn, minId, maxId);
+            startTrouble(conn, minId, maxId, randomNumbers);
         } else {
-            showHowItShouldBeDone(conn, minId, maxId);
+            showHowItShouldBeDone(conn, minId, maxId, randomNumbers);
         }
 
         conn.close();
 
     }
 
-    private void startTrouble(Connection conn, long minId, long maxId) {
+    private void startTrouble(Connection conn, long minId, long maxId, long[] randomNumbers) {
 
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < numIterations; i++) {
 
-            Random random = new Random();
-            long randomId = random.nextLong((maxId - minId) + 1) + minId;
-
             try (Statement stmt = conn.createStatement()) {
-                ResultSet rs = stmt.executeQuery("select username from todo_users where user_id = " + randomId);
+                ResultSet rs = stmt.executeQuery("select username from todo_users where user_id = " + randomNumbers[i]);
                 while (rs.next()) {
                     String username = rs.getString(1);
                 }
 
-                if (i % 1000 == 0)
+                if (i % 2500 == 0)
                     log.info("\titerations completed: {}", i);
-                rs.close();
 
             } catch (SQLException e) {
                 log.error("something went wrong in iteration " + i);
@@ -122,7 +122,7 @@ public class Parsing
         log.info("Wall Clock Time elapsed to process {} iterations in mode {}: {} ", numIterations, "trouble", duration);
     }
 
-    private void showHowItShouldBeDone(Connection conn, long minId, long maxId) {
+    private void showHowItShouldBeDone(Connection conn, long minId, long maxId, long[] randomNumbers) {
         long startTime = System.currentTimeMillis();
 
         PreparedStatement pstmt = null;
@@ -135,18 +135,15 @@ public class Parsing
 
         for (int i = 0; i < numIterations; i++) {
 
-            Random random = new Random();
-            long randomId = random.nextLong((maxId - minId) + 1) + minId;
-
             try {
-                pstmt.setLong(1, randomId);
+                pstmt.setLong(1, randomNumbers[i]);
 
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
                     String username = rs.getString(1);
                 }
 
-                if (i % 1000 == 0)
+                if (i % 2500 == 0)
                     log.info("\titerations completed: {}", i);
                 rs.close();
 

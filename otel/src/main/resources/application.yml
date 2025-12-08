@@ -14,6 +14,9 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
   jmx:
     enabled: true
   application:
