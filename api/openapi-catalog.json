@@ -1,0 +1,138 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ORDS generated API for js",
+        "version": "1.0.0",
+        "description": "ORDS handlers written in JavaScript"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/ords/emily/js"
+        }
+    ],
+    "paths": {
+        "/actionItem/": {
+            "get": {
+                "description": "Retrieve a record from js",
+                "responses": {
+                    "200": {
+                        "description": "The queried record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new record on js",
+                "responses": {
+                    "201": {
+                        "description": "The successfully created record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/actionItem/{id}": {
+            "get": {
+                "description": "Retrieve a record from js",
+                "responses": {
+                    "200": {
+                        "description": "The queried record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[^/]+$"
+                        },
+                        "description": "implicit"
+                    }
+                ]
+            },
+            "put": {
+                "description": "Create or update a record on js",
+                "responses": {
+                    "201": {
+                        "description": "The successfully created record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {}
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "The successfully updated record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[^/]+$"
+                        },
+                        "description": "implicit"
+                    }
+                ]
+            },
+            "delete": {
+                "description": "Remove a record from js",
+                "responses": {
+                    "204": {
+                        "description": "Deleted result."
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[^/]+$"
+                        },
+                        "description": "implicit"
+                    }
+                ]
+            }
+        }
+    }
+}
