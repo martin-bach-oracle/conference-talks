@@ -1,4 +1,4 @@
-name: Continuous Integration and Delivery
+name: CI-Pipeline for APEXWorld 2026 PL/SQL vs JavaScript
 on:
   push:
   pull_request:
