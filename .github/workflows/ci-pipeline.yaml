@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       oracle:
-        image: gvenzl/oracle-free:23.26.1-slim
+        image: gvenzl/oracle-free:23.26.1
         env:
           ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           APP_USER: ${{ secrets.APP_USER_NAME }}
