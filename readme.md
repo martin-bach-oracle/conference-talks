@@ -16,7 +16,7 @@ Please use the relevant branch if you want to see the code. Main _won't_ contain
 | 21-MAR-2025 | APEX World: [Do you need to know about server-side JavaScript and APEX? Definitely, maybe](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=354&clear=3&cs=3uSlna8VgNLAF5hclrS14Aj-rkHAgxKHLIlKvJhBbGfou98gtiM9yLlCfMAVdSMEj9g-esDcFegedZK-WWDb58Q) | `250321_apex_world` |
 | 18-NOV-2025 | DOAG Konferenz: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6588) | `251118_doag_git` |
 | 19-NOV-2025 | DOAG Konferenz: [Dafuer habe ich keine Zeit, lass uns das automatisieren](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6355) | `251119_doag_automate` |
-| 26-MAR-2026 | NLOUG APEX World [PL/SQL vs JavaScript (in the database)](hhttps://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=488) | `260327_apexworld` |
+| 27-MAR-2026 | NLOUG APEX World [PL/SQL vs JavaScript (in the database)](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=488) | `260327_apexworld` |
 
 Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
 
