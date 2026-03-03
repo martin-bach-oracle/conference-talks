@@ -1,4 +1,4 @@
-# Datenbank Tuning aimed at Java Developers
+# Database Tuning aimed at Java Developers
 
 This repository shows the code example(s) written for the 2025 edition of Frankfurter IT-Tage. This talk focuses on
 the _do_s and _don't_s when it comes to developing database applications in Java.
@@ -6,20 +6,20 @@ the _do_s and _don't_s when it comes to developing database applications in Java
 ## Using the code
 
 After an initial draft it became clear that a multi-module Maven project was necessary. Therefore, you can find the various
-demos in their respective sub-directories.
+demos in their respective subdirectories.
 
 Intellij IDEA (community edition 2024.3.3) was used to create this project. Updates might be necessary. JDK 21 should 
 be used for all examples.
 
 ## Database setup
 
-All of the examples require a database. You can use the compose file in the top-level directory to start one. It maps
+All the examples require a database. You can use the compose file in the top-level directory to start one. It maps
 local port 1522 to the database's listener port. This is reflected in all code examples - adapt if necessary.
 
 ### Open Telemetry Demo
 
 The application is mainly based on [this blogpost by Anders Swanson](https://andersswanson.dev/2025/10/10/oracle-jdbc-tracing-with-spring-boot-opentelemetry/)
-and his corresponding [Github repo](https://github.com/anders-swanson/oracle-database-code-samples/tree/main/spring-boot-jdbc-tracing).
+and his corresponding [GitHub repo](https://github.com/anders-swanson/oracle-database-code-samples/tree/main/spring-boot-jdbc-tracing).
 
 Make sure to sync the maven project and download all sources. If you haven't already done so, you can start the database
 using the `compose.yml` file. Make sure to provide an `.env` file containing 
@@ -66,3 +66,43 @@ initially set up. If not, check [the init.sql script](./setup/init.sql) for deta
 Once you are ready, start a SQLcl session and connect as demouser. Run the select statements as indicated by the application.
 
 That concludes this demo.
+
+### Parsing
+
+Run the parsing demo to create all these cursors in the shard pool. The run some diagnostics
+
+```sql
+with literal_or_bind as (
+select
+    sql_text,
+    sharable_mem,
+    runtime_mem,
+    persistent_mem,
+    loads,
+    parse_calls,
+    executions,
+    cpu_time,
+    case when
+        regexp_like(sql_text, 'select username from todo_users where user_id = [0-9]+') then 'literal'
+        else 'bind'
+    end predicate
+from
+    v$sql
+where
+    sql_text like 'select username from todo_users where user_id =%'
+)
+select
+    count(*),
+    sum(sharable_mem + runtime_mem + persistent_mem) memory_used,
+    sum(loads),
+    sum(parse_calls),
+    sum(executions),
+    sum(cpu_time),
+    predicate
+from
+    literal_or_bind
+group by
+    all;
+```
+
+This concludes the demo

@@ -37,3 +37,8 @@ spring:
       max-pool-size: 5
       connection-pool-name: tracingPool
       connection-factory-class-name: oracle.jdbc.pool.OracleDataSource
+logging:
+  level:
+    org.hibernate.engine.jdbc.env.internal: DEBUG
+    oracle.ucp: DEBUG
+    oracle.jdbc: TRACE
