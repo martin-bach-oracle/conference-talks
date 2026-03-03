@@ -6,7 +6,7 @@
     "version" : "25.4.2.0"
   },
   "schemas" : [ "EMILY" ],
-  "lastReleaseVersion" : "",
+  "lastReleaseVersion" : "v-1.0.0",
   "export" : {
     "format" : {
       "enable" : true
@@ -40,7 +40,7 @@
     }
   },
   "git" : {
-    "protectedBranches" : [ "main", "master","260327_apexworld" ],
+    "protectedBranches" : [ "main", "master", "260327_apexworld" ],
     "defaultBranch" : "main"
   },
   "stage" : {

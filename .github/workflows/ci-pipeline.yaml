@@ -1,0 +1,71 @@
+name: Continuous Integration and Delivery
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  unit-tests-and-build:
+    runs-on: ubuntu-latest
+    services:
+      oracle:
+        image: gvenzl/oracle-free:23.26.1-slim
+        env:
+          ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
+          APP_USER: ${{ secrets.APP_USER_NAME }}
+          APP_USER_PASSWORD: ${{ secrets.APP_USER_PASSWORD }}
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      ords:
+        image: container-registry.oracle.com/database/ords:25.4.0
+        env:
+          DBSERVICENAME: FREEPDB1
+          DBHOST: oracle
+          DBPORT: 1521
+          ORACLE_PWD: ${{ secrets.ORACLE_PASSWORD }}
+        ports:
+          - 8080:8080
+          - 8443:8443
+        options: >-
+          --health-cmd curl --noproxy "localhost" -f -k http://localhost:8080/ords/ || exit 1
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+
+      # set up SQLcl for all CI-related work
+      - name: setup SQLcl
+        uses: gvenzl/setup-oracle-sqlcl@v1
+      
+      # generate the artefact for testing. It's name contains the commit-sha to avoid problems
+      - name: Extract commit SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Export TAG env
+        run: echo "TAG=${{ steps.vars.outputs.sha_short }}" >> "$GITHUB_ENV"
+      - name: build the SQLcl artifact
+        run: |
+          echo "project gen-artifact -debug -version ${TAG}" | sql ${{ secrets.APP_USER_NAME }}/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
+
+      # use the generated artefact for deployment. Only way to be sure that the artefact is valid
+      - name: Deploy the backend part of the application
+        run: |
+          {
+            echo "whenever sqlerror exit"
+            echo "project deploy -debug -verbose -file apexworld2026-${TAG}"
+          } | sql ${{ secrets.APP_USER_NAME }}/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
+      
+
+      - name: upload the SQLcl build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlcl-artifacts
+          path: artifact
