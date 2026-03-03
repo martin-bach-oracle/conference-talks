@@ -55,7 +55,7 @@ jobs:
         run: |
           {
             echo "whenever sqlerror exit"
-            echo "project deploy -debug -verbose -file apexworld2026-${TAG}"
+            echo "project deploy -debug -verbose -file apexworld2026-${TAG}.zip"
           } | sql ${{ secrets.APP_USER_NAME }}/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
       
 
