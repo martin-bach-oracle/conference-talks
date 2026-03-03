@@ -55,9 +55,8 @@ jobs:
         run: |
           {
             echo "whenever sqlerror exit"
-            echo "project deploy -debug -verbose -file apexworld2026-${TAG}.zip"
+            echo "project deploy -debug -verbose -file artifact/apexworld2026-${TAG}.zip"
           } | sql ${{ secrets.APP_USER_NAME }}/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
-      
 
       - name: upload the SQLcl build artifact
         uses: actions/upload-artifact@v4
