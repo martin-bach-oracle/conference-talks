@@ -11,13 +11,14 @@ Instead of a "main" repository containing a subdirectory per presentation, you w
 Please use the relevant branch if you want to see the code. Main _won't_ contain code, it remains empty except for the readme (this file) and a license.
 
 | Date | Event | Branch Name |
-| --   | --    | --           |
+| -- | -- | -- |
 | 10-OCT-2024 | POUG: Annual Meeting of the [Polish Oracle User Group](https://poug.org/en/edycja/poug2024/) | `241011_poug` |
 | 21-MAR-2025 | APEX World: [Do you need to know about server-side JavaScript and APEX? Definitely, maybe](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=354&clear=3&cs=3uSlna8VgNLAF5hclrS14Aj-rkHAgxKHLIlKvJhBbGfou98gtiM9yLlCfMAVdSMEj9g-esDcFegedZK-WWDb58Q) | `250321_apex_world` |
 | 18-NOV-2025 | DOAG Konferenz: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6588) | `251118_doag_git` |
 | 19-NOV-2025 | DOAG Konferenz: [Dafuer habe ich keine Zeit, lass uns das automatisieren](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6355) | `251119_doag_automate` |
 | 10-DEC-2025 | Frankfurter IT Tage: [Datenbank Tuning für Java Entwickler](https://www.ittage.informatik-aktuell.de/programm/2025/datenbank-tuning-fuer-java-entwickler.html) | `251210_ittage_java_db_tuning_update` |
 | 11-DEC-2025 | Frankfurter IT Tage: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://www.ittage.informatik-aktuell.de/programm/2025/ohne-git-kein-devops-ohne-devops-keine-moderne-softwareentwicklung.html) | `251118_doag_git` |
+| 27-MAR-2026 | NLOUG APEX World [PL/SQL vs JavaScript (in the database)](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=488) | `260327_apexworld` |
 
 Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
 
