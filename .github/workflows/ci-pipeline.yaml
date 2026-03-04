@@ -35,6 +35,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: install test dependencies
+        run: npm ci
 
       # set up SQLcl for all CI-related work
       - name: setup SQLcl
@@ -57,6 +64,30 @@ jobs:
             echo "whenever sqlerror exit"
             echo "project deploy -debug -verbose -file artifact/apexworld2026-${TAG}.zip"
           } | sql ${{ secrets.APP_USER_NAME }}/${{ secrets.APP_USER_PASSWORD }}@localhost/FREEPDB1
+
+      - name: Wait for ORDS readiness
+        run: |
+          set +e
+          READY=0
+          for i in {1..30}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ords/ 2>/dev/null)
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ] || [ "$STATUS" = "401" ]; then
+              READY=1
+              break
+            fi
+            sleep 5
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "ORDS liveliness probe did not succeed. Waiting 1 additional minute before continuing."
+            sleep 60
+          fi
+          set -e
+
+      - name: Run action item API unit tests
+        env:
+          ORDS_BASE_URL: http://localhost:8080/ords/emily/js
+        run: npm test -- tests/action-item.api.test.js
 
       - name: upload the SQLcl build artifact
         uses: actions/upload-artifact@v4
