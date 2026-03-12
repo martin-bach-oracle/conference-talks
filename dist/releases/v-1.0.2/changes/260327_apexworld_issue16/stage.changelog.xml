@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+<include file="emily/mle_modules/javascript_impl_module.sql" relativeToChangelogFile="true"/>
+<include file="emily/package_specs/plsql_impl_pkg.sql" relativeToChangelogFile="true"/>
+<include file="emily/package_bodies/plsql_impl_pkg.sql" relativeToChangelogFile="true"/>
+</databaseChangeLog>
