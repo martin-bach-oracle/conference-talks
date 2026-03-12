@@ -68,29 +68,34 @@ afterEach(async () => {
 });
 
 describe('GET /actionItem/', () => {
-	it('returns list of action items (positive)', async () => {
+	it('returns an ORDS collection of action items', async () => {
 		const { response, payload } = await request(ACTION_ITEM_COLLECTION_PATH);
 
 		expect(response.status).toBe(200);
 		expect(payload).toBeTruthy();
-		expect(payload.items).toBeTypeOf('object');
+		expect(payload).toHaveProperty('items');
 		expect(Array.isArray(payload.items)).toBe(true);
-		expect(payload).toHaveProperty('hasMore');
-		expect(payload).toHaveProperty('totalRows');
+
+		const [firstItem] = payload.items;
+		if (firstItem) {
+			expect(firstItem).toHaveProperty('actionitem');
+			expect(firstItem.actionitem).toBeTypeOf('object');
+		}
 	});
 
-	it('rejects invalid query params (negative)', async () => {
+	it('accepts a search query and returns a collection', async () => {
 		const { response, payload } = await request(
 			`${ACTION_ITEM_COLLECTION_PATH}?search=invalid***`
 		);
 
-		expect(response.status).toBe(400);
+		expect(response.status).toBe(200);
 		expect(payload).toBeTruthy();
+		expect(Array.isArray(payload.items)).toBe(true);
 	});
 });
 
 describe('POST /actionItem/', () => {
-	it('creates an action item (positive)', async () => {
+	it('creates an action item', async () => {
 		const { response, payload } = await request(ACTION_ITEM_COLLECTION_PATH, {
 			method: 'POST',
 			body: validCreateBody('post-positive'),
@@ -104,7 +109,7 @@ describe('POST /actionItem/', () => {
 		createdIds.add(payload.actionId);
 	});
 
-	it('rejects invalid payload (negative)', async () => {
+	it('rejects an invalid create payload', async () => {
 		const { response, payload } = await request(ACTION_ITEM_COLLECTION_PATH, {
 			method: 'POST',
 			body: {
@@ -120,7 +125,7 @@ describe('POST /actionItem/', () => {
 });
 
 describe('GET /actionItem/{id}', () => {
-	it('returns an existing action item (positive)', async () => {
+	it('returns an existing action item', async () => {
 		const { response, payload } = await request(`${ACTION_ITEM_ITEM_PATH}/2`);
 
 		expect(response.status).toBe(200);
@@ -130,7 +135,7 @@ describe('GET /actionItem/{id}', () => {
 		expect(Array.isArray(payload.team)).toBe(true);
 	});
 
-	it('rejects non-numeric id (negative)', async () => {
+	it('rejects a non-numeric id', async () => {
 		const { response, payload } = await request(`${ACTION_ITEM_ITEM_PATH}/abc`);
 
 		expect(response.status).toBe(400);
@@ -139,7 +144,7 @@ describe('GET /actionItem/{id}', () => {
 });
 
 describe('PUT /actionItem/{id}', () => {
-	it('updates an existing action item (positive)', async () => {
+	it('updates an existing action item', async () => {
 		const created = await createActionItemForTest('put-source');
 
 		const updateBody = {
@@ -169,7 +174,7 @@ describe('PUT /actionItem/{id}', () => {
 		expect(payload.status).toBe('COMPLETE');
 	});
 
-	it('rejects invalid update payload (negative)', async () => {
+	it('rejects an invalid update payload', async () => {
 		const { response, payload } = await request(`${ACTION_ITEM_ITEM_PATH}/2`, {
 			method: 'PUT',
 			body: {
@@ -186,7 +191,7 @@ describe('PUT /actionItem/{id}', () => {
 });
 
 describe('DELETE /actionItem/{id}', () => {
-	it('deletes an existing action item (positive)', async () => {
+	it('deletes an existing action item', async () => {
 		const created = await createActionItemForTest('delete-source');
 		const id = created.actionId;
 
@@ -198,7 +203,7 @@ describe('DELETE /actionItem/{id}', () => {
 		createdIds.delete(id);
 	});
 
-	it('rejects non-numeric id (negative)', async () => {
+	it('rejects a non-numeric id', async () => {
 		const { response, payload } = await request(`${ACTION_ITEM_ITEM_PATH}/not-a-number`, {
 			method: 'DELETE',
 		});

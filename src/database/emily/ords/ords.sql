@@ -94,18 +94,37 @@ BEGIN
       p_module_name    => 'js',
       p_pattern        => 'actionItem/',
       p_method         => 'GET',
-      p_source_type    => 'mle/javascript',
-      p_items_per_page => 0,
+      p_source_type    => 'json/collection',
       p_mimes_allowed  => NULL,
       p_comments       => NULL,
-      p_mle_env_name => 'JAVASCRIPT_IMPL_ENV',
       p_source         => 
 '
-(req, resp) => {
-
-    const { getAllActionItemsHandler } = await import (''handlers'');
-    getAllActionItemsHandler(req, resp);
-}    
+            select
+                json{
+                    ''actionId'' value      a.id,
+                    ''actionName'' value    a.name,
+                    ''status'' value       a.status,
+                    ''team'' value (
+                        select json_arrayagg(
+                            json{
+                                ''assignmentId'' value tm.id,
+                                ''role'' value         tm.role,
+                                ''staffId'' value      tm.user_id,
+                                ''staffName'' value    s.name
+                            }
+                            order by tm.role desc, s.name
+                        )
+                        from
+                            action_item_team_members tm
+                            join staff s on s.id = tm.user_id
+                        where
+                            tm.action_id = a.id
+                    )
+                } as actionItem
+            from
+                action_items a
+      ' || '      where
+                upper(a.name) like ''%'' || upper(:search) || ''%''
     ');
 
   ORDS.DEFINE_HANDLER(
@@ -169,4 +188,4 @@ END;
 /
 
 
--- sqlcl_snapshot {"hash":"7b2862c1fd7e22564e86c5d493153b6be58c87ed","type":"ORDS_SCHEMA","name":"ords","schemaName":"EMILY","sxml":""}
+-- sqlcl_snapshot {"hash":"73fb5bbc9f29c44c971d17fdc4bf54640dc93ff9","type":"ORDS_SCHEMA","name":"ords","schemaName":"EMILY","sxml":""}
