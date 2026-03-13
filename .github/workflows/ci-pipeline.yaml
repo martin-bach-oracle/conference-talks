@@ -45,7 +45,7 @@ jobs:
 
       # set up SQLcl for all CI-related work
       - name: setup SQLcl
-        uses: gvenzl/setup-oracle-sqlcl@v1.3.0
+        uses: gvenzl/setup-oracle-sqlcl@v1
         with:
           version: 25.4.2.044.1837
       
