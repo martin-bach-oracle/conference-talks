@@ -1,5 +1,8 @@
+-- liquibase formatted sql
+-- changeset EMILY:1773350268286 stripComments:false  logicalFilePath:260327_apexworld_issue16/emily/mle_modules/javascript_impl_module.sql
+-- sqlcl_snapshot src/database/emily/mle_modules/javascript_impl_module.sql:69f7d202b36f9ca36a68cdee279b80349404f446:9bfd71e2caf3710ff2ce281ed3c9038f1a65c451:alter
 
-  CREATE OR REPLACE MLE MODULE "EMILY"."JAVASCRIPT_IMPL_MODULE" 
+CREATE OR REPLACE MLE MODULE "EMILY"."JAVASCRIPT_IMPL_MODULE" 
    LANGUAGE JAVASCRIPT AS 
 // this is what the input must look like _for inserts. An ID for
 // the new action item cannot be provided, it is auto-generated via
@@ -501,5 +504,3 @@ export function deleteActionItemHandler(req, resp) {
 }
 /
 
-
--- sqlcl_snapshot {"hash":"9bfd71e2caf3710ff2ce281ed3c9038f1a65c451","type":"MLE_MODULE","name":"JAVASCRIPT_IMPL_MODULE","schemaName":"EMILY","sxml":""}
