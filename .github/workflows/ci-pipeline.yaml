@@ -33,10 +33,10 @@ jobs:
           - 8443:8443
         
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -90,7 +90,7 @@ jobs:
         run: npm test -- tests/action-item.api.test.js
 
       - name: upload the SQLcl build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sqlcl-artifacts
           path: artifact
