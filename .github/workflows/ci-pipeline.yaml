@@ -45,7 +45,7 @@ jobs:
 
       # set up SQLcl for all CI-related work
       - name: setup SQLcl
-        uses: gvenzl/setup-oracle-sqlcl@v1
+        uses: gvenzl/setup-oracle-sqlcl@v1.3.0
       
       # generate the artefact for testing. It's name contains the commit-sha to avoid problems
       - name: Extract commit SHA
