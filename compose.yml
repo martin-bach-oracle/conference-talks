@@ -41,9 +41,6 @@ services:
             - 27017:27017
         volumes:
             - ords-config-vol:/etc/ords/config
-            # use this volume mount for the initial APEX installation
-            - ./apex:/opt/oracle/apex:Z
-            - ./apex/images:/opt/oracle/apex/images:Z
         healthcheck:
             test: curl --noproxy "localhost" -f -k http://localhost:8080/ords/ || exit 1
             interval: 30s
