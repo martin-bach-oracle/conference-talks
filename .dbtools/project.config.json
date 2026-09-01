@@ -1,9 +1,9 @@
 {
-  "project" : "apexworld2026",
+  "project" : "asktom0926",
   "sqlcl" : {
     "connectionName" : "localhost_emily_1521",
     "autoConnect" : false,
-    "version" : "25.4.2.0"
+    "version" : "26.2.2.0"
   },
   "schemas" : [ "EMILY" ],
   "lastReleaseVersion" : "v-1.0.2",

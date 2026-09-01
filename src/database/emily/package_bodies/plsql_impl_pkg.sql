@@ -214,11 +214,13 @@ create or replace package body emily.plsql_impl_pkg as
             insert into action_items (
                 name,
                 status
-            ) values ( l_action_name,
-                       coalesce(
-                           upper(l_status),
-                           'OPEN'
-                       ) ) returning id into l_action_id;
+            ) values
+                ( l_action_name,
+                  coalesce(
+                      upper(l_status),
+                      'OPEN'
+                  ) )
+            returning id into l_action_id;
 
             dbms_output.put_line('Inserted ' || sql%rowcount);
             insert into action_item_team_members (
