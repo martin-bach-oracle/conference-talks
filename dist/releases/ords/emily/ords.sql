@@ -1,9 +1,10 @@
 -- liquibase formatted sql
--- changeset EMILY:1773350268375 stripComments:false  logicalFilePath:ords/emily/ords.sql
--- sqlcl_snapshot {"hash":"73fb5bbc9f29c44c971d17fdc4bf54640dc93ff9","type":"ORDS_SCHEMA","name":"ords","schemaName":"EMILY","sxml":""}
+-- changeset EMILY:1789330712310 stripComments:false  logicalFilePath:ords/emily/ords.sql
+-- sqlcl_snapshot {"hash":"7d4950d9bad4b14c4be924ea410f212257a0fd95","type":"ORDS_SCHEMA","name":"ords","schemaName":"EMILY","sxml":""}
 --
         
 DECLARE
+
   l_roles     OWA.VC_ARR;
   l_modules   OWA.VC_ARR;
   l_patterns  OWA.VC_ARR;
@@ -151,6 +152,21 @@ BEGIN
       p_role_name=> 'oracle.dbtools.role.autorest.EMILY');
   ORDS.CREATE_ROLE(
       p_role_name=> 'oracle.dbtools.role.autorest.any.EMILY');
+  l_roles(1) := 'oracle.dbtools.auth.roles.builtin.VecDB';
+
+  ORDS.DEFINE_PRIVILEGE(
+      p_privilege_name => 'oracle.dbtools.auth.privileges.builtin.VecDB',
+      p_roles          => l_roles,
+      p_patterns       => l_patterns,
+      p_modules        => l_modules,
+      p_label          => NULL,
+      p_description    => NULL,
+      p_comments       => NULL); 
+
+  l_roles.DELETE;
+  l_modules.DELETE;
+  l_patterns.DELETE;
+
   l_roles(1) := 'oracle.dbtools.autorest.any.schema';
   l_roles(2) := 'oracle.dbtools.role.autorest.EMILY';
 
@@ -183,8 +199,15 @@ BEGIN
   l_modules.DELETE;
   l_patterns.DELETE;
 
+  ORDS.FINALIZE_IMPORT(
+      p_prune => FALSE,
+      p_objects => null);
 
 COMMIT;
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    RAISE;
 
 END;
 /

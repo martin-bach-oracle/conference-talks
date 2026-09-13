@@ -3,6 +3,5 @@
                    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
-<include file="changes/unique-key/stage.changelog.xml" relativeToChangelogFile="true"/>
-<!--CHANGES-->
+<include file="emily/tables/action_item_team_members.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
