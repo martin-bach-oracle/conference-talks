@@ -40,7 +40,7 @@
     }
   },
   "git" : {
-    "protectedBranches" : [ "main", "master", "260327_apexworld" ],
+    "protectedBranches" : [ "main", "master", "260915_asktom_office_hours" ],
     "defaultBranch" : "main"
   },
   "stage" : {
