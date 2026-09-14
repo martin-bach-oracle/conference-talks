@@ -8,4 +8,5 @@
 <include file="v-1.0.3/release.changelog.xml" relativeToChangelogFile="true"/>
 <include file="ords/ords.changelog.xml" relativeToChangelogFile="true"/>
 
+<include file="next/release.changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
