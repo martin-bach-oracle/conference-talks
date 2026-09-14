@@ -6,7 +6,7 @@
 <include file="v-1.0.0/release.changelog.xml" relativeToChangelogFile="true"/>
 <include file="v-1.0.2/release.changelog.xml" relativeToChangelogFile="true"/>
 <include file="v-1.0.3/release.changelog.xml" relativeToChangelogFile="true"/>
-<include file="ords/ords.changelog.xml" relativeToChangelogFile="true"/>
-
 <include file="next/release.changelog.xml" relativeToChangelogFile="true"/>
+
+<include file="ords/ords.changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
