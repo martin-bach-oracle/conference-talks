@@ -19,10 +19,11 @@ Please use the relevant branch if you want to see the code. Main _won't_ contain
 | 10-DEC-2025 | Frankfurter IT Tage: [Datenbank Tuning für Java Entwickler](https://www.ittage.informatik-aktuell.de/programm/2025/datenbank-tuning-fuer-java-entwickler.html) | `251210_ittage_java_db_tuning_update` |
 | 11-DEC-2025 | Frankfurter IT Tage: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://www.ittage.informatik-aktuell.de/programm/2025/ohne-git-kein-devops-ohne-devops-keine-moderne-softwareentwicklung.html) | `251118_doag_git` |
 | 27-MAR-2026 | NLOUG APEX World [PL/SQL vs JavaScript (in the database)](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=488) | `260327_apexworld` |
+| 15-SEP-2026 | [AskTom Office Hours](https://www.youtube.com/watch?v=hAYcfS0djzk): deciding between PL/SQL vs JavaScript in the database | `260915_asktom_office_hours` |
 
 Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
 
 > [!CAUTION]
 > This repository provides code, and although every effort has been undertaken to ensure it works and does not break anything, it's provided _as is_ without any guarantees or warranties. Refer to the LICENSE.txt file for more details.
 
-Furthermore, I won't update the demos, they are supposed to reflect the talk, they aren't living and breathing projects.
+Furthermore, I won't update the demos, they are supposed to reflect the talk, they aren't living and breathing projects. If a talk is given another time, there will be another branch with the presentation date.
