@@ -1,3 +1,9 @@
 .vscode/settings.json
 .ansible
-
+.env
+node_modules
+artifact
+apex
+dist
+.DS_Store
+demo.md

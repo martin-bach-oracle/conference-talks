@@ -1,25 +1,32 @@
-# Conference talks
+# DOAG 11/2025: Automating all the things
 
-This repository contains code I used during my various conference talks since 10/2024. Please let me know if you have questions or comments.
+This branch accompanies a presentation I gave at the 2025 DOAG conference. It demonstrates using Terraform and Ansible together to provision an Oracle Cloud Infrastructure (OCI) host and configure it with Oracle Database and Oracle REST Data Services (ORDS).
 
-The easiest way to do so is by creating an issue, citing the branch.
+## Terraform
 
-## Overview
+The `terraform` directory defines the OCI infrastructure for the demo:
 
-Instead of a "main" repository containing a subdirectory per presentation, you will now find a branch per conference talk. This makes a great many things easier, especially with regards to JavaScript and Python environments.
+- `main.tf` configures the OCI provider, looks up availability domains, and creates an Oracle Linux demo compute instance in the private subnet. The instance uses a flexible shape, a 250 GB boot volume, and the supplied SSH public key.
+- `network.tf` creates a VCN with public and private subnets, internet, NAT, and service gateways, route tables, and security lists. The demo host has no public IP; its private subnet allows outbound HTTP and HTTPS for updates and routes internet traffic through the NAT gateway.
+- `bastion.tf` creates an OCI Bastion and a port-forwarding session to the host's SSH port. Terraform outputs the SSH command for that session.
+- `variables.tf` declares OCI credentials, compartment and region, SSH key paths, the allowed client IP/CIDR, and network CIDRs. Supply environment-specific values in a local `.tfvars` file, which is excluded from version control or use environment variables instead.
 
-Please use the relevant branch if you want to see the code. Main _won't_ contain code, it remains empty except for the readme (this file) and a license.
+Together, these resources provide a private host that can be reached over SSH through the Bastion service. The public subnet's security list permits SSH only from `local_laptop_ip`. The network routes and broad demo permissions are intended for this conference example and should be reviewed before reuse.
 
-| Date | Event | Branch Name |
-| --   | --    | --           |
-| 10-OCT-2024 | POUG: Annual Meeting of the [Polish Oracle User Group](https://poug.org/en/edycja/poug2024/) | `241011_poug` |
-| 21-MAR-2025 | APEX World: [Do you need to know about server-side JavaScript and APEX? Definitely, maybe](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=354&clear=3&cs=3uSlna8VgNLAF5hclrS14Aj-rkHAgxKHLIlKvJhBbGfou98gtiM9yLlCfMAVdSMEj9g-esDcFegedZK-WWDb58Q) | `250321_apex_world` |
-| 18-NOV-2025 | DOAG Konferenz: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6588) | `251118_doag_git` |
-| 19-NOV-2025 | DOAG Konferenz: [Dafuer habe ich keine Zeit, lass uns das automatisieren](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6355) | `251119_doag_automate` |
+## Ansible
 
-Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
+The `ansible` directory configures the provisioned host and installs the database and ORDS. The entry point is `site.yml`, which targets the `demo` inventory group, checks the operating system and architecture, requires `dba_password`, and runs three tagged roles in order:
 
-> [!CAUTION]
-> This repository provides code, and although every effort has been undertaken to ensure it works and does not break anything, it's provided _as is_ without any guarantees or warranties. Refer to the LICENSE.txt file for more details.
+1. `hostconfig` sets SELinux to permissive mode for the demo, installs required packages (including the Oracle Database preinstallation RPM and Java versions used by the installation steps), and extends the root LVM volume when the expected disk layout has room for another partition.
+2. `database` uses AutoUpgrade to create an Oracle Database 19c home with Release Update 19.28, creates the `ORCL` container database and `PDB1`, and installs a systemd service for the database and listener.
+3. `ords` installs ORDS 25.3 against the CDB, configures it as a systemd service, enables the `APIUSER` schema in `PDB1`, and creates the sample `SCOTT` schema and tables. It also configures the `C##DBAPI_CDB_ADMIN` account and ORDS `devops` user for the PDB lifecycle management API.
 
-Furthermore, I won't update the demos, they are supposed to reflect the talk, they aren't living and breathing projects.
+Role task files are under `hostconfig/tasks`, `database/tasks`, and `ords/tasks`. Their Jinja templates generate AutoUpgrade and SQL scripts plus the database and ORDS systemd units. Shared database paths are in `group_vars/all.yml`; ORDS paths and version are in `ords/vars/main.yml`. `requirements.txt` lists the Ansible and Python dependencies, while `hosts` is an example inventory pointing to `127.0.0.1:2222` through an SSH tunnel.
+
+From the `ansible` directory, the playbook can be run with the supplied inventory and required DBA password:
+
+```sh
+ansible-playbook -i hosts site.yml -e dba_password='<demo-password>'
+```
+
+The roles can be selected with `--tags hostconfig`, `--tags database`, or `--tags ords`. The playbook assumes Oracle Linux 9 on x86-64 and a compatible OCI boot-volume/LVM layout. It is conference-demo code: in particular, SELinux is made permissive, and the playbook uses the DBA password for several demo accounts. Do not use these settings unchanged in production.
