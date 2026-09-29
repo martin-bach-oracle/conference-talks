@@ -24,12 +24,12 @@
         name: hostconfig
       tags: hostconfig
 
-    - name: Install Oracle Database release 19c and create a database
+    - name: Install Oracle AI Database 23.26.3 and create a database
       ansible.builtin.include_role:
         name: database
       tags: database
 
-    - name: Install and configure ORDS
+    - name: Install, configure ORDS and enable PDB Lifecycle Management
       ansible.builtin.include_role:
         name: ords
       tags: ords
