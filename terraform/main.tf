@@ -27,7 +27,7 @@ data "oci_identity_availability_domains" "local_ads" {
   compartment_id = var.compartment_ocid
 }
 
-data "oci_core_images" "ol_10_latest" {
+data "oci_core_images" "ol10_latest" {
   compartment_id   = var.compartment_ocid
   operating_system = "Oracle Linux"
   operating_system_version = "10"
@@ -106,6 +106,11 @@ resource "oci_core_instance" "doag_compute_instance" {
     source_type = "image"
 
     boot_volume_size_in_gbs = 250
+  }
+
+  instance_options {
+    # disable /v1 instance metadata endpoints for better security
+    are_legacy_imds_endpoints_disabled = true
   }
 
   preserve_boot_volume = false
