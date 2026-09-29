@@ -1,5 +1,5 @@
 ---
-- name: Automate all the things - DOAG 2025
+- name: Automate all the things - DOAG K&A 2026
   hosts: demo
   become: true
   tasks:
@@ -11,12 +11,12 @@
 
     - name: Check for Oracle Linux
       ansible.builtin.fail:
-        msg: "This playbook requires Oracle Linux 9, this is  {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
-      when: ansible_distribution == "OracleLinux" and ansible_distribution_major_version != "9"
+        msg: "This playbook requires Oracle Linux 10, this is  {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+      when: ansible_distribution == "OracleLinux" and ansible_distribution_major_version != "10"
 
     - name: Ensure Intel x86-64
       ansible.builtin.fail:
-        msg: "This playbook requires Oracle Linux 9, this is  {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+        msg: "This playbook requires Oracle Linux x86-64, but I found {{ ansible_architecture }}"
       when: ansible_architecture != "x86_64"
 
     - name: Complete the host configuration

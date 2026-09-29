@@ -13,43 +13,15 @@
     - "{{ ords_certs }}"
     - "{{ ords_logs }}"
 
-# -------------------------------------------------------------------- Switch to JDK 17 if needed
+# -------------------------------------------------------------------- ORDS 26.2.3
 
-- name: Get default Java version
-  ansible.builtin.command: java -version
-  register: java_version
-  failed_when: false
-  changed_when: false
-
-- name: Set the JDK to 1.17 if needed
-  when: "'version \"17.' not in java_version.stderr"
-  block:
-
-    - name: Get the exact binary path       # noqa: command-instead-of-module
-      ansible.builtin.shell:
-        cmd: set -o pipefail && /usr/bin/rpm -ql graalvm22-ee-17-jdk | grep 'bin/java\b'
-      register: java17_binary
-      changed_when: false
-
-    - name: Define the binary name as an Ansible fact
-      ansible.builtin.set_fact:
-        java_binary: "{{ java17_binary.stdout_lines[0] }}"
-
-    - name: Ensure JDK 17 is used for ORDS     # noqa: command-instead-of-shell
-      ansible.builtin.shell:
-        cmd: "alternatives --set java {{ java_binary }}"
-      register: alternatives_out
-      changed_when: alternatives_out.rc == 0
-
-# -------------------------------------------------------------------- ORDS 25.2.3
-
-- name: Download ORDS
+- name: Download ORDS 26.2.3
   ansible.builtin.get_url:
-    url: https://download.oracle.com/otn_software/java/ords/ords-25.3.0.267.1248.zip
+    url: https://download.oracle.com/otn_software/java/ords/ords-26.2.3.237.1104.zip
     dest: "{{ ords_home }}/ords.zip"
     owner: oracle
     group: oinstall
-    checksum: "sha1:0158b18055dc2b70942e15f6df57051a72f1e073"
+    checksum: "sha1:290626c955d153602d7e9fe5c78978a86051b414"
     mode: "0644"
   become: true
   become_user: oracle
@@ -84,8 +56,6 @@
       {{ dba_password }}
       {{ dba_password }}
       EOF
-  environment:
-    JAVA_HOME: /usr/lib64/graalvm/graalvm22-ee-java17
   become: true
   become_user: oracle
   register: ords_out
@@ -209,7 +179,6 @@
 
 - name: Restart ORDS to pick up all these changes
   ansible.builtin.systemd_service:
-    ansible.builtin.systemd_service:
     daemon_reload: false
     name: ords.service
     state: restarted

@@ -11,50 +11,20 @@
     - "/home/oracle/autoupgrade/logs"
     - "/home/oracle/autoupgrade/patches"
     - "/home/oracle/autoupgrade/conf"
-    - "/u01/app/oracle/product/dbhome_1928"
-    - "/u01/app/oraInventory"
+    - "{{ oracle_home }}"
+    - "{{ oracle_inventory }}"
     - "/u01/oradata"
     - "/u01/fast_recovery_area"
 
-# -------------------------------------------------------------------- Set JDK 1.8
-
-# Only JDK 8 and 11 are supported with AU - else you risk errors
-- name: Get default Java version
-  ansible.builtin.command: java -version
-  register: java_version
-  failed_when: false
-  changed_when: false
-
-- name: Set the JDK to 1.8 if needed
-  when: "'version \"1.8.' not in java_version.stderr"
-  block:
-
-    - name: Get the exact binary path.    # noqa: command-instead-of-module
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail && /usr/bin/rpm -ql java-1.8.0-openjdk-headless | grep 'bin/java'
-      register: java8_binary
-      changed_when: false
-
-    - name: Define the binary name as an Ansible fact
-      ansible.builtin.set_fact:
-        java_binary: "{{ java8_binary.stdout_lines[0] }}"
-
-    - name: Ensure JDK 8 is used for Auto Upgrade      # noqa: command-instead-of-shell
-      ansible.builtin.shell:
-        cmd: "alternatives --set java {{ java_binary }}"
-      register: alternatives_out
-      changed_when: alternatives_out.rc == 0
-
 # -------------------------------------------------------------------- AutoUpgrade
 
-- name: Download AutoUpgrade
+- name: Download AutoUpgrade (checksum matched for version 26.5.260807)
   ansible.builtin.get_url:
     url: https://download.oracle.com/otn-pub/otn_software/autoupgrade.jar
     dest: /home/oracle/autoupgrade/
+    checksum: "sha256:b02dfaa76767abcacd4fb61ea807129811c4a86070453bd7f390c8f0386ef512"
     owner: oracle
     group: oinstall
-    checksum: "sha256:e6d8b40cda4b4ee0392bda2fb4ebccc0015e861d9efb2c2e54cb39cca324a804"
     mode: "0644"
   become: true
   become_user: oracle

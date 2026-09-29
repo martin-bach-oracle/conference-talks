@@ -25,9 +25,8 @@
       - tmux
       - gcc
       - sysstat
-      - oracle-database-preinstall-19c
-      - java-1.8.0-openjdk
-      - graalvm22-ee-17-jdk
+      - oracle-ai-database-preinstall-26ai
+      - jdk-21-headful.x86_64 # AutoUpgrade and ORDS both work with JDK 21
 
 # -------------------------------------------------------------------- Space Management
 

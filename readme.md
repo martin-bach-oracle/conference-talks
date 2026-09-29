@@ -1,17 +1,21 @@
-# DOAG 11/2025: Automating all the things
+# DOAG 11/2026: Automating all the things
 
-This branch accompanies a presentation I gave at the 2025 DOAG conference. It demonstrates using Terraform and Ansible together to provision an Oracle Cloud Infrastructure (OCI) host and configure it with Oracle Database and Oracle REST Data Services (ORDS).
+This branch accompanies a presentation I gave at the 2026 DOAG conference. It demonstrates using Terraform and Ansible together to provision an Oracle Cloud Infrastructure (OCI) host and configure it with Oracle Database and Oracle REST Data Services (ORDS).
 
 ## Terraform
 
 The `terraform` directory defines the OCI infrastructure for the demo:
 
 - `main.tf` configures the OCI provider, looks up availability domains, and creates an Oracle Linux demo compute instance in the private subnet. The instance uses a flexible shape, a 250 GB boot volume, and the supplied SSH public key.
-- `network.tf` creates a VCN with public and private subnets, internet, NAT, and service gateways, route tables, and security lists. The demo host has no public IP; its private subnet allows outbound HTTP and HTTPS for updates and routes internet traffic through the NAT gateway.
+- `network.tf` creates a VCN with one private subnet, NAT and service gateways, a route table, and a security list. The demo host has no public IP; its private subnet allows outbound HTTP and HTTPS for updates through the NAT gateway. The service gateway and its route support OCI Bastion.
 - `bastion.tf` creates an OCI Bastion and a port-forwarding session to the host's SSH port. Terraform outputs the SSH command for that session.
 - `variables.tf` declares OCI credentials, compartment and region, SSH key paths, the allowed client IP/CIDR, and network CIDRs. Supply environment-specific values in a local `.tfvars` file, which is excluded from version control or use environment variables instead.
 
 Together, these resources provide a private host that can be reached over SSH through the Bastion service. The public subnet's security list permits SSH only from `local_laptop_ip`. The network routes and broad demo permissions are intended for this conference example and should be reviewed before reuse.
+
+If you _cannot_ connect to the bastion service, and you are getting `Connection to host.bastion.<location>.oci.oraclecloud.com closed by remote host` errors most likely your local IP address is wrong and you aren't allowed to connect to the system.
+
+After running the command provided by the `connection_details` output, your session will appear _stuck_. It isn't though, open a second terminal tab and proceed with the Ansible configuration.
 
 ## Ansible
 
