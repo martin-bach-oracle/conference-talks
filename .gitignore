@@ -7,3 +7,4 @@ apex
 dist
 .DS_Store
 demo.md
+**/*.venv
