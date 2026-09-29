@@ -6,7 +6,7 @@ terraform {
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = ">= 5.0.0"
+      version = ">= 9.7.1"
     }
   }
 }
@@ -27,6 +27,16 @@ data "oci_identity_availability_domains" "local_ads" {
   compartment_id = var.compartment_ocid
 }
 
+data "oci_core_images" "ol_10_latest" {
+  compartment_id   = var.compartment_ocid
+  operating_system = "Oracle Linux"
+  operating_system_version = "10"
+  shape            = "VM.Standard.E5.Flex"
+  state            = "AVAILABLE"
+  sort_by          = "TIMECREATED"
+  sort_order       = "DESC"
+}
+
 
 # ------------------------------------------------------------------------------------------------
 # compute
@@ -34,7 +44,7 @@ data "oci_identity_availability_domains" "local_ads" {
 resource "oci_core_instance" "doag_compute_instance" {
 
   # hard-coded to AD2 (the third one in FFM)
-  availability_domain = data.oci_identity_availability_domains.local_ads.availability_domains.2.name
+  availability_domain = data.oci_identity_availability_domains.local_ads.availability_domains.0.name
   compartment_id      = var.compartment_ocid
 
   shape = "VM.Standard.E5.Flex"
@@ -92,8 +102,7 @@ resource "oci_core_instance" "doag_compute_instance" {
 
   source_details {
 
-    # https://docs.oracle.com/en-us/iaas/Content/Compute/References/images.htm
-    source_id   = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa6n45jpagnnbup4rfglrbr6g2wk4mwna72tfnsmxcyor5poevokha"
+    source_id   = data.oci_core_images.ol10_latest.images.0.id
     source_type = "image"
 
     boot_volume_size_in_gbs = 250
