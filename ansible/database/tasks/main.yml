@@ -9,6 +9,7 @@
     mode: "0755"
   loop:
     - "/home/oracle/autoupgrade/logs"
+    - "/home/oracle/autoupgrade/bin"
     - "/home/oracle/autoupgrade/patches"
     - "/home/oracle/autoupgrade/conf"
     - "{{ oracle_home }}"
@@ -18,34 +19,58 @@
 
 # -------------------------------------------------------------------- AutoUpgrade
 
-- name: Download AutoUpgrade (checksum matched for version 26.5.260807)
-  ansible.builtin.get_url:
-    url: https://download.oracle.com/otn-pub/otn_software/autoupgrade.jar
-    dest: /home/oracle/autoupgrade/
-    checksum: "sha256:b02dfaa76767abcacd4fb61ea807129811c4a86070453bd7f390c8f0386ef512"
-    owner: oracle
-    group: oinstall
-    mode: "0644"
+- name: Download and run AutoUpgrade as oracle
   become: true
   become_user: oracle
+  block:
+    - name: Download AutoUpgrade metadata
+      ansible.builtin.get_url:
+        url: https://download.oracle.com/otn-pub/otn_software/autoupgrade.json
+        dest: /home/oracle/autoupgrade/autoupgrade.json
+        mode: '0644'
 
-- name: Deploy AutoUpgrade configuration file
-  ansible.builtin.template:
-    src: "templates/install-home.j2"
-    dest: "/home/oracle/autoupgrade/conf/install-home.cfg"
-    mode: "0644"
+    - name: Read AutoUpgrade metadata
+      ansible.builtin.slurp:
+        src: /home/oracle/autoupgrade/autoupgrade.json
+      register: autoupgrade_metadata_file
 
-- name: Run AutoUpgrade's create home command
-  ansible.builtin.shell:
-    cmd: |
-      cd /home/oracle/autoupgrade/
-      java -jar autoupgrade.jar -config conf/install-home.cfg -mode create_home -noconsole
-  become: true
-  become_user: oracle
-  register: au_state
-  args:
-    creates: "{{ oracle_home }}/root.sh"
-  failed_when: au_state.rc not in [0, 6]
+    - name: Parse AutoUpgrade metadata
+      ansible.builtin.set_fact:
+        autoupgrade_metadata: "{{ autoupgrade_metadata_file.content | b64decode | from_json }}"
+
+    - name: Validate AutoUpgrade metadata
+      ansible.builtin.assert:
+        that:
+          - autoupgrade_metadata.version | string is match('^[0-9]+(\.[0-9]+)*$')
+          - autoupgrade_metadata.downloadUrl is match('^https://')
+          - autoupgrade_metadata.checksum is match('^[0-9a-fA-F]{64}$')
+
+    - name: Download and verify AutoUpgrade JAR
+      # this is perhaps acceptable because the file is so small. Larger files should
+      # be treated differently: validate if the file exists, proceeding with the
+      # download only if the file is NOT present
+      ansible.builtin.get_url:
+        url: "{{ autoupgrade_metadata.downloadUrl }}"
+        dest: "/home/oracle/autoupgrade/bin/autoupgrade.jar"
+        checksum: "sha256:{{ autoupgrade_metadata.checksum }}"
+        mode: '0644'
+
+    - name: Deploy AutoUpgrade configuration file
+      ansible.builtin.template:
+        src: "templates/install-home.j2"
+        dest: "/home/oracle/autoupgrade/conf/install-home.cfg"
+        mode: "0644"
+        owner: oracle
+        group: oinstall
+
+    - name: Run AutoUpgrade's create home command
+      ansible.builtin.shell:
+        cmd: |
+          java -jar /home/oracle/autoupgrade/bin/autoupgrade.jar -config /home/oracle/autoupgrade/conf/install-home.cfg -mode create_home -noconsole
+      register: au_state
+      args:
+        creates: "{{ oracle_home }}/root.sh"
+      failed_when: au_state.rc not in [0, 6]
 
 - name: Run root.sh
   ansible.builtin.command:
