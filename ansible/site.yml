@@ -9,10 +9,10 @@
         msg: Make sure to pass the dba_password as an extra variable to the playbook
       when: dba_password is undefined
 
-    - name: Check for Oracle Linux
+    - name: Check for Oracle Linux 10
       ansible.builtin.fail:
         msg: "This playbook requires Oracle Linux 10, this is  {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }}"
-      when: ansible_facts.distribution == "OracleLinux" and ansible_facts.distribution_major_version != "10"
+      when: ansible_facts.distribution != "OracleLinux" or ansible_facts.distribution_major_version != "10"
 
     - name: Ensure Intel x86-64
       ansible.builtin.fail:
@@ -24,7 +24,7 @@
         name: hostconfig
       tags: hostconfig
 
-    - name: Install Oracle AI Database 23.26.3 and create a database
+    - name: Install Oracle AI Database 23.26.4 and create a database
       ansible.builtin.include_role:
         name: database
       tags: database

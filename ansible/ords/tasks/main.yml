@@ -13,7 +13,7 @@
     - "{{ ords_certs }}"
     - "{{ ords_logs }}"
 
-# -------------------------------------------------------------------- ORDS 26.2.3
+# -------------------------------------------------------------------- ORDS 26.3.0
 
 - name: Download 26.3.0.272.1811
   ansible.builtin.get_url:
@@ -21,7 +21,7 @@
     dest: "{{ ords_home }}/ords.zip"
     owner: oracle
     group: oinstall
-    checksum: "sha1:290626c955d153602d7e9fe5c78978a86051b414"
+    checksum: "sha1:ebca8c73e8d34f0584bef8f381ec5754d80d9981"
     mode: "0644"
   become: true
   become_user: oracle
