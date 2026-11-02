@@ -15,9 +15,9 @@
 
 # -------------------------------------------------------------------- ORDS 26.2.3
 
-- name: Download ORDS 26.2.3
+- name: Download 26.3.0.272.1811
   ansible.builtin.get_url:
-    url: https://download.oracle.com/otn_software/java/ords/ords-26.2.3.237.1104.zip
+    url: https://download.oracle.com/otn_software/java/ords/ords-26.3.0.272.1811.zip
     dest: "{{ ords_home }}/ords.zip"
     owner: oracle
     group: oinstall

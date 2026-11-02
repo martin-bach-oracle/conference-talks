@@ -7,8 +7,8 @@
     state: permissive
     policy: targeted
   when:
-    - ansible_selinux.mode != "permissive"
-    - ansible_selinux.config_mode != "permissive"
+    - ansible_facts.selinux.mode != "permissive"
+    - ansible_facts.selinux.config_mode != "permissive"
 
 # -------------------------------------------------------------------- RPMs
 

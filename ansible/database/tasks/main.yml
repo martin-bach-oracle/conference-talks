@@ -17,6 +17,15 @@
     - "/u01/oradata"
     - "/u01/fast_recovery_area"
 
+# -------------------------------------------------------------------- Gold Image
+- name: copy the gold image to the ansible target host
+  ansible.builtin.copy:
+    src: /Users/martin.b.bach/stage/Gold Images/23.26.4/p40014644_230000_Linux-x86-64.zip
+    dest: /home/oracle/autoupgrade/patches
+    owner: oracle
+    group: oinstall
+    mode: '0644'
+
 # -------------------------------------------------------------------- AutoUpgrade
 
 - name: Download and run AutoUpgrade as oracle
