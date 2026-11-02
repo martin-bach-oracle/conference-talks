@@ -26,8 +26,8 @@ Carefully review the output at each step before approving! Note that you **will 
 The `ansible` directory configures the provisioned host and installs the database and ORDS. The entry point is `site.yml`, which targets the `demo` inventory group, checks the operating system and architecture, requires `dba_password`, and runs three tagged roles in order:
 
 1. `hostconfig` sets SELinux to permissive mode for the demo, installs required packages including `oracle-ai-database-preinstall-26ai` and JDK 21, and extends the root LVM volume when the expected disk layout has room for another partition.
-2. `database` uses AutoUpgrade to create an Oracle AI Database 26ai home at `/u01/app/oracle/product/23.26.3`, creates the `ORCL` container database and `PDB1`, and installs a systemd service for the database and listener.
-3. `ords` downloads and installs ORDS 26.2.3 against the CDB, configures it as a systemd service, enables the `APIUSER` schema in `PDB1`, and creates the sample `SCOTT` schema and tables. It also configures the `C##DBAPI_CDB_ADMIN` account and ORDS `devops` user for the PDB lifecycle management API.
+2. `database` uses AutoUpgrade to create an Oracle AI Database 26ai home at `/u01/app/oracle/product/23.26.4`, creates the `ORCL` container database and `PDB1`, and installs a systemd service for the database and listener.
+3. `ords` downloads and installs ORDS 26.3.0 against the CDB, configures it as a systemd service, enables the `APIUSER` schema in `PDB1`, and creates the sample `SCOTT` schema and tables. It also configures the `C##DBAPI_CDB_ADMIN` account and ORDS `devops` user for the PDB lifecycle management API.
 
 Role task files are under `hostconfig/tasks`, `database/tasks`, and `ords/tasks`. Their Jinja templates generate AutoUpgrade and SQL scripts plus the database and ORDS systemd units. Shared database paths are in `group_vars/all.yml`; ORDS paths are in `ords/vars/main.yml`. `hosts` is an example inventory pointing to `127.0.0.1:2222` through an SSH tunnel.
 
@@ -77,7 +77,7 @@ Open a second terminal and connect through the local end of the tunnel:
 ssh -i <private-key> -p 2222 opc@127.0.0.1
 ```
 
-The Ansible `ords` role installs ORDS on the VM, configures `C##DBAPI_CDB_ADMIN` as the CDB administrator, and creates the ORDS `devops` user with the `SQL Administrator` role required by the [ORDS Pluggable Database Lifecycle Management API](https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/26.2/orrst/Authentication-PDB.html). The `devops` password is the `dba_password` supplied when the playbook was run.
+The Ansible `ords` role installs ORDS on the VM, configures `C##DBAPI_CDB_ADMIN` as the CDB administrator, and creates the ORDS `devops` user with the `SQL Administrator` role required by the [ORDS Pluggable Database Lifecycle Management API](https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/26.3/orrst/Authentication-PDB.html). The `devops` password is the `dba_password` supplied when the playbook was run.
 
 On the VM, read the password without echoing it and list the existing PDBs:
 
@@ -102,7 +102,7 @@ curl --fail-with-body --silent --show-error \
   "${ORDS_PDB_URL}/PDB1" | python3 -m json.tool
 ```
 
-Submit the clone request. The [ORDS 26.2 create-PDB operation](https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/26.2/orrst/op-database-pdbs-post.html) accepts `new_pdb_name` and `source_pdb_name` at the PDB collection endpoint:
+Submit the clone request. The [ORDS 26.3 create-PDB operation](https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/26.3/orrst/op-database-pdbs-post.html) accepts `new_pdb_name` and `source_pdb_name` at the PDB collection endpoint:
 
 ```sh
 curl --fail-with-body --silent --show-error \
