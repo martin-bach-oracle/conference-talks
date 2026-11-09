@@ -1,0 +1,297 @@
+customAttribute attribute_01 (
+    apexlangName: enableImageResize
+    attribute: 1
+    name: Enable Image Resize
+    type: yesNo
+    appearance {
+        sequence: 10
+    }
+    help {
+        helpText: This option enables image resizing before the file is uploaded to the server.
+    }
+)
+
+customAttribute attribute_02 (
+    apexlangName: maxImageSize
+    attribute: 2
+    name: Max. Image Size
+    type: integer
+    validation {
+        required: true
+    }
+    appearance {
+        sequence: 20
+    }
+    default {
+        value: 1024
+    }
+    dependingOn {
+        attribute: @attribute_01/component
+        conditionType: =
+        value: Y
+    }
+    help {
+        helpText: This option downscales the image to fit into max * max size.
+    }
+)
+
+customAttribute attribute_03 (
+    apexlangName: enableImagePreview
+    attribute: 3
+    name: Enable Image Preview
+    type: yesNo
+    appearance {
+        sequence: 30
+    }
+    dependingOn {
+        attribute: @attribute_01/component
+        conditionType: =
+        value: Y
+    }
+    help {
+        helpText: This option enables previewing the downscaled image within a given HTML container element.
+    }
+)
+
+customAttribute attribute_04 (
+    apexlangName: previewContainerSelector
+    attribute: 4
+    name: Preview Container Selector
+    validation {
+        required: true
+    }
+    appearance {
+        sequence: 40
+    }
+    dependingOn {
+        attribute: @attribute_03/component
+        conditionType: =
+        value: Y
+    }
+    help {
+        helpText: This option defines the HTML container element which is used to render the image preview. Use an valid jQuery selector
+    }
+    examples {
+        examples: .my_element, #MY_ELEMENT
+    }
+)
+
+customAttribute attribute_05 (
+    apexlangName: saveFilesIn
+    attribute: 5
+    name: Save Files In
+    type: selectList
+    validation {
+        required: true
+    }
+    appearance {
+        sequence: 50
+    }
+    default {
+        value: COLLECTION
+    }
+    help {
+        helpText: Either store the uploaded files in an APEX Collection by just providing the collection name or by providing custom PL/SQL code. The latter gives you full control over the saving logic.
+    }
+
+    entry apexCollection (
+        sequence: 10
+        display: APEX Collection
+        return: COLLECTION
+    )
+
+    entry plSql (
+        sequence: 20
+        display: PL/SQL
+        return: PLSQL
+    )
+
+)
+
+customAttribute attribute_06 (
+    apexlangName: collectionName
+    attribute: 6
+    name: Collection Name
+    validation {
+        required: true
+    }
+    appearance {
+        sequence: 60
+    }
+    dependingOn {
+        attribute: @attribute_05/component
+        conditionType: =
+        value: COLLECTION
+    }
+    help {
+        helpText: Enter the name of the APEX Collection storing the uploaded files.
+    }
+    examples {
+        examples:
+            ```
+            <pre>
+            select seq_id,
+                   c001    as file_name,
+                   c002    as mime_type,
+                   c003    as file_metadata,
+                   d001    as upload_date,
+                   n001    as file_size,
+                   blob001 as file_content
+              from apex_collections
+             where collection_name = '<YOUR_COLLECTION_NAME>'
+            </pre>
+            ```
+    }
+)
+
+customAttribute attribute_07 (
+    apexlangName: plSqlCode
+    attribute: 7
+    name: PL/SQL Code
+    type: plsqlCode
+    validation {
+        required: true
+    }
+    appearance {
+        sequence: 70
+    }
+    dependingOn {
+        attribute: @attribute_05/component
+        conditionType: =
+        value: PLSQL
+    }
+    help {
+        helpText: This option defines the PL/SQL Code which is used to process the uploaded files. This can be used to store the files to a given table or collection.
+    }
+    examples {
+        examples:
+            ```
+            <pre>
+            declare
+                l_collection  varchar2( 255 )  := 'FILE_UPLOAD_COLLECTION';
+            begin
+                if not apex_collection.collection_exists( p_collection_name => l_collection ) then
+                    apex_collection.create_collection( p_collection_name => l_collection );
+                end if;
+            
+                for l_rec_file in ( select aaf.filename,    -- file name
+                                           aaf.mime_type,   -- mime type
+                                           aaf.doc_size,    -- file size in byte
+                                           aaf.blob_content -- file content as blob
+                                      from apex_application_files aaf
+                                     where aaf.name = :APEX$STORAGENAME ) loop
+                  
+                    apex_collection.add_member(
+                        p_collection_name => l_collection,
+                        p_c001            => l_rec_file.filename,
+                        p_c002            => l_rec_file.mime_type,
+                        p_c003            => :APEX$METADATA,
+                        p_c004            => :P99_ITEM1 || ', ' || :P99_ITEM2,
+                        p_n001            => l_rec_file.doc_size,
+                        p_blob001         => l_rec_file.blob_content
+                    );
+            
+                end loop;
+            
+            end;
+            </pre>
+            ```
+    }
+)
+
+customAttribute attribute_08 (
+    apexlangName: pageItemsToSubmit
+    attribute: 8
+    name: Page Items to Submit
+    type: pageItems
+    appearance {
+        sequence: 80
+    }
+    dependingOn {
+        attribute: @attribute_05/component
+        conditionType: =
+        value: PLSQL
+    }
+    help {
+        helpText: This options defines the page items which will get submitted to the server during file upload. The session state of these items is then available on the server.
+    }
+)
+
+customAttribute attribute_09 (
+    apexlangName: showProcessing
+    attribute: 9
+    name: Show Processing
+    type: yesNo
+    appearance {
+        sequence: 90
+    }
+    default {
+        value: true
+    }
+    help {
+        helpText: This option enables a waiting indicator during file upload to show a user that something is processing in the background.
+    }
+)
+
+customAttribute attribute_10 (
+    apexlangName: cancelUploadsUsingEscKey
+    attribute: 10
+    name: Cancel Uploads using ESC Key
+    type: yesNo
+    appearance {
+        sequence: 100
+    }
+    help {
+        helpText: Should it be possible to cancel file uploads pressing the ESC key? This will only cancel the particular file which is uploaded, if multiple file uploads are configured, the next file will be processed.
+    }
+)
+
+customAttribute attribute_11 (
+    apexlangName: fileProcessingJavascriptFunction
+    attribute: 11
+    name: File Processing JavaScript Function
+    type: javaScriptCode
+    appearance {
+        sequence: 110
+    }
+    help {
+        helpText: "Provide an optional async JavaScript function to do file manipulations before the file gets uploaded to the server. To add metadata to a file use <i>file._metadata = {}</i>, this can then be used with the bind variable <i>:APEX$METADATA</i> on the server. To cancel the upload of a given file, just add <i>file._cancel = true</i> flag."
+    }
+    examples {
+        examples:
+            ```
+            <pre>
+            async function( file ) {
+                file._metadata = { "field1": "value1", "field2": "value2" };
+                return file;
+            }
+            </pre>
+            
+            <pre>
+            async function( file ) {
+            
+                if ( file.type.startsWith( "image/" ) ) {
+                    file._metadata = await getEXIFMetadata( file );
+                }
+            
+                if ( file.type.startsWith( "audio/" ) ) {
+                    const tags = await getAudioMetadata( file );
+                    file._metadata = {
+                        artist: tags.artist,
+                        title: tags.title,
+                        album: tags.album,
+                        year: tags.year
+                    }
+                }
+            
+                if ( file.name.toLowerCase().endsWith( ".txt" ) ) {
+                    file._cancel = true;
+                }
+            
+                return file;
+            }
+            </pre>
+            ```
+    }
+)
+

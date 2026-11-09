@@ -1,0 +1,734 @@
+page 2 (
+    name: Photo Metadata Details
+    alias: PHOTO-METADATA-DETAILS
+    title: Photo Metadata Details
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    navigation {
+        cursorFocus: doNotFocusCursor
+        warnOnUnsavedChanges: false
+    }
+    css {
+        inline:
+            ```css
+            /* Seite: begrenzt die Detailseite auf eine gut lesbare Breite. */
+            #exif-details {
+                margin-inline: auto;
+                max-inline-size: 82rem;
+            }
+            
+            /* Seite: versteckt die äußere technische Regionsüberschrift der Detailseite. */
+            #exif-details > .t-Region-header {
+                display: none;
+            }
+            
+            /* Alle sichtbaren Kartenregionen: einheitlicher grauer Header. */
+            #exif-photo .t-Region-header,
+            #exif-data .t-Region-header,
+            #exif-map .t-Region-header,
+            #google-ai-analysis .t-Region-header {
+                background: #f1f3f5;
+                border-block-end: 1px solid rgba(31, 41, 55, .14);
+            }
+            
+            /* Alle sichtbaren Kartenregionen: einheitlicher fetter Titel. */
+            #exif-photo .t-Region-title,
+            #exif-data .t-Region-title,
+            #exif-map .t-Region-title,
+            #google-ai-analysis .t-Region-title {
+                font-weight: 700;
+                letter-spacing: 0;
+                text-transform: none;
+            }
+            
+            /* Region Photo: setzt Innenabstand für das Bild und die Foto-Felder. */
+            #exif-photo .t-Region-body {
+                padding: 1.25rem;
+            }
+            
+            #exif-photo .t-Form-fieldContainer {
+                margin-block-end: 1rem;
+            }
+            
+            /* Region Photo: entfernt Zusatzabstand um das Foto-Item. */
+            #P2_PHOTO_CONTAINER {
+                margin-block: 0;
+            }
+            
+            /* Region Photo: rundet Foto und Container gleichmäßig ab. */
+            #P2_PHOTO,
+            #P2_PHOTO_CONTAINER .t-Form-inputContainer,
+            #P2_PHOTO_CONTAINER .display_only {
+                border-radius: 18px;
+                overflow: hidden;
+            }
+            
+            /* Region Photo: zeigt das Bild kompakt, ohne es zu beschneiden. */
+            #P2_PHOTO img {
+                background: #ffffff;
+                border: 0;
+                border-radius: 18px;
+                box-shadow: none;
+                clip-path: inset(0 round 18px);
+                display: block;
+                inline-size: auto;
+                margin-inline: auto;
+                max-inline-size: 100%;
+                object-fit: contain;
+            }
+            
+            /* Region Google AI Analysis: aligns the display-only text at the top left. */
+            #google-ai-analysis .t-Region-body {
+                display: block !important;
+                padding: 1.25rem !important;
+                text-align: start;
+            }
+            
+            #google-ai-analysis .t-Region-bodyWrap,
+            #google-ai-analysis .t-Region-body .container,
+            #google-ai-analysis .t-Region-body .row,
+            #google-ai-analysis .t-Region-body .col {
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+            }
+            
+            /* Region Google AI Analysis: hides the display-only item label. */
+            #P2_AI_REASON_CONTAINER .t-Form-labelContainer {
+                display: none !important;
+            }
+            
+            /* Region Google AI Analysis: removes field borders and form styling from the item. */
+            #P2_AI_REASON_CONTAINER,
+            #P2_AI_REASON_CONTAINER .t-Form-inputContainer,
+            #P2_AI_REASON_CONTAINER .t-Form-itemWrapper {
+                display: block !important;
+                inline-size: 100% !important;
+                margin: 0 !important;
+                min-block-size: 0 !important;
+                padding: 0 !important;
+            }
+            
+            #P2_AI_REASON,
+            #P2_AI_REASON_DISPLAY,
+            #P2_AI_REASON_CONTAINER .display_only {
+                background: transparent !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                color: #111827;
+                display: block !important;
+                font-size: 1rem;
+                font-weight: 400 !important;
+                line-height: 1.45;
+                margin: 0 !important;
+                min-block-size: 0 !important;
+                outline: 0 !important;
+                overflow-wrap: anywhere;
+                padding: 0 !important;
+                text-align: start !important;
+                vertical-align: top !important;
+                white-space: pre-wrap;
+            }
+            
+            /* Region EXIF Data: eingerahmte Listenoptik. */
+            #exif-data .t-AVPList {
+                border: 1px solid rgba(31, 41, 55, .14);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            
+            /* Region EXIF Data: linke Label-Spalte. */
+            #exif-data .t-AVPList-label {
+                background: #f7f8fa;
+                color: #111827;
+                font-weight: 700;
+            }
+            
+            /* Region EXIF Data: lange Werte umbrechen. */
+            #exif-data .t-AVPList-value {
+                overflow-wrap: anywhere;
+                white-space: pre-wrap;
+            }
+            
+            /* Region Realness Score: compact score derived from the Google Gemini assessment. */
+            #realness-score .t-Region-header {
+                background: #f1f3f5;
+                border-block-end: 1px solid rgba(31, 41, 55, .14);
+                text-align: center;
+            }
+            
+            #realness-score .t-Region-title {
+                font-weight: 700;
+                letter-spacing: 0;
+                text-align: center;
+                text-transform: none;
+                inline-size: 100%;
+            }
+            
+            #realness-score .t-Region-body {
+                display: flex;
+                justify-content: center;
+                padding: 1.25rem !important;
+                text-align: center;
+            }
+            
+            #P2_REALNESS_SCORE_CONTAINER .t-Form-labelContainer {
+                display: none !important;
+            }
+            
+            #P2_REALNESS_SCORE_CONTAINER,
+            #P2_REALNESS_SCORE_CONTAINER .t-Form-inputContainer,
+            #P2_REALNESS_SCORE_CONTAINER .t-Form-itemWrapper,
+            #P2_REALNESS_SCORE,
+            #P2_REALNESS_SCORE_DISPLAY,
+            #P2_REALNESS_SCORE_CONTAINER .display_only {
+                background: transparent !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                color: #111827;
+                font-size: 1.7rem;
+                font-weight: 800;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            ```
+    }
+    security {
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+
+    region breadcrumb (
+        name: Breadcrumb
+        type: breadcrumb
+        source {
+            breadcrumb: @breadcrumb
+        }
+        layout {
+            sequence: 10
+            slot: breadcrumbBar
+        }
+        appearance {
+            template: @/title-bar
+            templateOptions: [
+                #DEFAULT#
+                t-BreadcrumbRegion--useBreadcrumbTitle
+            ]
+        }
+        componentAppearance {
+            breadcrumbTemplate: @/breadcrumb
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region exif-data (
+        name: EXIF Data
+        type: classicReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select
+                            id,
+                            make,
+                            model,
+                            lens_make,
+                            lens_model,
+                            focal_length,
+                            case
+                                when exposure_time is null then null
+                                when exposure_time >= 1 then to_char(round(exposure_time, 2)) || ' s'
+                                else '1/' || to_char(round(1 / exposure_time)) || ' s'
+                            end as exposure_time,
+                            case
+                                when aperture is not null then 'f/' || to_char(round(aperture, 1))
+                            end as aperture,
+                            iso,
+                            flash,
+                            latitude,
+                            longitude
+                        from
+                            mle_data,
+                            json_table(
+                                mle_data.exif_data, '$'
+                                columns (
+                                    make          varchar2(150) path '$.Make',
+                                    model         varchar2(150) path '$.Model',
+                                    lens_make     varchar2(150) path '$.LensMake',
+                                    lens_model    varchar2(150) path '$.LensModel',
+                                    focal_length  varchar2(150) path '$.FocalLength',
+                                    exposure_time number        path '$.ExposureTime',
+                                    aperture      number        path '$.FNumber',
+                                    iso           number        path '$.ISO',
+                                    flash         varchar2(150) path '$.Flash',
+                                    latitude      number        path '$.latitude',
+                                    longitude     number        path '$.longitude'
+                                )
+                            ) jt
+                        where
+                            id = :P2_ID
+                ```
+        }
+        layout {
+            sequence: 50
+            parentRegion: @summary
+            slot: subRegions
+            startNewRow: false
+            newColumn: false
+        }
+        appearance {
+            template: @/cards-container
+            templateOptions: [
+                #DEFAULT#
+                t-CardsRegion--hideHeader js-addHiddenHeadingRoleDesc
+            ]
+        }
+        advanced {
+            htmlDomId: exif-data
+        }
+        componentAppearance {
+            template: @/value-attribute-pairs-column
+            templateOptions: [
+                #DEFAULT#
+                t-AVPList--leftAligned
+            ]
+        }
+        messages {
+            whenNoDataFound: Photo does not contain any EXIF data
+        }
+
+        column APERTURE (
+            reportColumnQueryId: 8
+            derivedColumn: N
+            heading {
+                heading: Aperture
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column EXPOSURE_TIME (
+            reportColumnQueryId: 7
+            derivedColumn: N
+            heading {
+                heading: Exposure Time
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column FLASH (
+            reportColumnQueryId: 10
+            derivedColumn: N
+            heading {
+                heading: Flash
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column FOCAL_LENGTH (
+            reportColumnQueryId: 6
+            derivedColumn: N
+            heading {
+                heading: Focal Length
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column ID (
+            reportColumnQueryId: 1
+            derivedColumn: N
+            heading {
+                heading: Id
+                alignment: end
+            }
+            layout {
+                sequence: 10
+                columnAlignment: end
+            }
+        )
+
+        column ISO (
+            reportColumnQueryId: 9
+            derivedColumn: N
+            heading {
+                heading: Iso
+                alignment: end
+            }
+            layout {
+                sequence: 90
+                columnAlignment: end
+            }
+        )
+
+        column LATITUDE (
+            reportColumnQueryId: 11
+            derivedColumn: N
+            heading {
+                heading: Latitude
+                alignment: end
+            }
+            layout {
+                sequence: 110
+                columnAlignment: end
+            }
+        )
+
+        column LENS_MAKE (
+            reportColumnQueryId: 4
+            derivedColumn: N
+            heading {
+                heading: Lens Make
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column LENS_MODEL (
+            reportColumnQueryId: 5
+            derivedColumn: N
+            heading {
+                heading: Lens Model
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column LONGITUDE (
+            reportColumnQueryId: 12
+            derivedColumn: N
+            heading {
+                heading: Longitude
+                alignment: end
+            }
+            layout {
+                sequence: 120
+                columnAlignment: end
+            }
+        )
+
+        column MAKE (
+            reportColumnQueryId: 2
+            derivedColumn: N
+            heading {
+                heading: Make
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column MODEL (
+            reportColumnQueryId: 3
+            derivedColumn: N
+            heading {
+                heading: Model
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+    )
+
+    region google-gemini-ai-analysis (
+        name: Google Gemini AI Analysis
+        type: staticContent
+        layout {
+            sequence: 40
+            parentRegion: @summary
+            slot: subRegions
+            startNewRow: false
+        }
+        appearance {
+            template: @/standard
+            templateOptions: [
+                #DEFAULT#
+                t-Region--scrollBody
+            ]
+        }
+        advanced {
+            htmlDomId: google-ai-analysis
+        }
+    )
+
+    region map (
+        name: Map
+        type: map
+        layout {
+            sequence: 30
+            parentRegion: @summary
+            slot: subRegions
+            startNewRow: false
+            newColumn: false
+        }
+        appearance {
+            template: @/standard
+            templateOptions: [
+                #DEFAULT#
+                t-Region--scrollBody
+            ]
+        }
+        advanced {
+            htmlDomId: exif-map
+        }
+        controls {
+            options: [
+                scaleBar
+                infiniteMap
+                rectangleZoom
+            ]
+        }
+        attributes {
+            messagesPosition: below
+        }
+
+        layer location (
+            name: Location
+            layout {
+                sequence: 10
+            }
+            source {
+                tableName: MLE_DATA
+                whereClause: id = :P2_ID
+            }
+            columnMapping {
+                geometryColumnDataType: longitudeLatitude
+                longitudeColumn: LON
+                latitudeColumn: LAT
+                primaryKeyColumn: ID
+            }
+        )
+
+    )
+
+    region photo (
+        name: Photo
+        type: staticContent
+        layout {
+            sequence: 10
+            parentRegion: @summary
+            slot: subRegions
+            columnSpan: 5
+        }
+        appearance {
+            template: @/standard
+            templateOptions: [
+                #DEFAULT#
+                t-Region--scrollBody
+            ]
+        }
+        advanced {
+            htmlDomId: exif-photo
+        }
+    )
+
+    region realness-score (
+        name: Realness Score
+        type: staticContent
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: [
+                #DEFAULT#
+                t-Region--scrollBody
+            ]
+        }
+        advanced {
+            htmlDomId: realness-score
+        }
+    )
+
+    region summary (
+        name: Summary
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: [
+                #DEFAULT#
+                t-Region--scrollBody
+            ]
+        }
+        advanced {
+            htmlDomId: exif-details
+        }
+    )
+
+    pageItem P2_AI_ASSESSMENT_JSON (
+        type: hidden
+        layout {
+            sequence: 50
+            slot: body
+        }
+    )
+
+    pageItem P2_AI_ASSESSMENT_POST_ID (
+        type: hidden
+        layout {
+            sequence: 40
+            slot: body
+        }
+    )
+
+    pageItem P2_AI_REASON (
+        type: displayOnly
+        label {
+            label: Ai Reason
+            alignment: left
+        }
+        settings {
+            format: html
+        }
+        layout {
+            sequence: 10
+            region: @google-gemini-ai-analysis
+            slot: regionBody
+            alignment: left
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P2_ID (
+        type: hidden
+        layout {
+            sequence: 30
+            slot: body
+        }
+    )
+
+    pageItem P2_PHOTO (
+        type: displayImage
+        label {
+            alignment: left
+        }
+        settings {
+            basedOn: blobColSql
+            sqlQuery:
+                ```sql
+                select
+                    file_blob
+                from
+                    MLE_DATA
+                where
+                    id = :P2_id
+                ```
+        }
+        layout {
+            sequence: 10
+            region: @photo
+            slot: regionBody
+            alignment: left
+            column: 3
+            columnSpan: 8
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P2_REALNESS_SCORE (
+        type: displayOnly
+        label {
+            label: Realness Score
+            alignment: left
+        }
+        layout {
+            sequence: 10
+            region: @realness-score
+            slot: regionBody
+            alignment: left
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction new (
+        name: ai_assessment
+        execution {
+            sequence: 10
+        }
+        when {
+            event: ready
+        }
+
+        action ai-assessment-server-side (
+            name: AI assessment server-side
+            action: executeServerSideCode
+            settings {
+                language: js-mle
+                jsCode:
+                    ```javascript-mle
+                    const { analyzePhotoWithGemini } = await import('gemini-ai-verify-module');
+                    const { getAssessmentReason, formatRealnessScore } =
+                        await import('realness-score-module');
+                    const postId = apex.env.P2_ID;
+                    const assessment = analyzePhotoWithGemini(postId);
+                    
+                    apex.env.P2_AI_ASSESSMENT_POST_ID = postId;
+                    apex.env.P2_AI_ASSESSMENT_JSON = assessment;
+                    apex.env.P2_AI_REASON = JSON.parse(assessment).reason || "assessment error";
+                    apex.env.P2_REALNESS_SCORE = formatRealnessScore(
+                        assessment,
+                        postId,
+                        postId
+                    );
+                    ```
+                itemsToReturn: [
+                    P2_AI_ASSESSMENT_POST_ID
+                    P2_AI_ASSESSMENT_JSON
+                    P2_AI_REASON
+                    P2_REALNESS_SCORE
+                ]
+                showProcessing: true
+            }
+            execution {
+                sequence: 20
+            }
+        )
+
+        action reset-ai-assessment (
+            name: Reset AI assessment
+            action: executeJsCode
+            settings {
+                jsCode:
+                    ```javascript-browser
+                        apex.item("P2_AI_ASSESSMENT_POST_ID").setValue("");
+                        apex.item("P2_AI_ASSESSMENT_JSON").setValue("");
+                        apex.item("P2_AI_REASON").setValue("");
+                        apex.item("P2_REALNESS_SCORE").setValue("Assessment pending");
+                    ```
+            }
+            execution {
+                sequence: 10
+            }
+        )
+
+    )
+
+)
+

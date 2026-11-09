@@ -1,0 +1,56 @@
+installScript "MLE objects" (
+    execution {
+        sequence: 20
+    }
+    script {
+        contentFile: mle-objects.sql
+    }
+
+    databaseObject (
+        owner: #OWNER#
+        type: mleEnvironment
+        name: MLE_EXIF_ENV
+    )
+
+    databaseObject (
+        owner: #OWNER#
+        type: mleModule
+        name: MLE_EXIFR_MODULE
+    )
+
+    databaseObject (
+        owner: #OWNER#
+        type: mleModule
+        name: MLE_GEMINI_AI_VERIFY_MODULE
+    )
+
+    databaseObject (
+        owner: #OWNER#
+        type: mleModule
+        name: MLE_REALNESS_SCORE_MODULE
+    )
+
+)
+
+installScript "Table MLE_DATA" (
+    execution {
+        sequence: 10
+    }
+    script {
+        contentFile: table-mle-data.sql
+    }
+
+    databaseObject (
+        owner: #OWNER#
+        type: table
+        name: MLE_DATA
+    )
+
+    databaseObject (
+        owner: #OWNER#
+        type: trigger
+        name: MLE_DATA_BIU
+    )
+
+)
+

@@ -1,0 +1,18 @@
+breadcrumb breadcrumb (
+    name: Breadcrumb
+
+    entry post-details (
+        name: Photo Metadata Details
+        pageNumber: 2
+        execution {
+            sequence: 10
+        }
+        link {
+            target: {
+                page: 2
+            }
+        }
+    )
+
+)
+

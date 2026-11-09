@@ -1,0 +1,993 @@
+page 1 (
+    name: Photo Metadata
+    alias: PHOTO-METADATA
+    title: Photo Metadata
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    navigationMenu {
+        overrideUserInterfaceLevel: true
+    }
+    navigation {
+        cursorFocus: doNotFocusCursor
+    }
+    javaScript {
+        executeWhenPageLoads:
+            ```javascript-browser
+            apex.actions.add([{
+                name: "delete",
+                action: (event, element, args) => {
+                    apex.items.P1_ACTION_ID.value = args.id;
+                    apex.event.trigger(document, 'action-delete');
+                }
+            }, {
+                name: "open-map",
+                action: () => {
+                    apex.event.trigger(document, 'action-open-map');
+                }
+            }, {
+                name: "open-about",
+                action: () => {
+                    apex.event.trigger(document, 'action-open-about');
+                }
+            }]);
+            
+            window.setTimeout(() => {
+                const timeline = apex.region("timeline");
+            
+                if (timeline && timeline.refresh) {
+                    timeline.refresh();
+                }
+            }, 5000);
+            ```
+    }
+    css {
+        inline:
+            ```css
+            /* Ordnet Suchfeld und "Add Post"-Button in der Timeline-Toolbar an. */
+            #timeline-toolbar {
+                --timeline-control-height: 4.45rem;
+                margin: 1rem 1rem 2.75rem;
+            }
+            
+            #timeline-toolbar .t-ButtonRegion-wrap,
+            #timeline-toolbar .t-Region-body {
+                align-items: stretch;
+                display: flex;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            
+            #timeline-toolbar .t-ButtonRegion-col,
+            #timeline-toolbar .t-ButtonRegion-buttons {
+                display: flex;
+            }
+            
+            #timeline-toolbar .t-ButtonRegion-col--right {
+                order: 1;
+            }
+            
+            #timeline-toolbar .t-ButtonRegion-col--content {
+                flex: 1 1 28rem;
+                order: 2;
+            }
+            
+            #timeline-toolbar .t-ButtonRegion-body {
+                inline-size: 100%;
+            }
+            
+            #timeline-toolbar .t-Form-fieldContainer {
+                inline-size: 100%;
+                margin-block: 0;
+                min-inline-size: min(48rem, 100%);
+            }
+            
+            /* Macht das Suchfeld optisch gleich hoch wie den Button daneben. */
+            #timeline-toolbar .t-Form-inputContainer,
+            #timeline-toolbar .apex-item-text {
+                block-size: var(--timeline-control-height);
+            }
+            
+            #timeline-toolbar .apex-item-text {
+                font-size: 1.125rem;
+                padding-block: 1rem;
+            }
+            
+            /* Gestaltet den "Add Post"-Button als prominente Aktion. */
+            #timeline-toolbar .new-post-button {
+                --a-button-font-size: 1.15rem;
+                --a-button-padding-y: 0;
+                --a-button-padding-x: 1.45rem;
+                align-items: center;
+                background: linear-gradient(135deg, #2d2c29 0%, #242320 52%, #1f1e1c 100%);
+                block-size: var(--timeline-control-height);
+                border: 1px solid rgba(255, 255, 255, .12);
+                border-radius: 8px;
+                box-shadow: 0 .65rem 1.35rem rgba(31, 30, 28, .22), inset 0 1px 0 rgba(255, 255, 255, .14);
+                color: #ffffff;
+                display: inline-flex;
+                font-weight: 700;
+                justify-content: center;
+                letter-spacing: 0;
+                min-inline-size: 12.5rem;
+                overflow: hidden;
+                position: relative;
+                transition: box-shadow .15s ease, filter .15s ease, transform .15s ease;
+            }
+            
+            #timeline-toolbar .new-post-button::after {
+                content: none;
+            }
+            
+            /* Vergrößert das Finger-Icon im Button und legt es in einen Kreis. */
+            #timeline-toolbar .new-post-button .t-Icon,
+            #timeline-toolbar .new-post-button .fa {
+                align-items: center;
+                background: rgba(255, 255, 255, .12);
+                border: 1px solid rgba(255, 255, 255, .22);
+                border-radius: 999px;
+                box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .18);
+                color: #ffffff;
+                display: inline-flex;
+                font-size: 2.2rem;
+                inline-size: 2.8rem;
+                justify-content: center;
+                margin-inline-end: 1rem;
+                position: relative;
+                z-index: 1;
+            }
+            
+            #timeline-toolbar .new-post-button .t-Button-label {
+                margin-inline-start: .35rem;
+                position: relative;
+                z-index: 1;
+            }
+            
+            /* Blendet ein zusätzliches Icon rechts vom Buttontext aus. */
+            #timeline-toolbar .new-post-button .t-Button-label ~ .t-Icon,
+            #timeline-toolbar .new-post-button .t-Button-label ~ .fa {
+                display: none;
+            }
+            
+            #timeline-toolbar .new-post-button:hover {
+                box-shadow: 0 .85rem 1.65rem rgba(31, 30, 28, .30), inset 0 1px 0 rgba(255, 255, 255, .18);
+                filter: brightness(1.08);
+                transform: translateY(-1px);
+            }
+            
+            #timeline-toolbar .new-post-button:active {
+                box-shadow: 0 .35rem .8rem rgba(31, 30, 28, .22), inset 0 1px 0 rgba(255, 255, 255, .10);
+                transform: translateY(0);
+            }
+            
+            /* Hält den "Add Post"-Button auf kleinen Screens unten rechts erreichbar. */
+            @media (max-width: 640px) {
+                .new-post-button {
+                    position: fixed;
+                    bottom: 24px;
+                    right: 24px;
+                    z-index: 1000;
+                }
+            }
+            ```
+    }
+    security {
+        pageAccessProtection: argumentsMustHaveChecksum
+        formAutoComplete: false
+    }
+    advanced {
+        enableDuplicatePageSubmissions: false
+        reloadOnSubmit: always
+    }
+
+    region about (
+        name: About
+        type: staticContent
+        source {
+            htmlCode:
+                ```html
+                This application demonstrates many out-of-the-box features of APEX while also showing how an APEX developer can enhance and extend functionality with some custom HTML, mininmal CSS and some Javascript. Further, this application should behave beautifully on either Desktop or Mobile devices!
+                <h3>App Development concepts</h3>
+                <ul>
+                <li>Single Page Application</li>
+                <li>Progressive Web App</li>
+                <li>Mobile Friendly - can use device location and camera</li>
+                <li>File upload</li>
+                <li>Activity locations map</li>
+                </ul>
+                <h3>Database & APEX concepts</h3>
+                <ul>
+                <li>Page Designer</li>
+                <li>QuickSQL and relational datamodel</li>
+                <li>Form Region</li>
+                <li>Cards Region</li>
+                <li>Dialogs</li>
+                <li>Working with BLOBs</li>
+                <li>Javascript</li>
+                <li>Dynamic Actions</li>
+                <li>Custom Events</li>
+                <li>Custom HTML and CSS styling</li>
+                </ul>
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: dialogsDrawersAndPopups
+        }
+        appearance {
+            template: @/inline-drawer
+            templateOptions: [
+                #DEFAULT#
+                js-dialog-class-t-Drawer--pullOutEnd
+            ]
+        }
+        advanced {
+            htmlDomId: about
+            regionDisplaySelector: true
+        }
+    )
+
+    region post (
+        name: Post
+        type: form
+        source {
+            location: localDatabase
+            tableName: MLE_DATA
+        }
+        layout {
+            sequence: 10
+            slot: dialogsDrawersAndPopups
+        }
+        appearance {
+            template: @/inline-dialog
+            templateOptions: [
+                #DEFAULT#
+                js-dialog-autoheight
+                js-dialog-nosize
+                js-headingLevel-1
+            ]
+        }
+        edit {
+            enabled: true
+            allowedOperations: add
+        }
+    )
+
+    region post-locations (
+        name: Post Locations
+        type: map
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select lat, lon, created_by as who, apex_util.get_since(created) since
+                from MLE_DATA
+                where lat is not null
+                  and lon is not null
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: dialogsDrawersAndPopups
+        }
+        appearance {
+            template: @/inline-dialog
+            templateOptions: [
+                #DEFAULT#
+                js-dialog-size600x400
+            ]
+        }
+        advanced {
+            htmlDomId: map
+        }
+        map {
+            height: 300
+        }
+        controls {
+            options: [
+                mousewheelZoom
+                rectangleZoom
+                scaleBar
+                infiniteMap
+                getBrowserLocation
+            ]
+        }
+        initialPositionAndZoom {
+            getPositionFromBrowser: true
+        }
+        attributes {
+            messagesPosition: below
+        }
+
+        layer locations (
+            name: Locations
+            layout {
+                sequence: 10
+            }
+            source {
+                location: regionSource
+            }
+            columnMapping {
+                geometryColumnDataType: longitudeLatitude
+                longitudeColumn: LON
+                latitudeColumn: LAT
+            }
+            tooltip {
+                advancedFormatting: true
+                htmlExpression: &WHO. @ &SINCE.
+            }
+            legend {
+                show: false
+            }
+        )
+
+    )
+
+    region timeline (
+        name: Timeline
+        type: cards
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select
+                p.id,
+                p.created_by AS user_name,
+                p.post_comment AS comment_text,
+                p.file_blob,
+                p.file_mime,
+                apex_util.get_since(p.created) post_date
+                from MLE_DATA p
+                order by p.created desc;
+                
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+            startNewRow: false
+            newColumn: false
+        }
+        appearance {
+            template: @/cards-container
+            templateOptions: #DEFAULT#
+            cssClasses: t-Chat
+        }
+        advanced {
+            htmlDomId: timeline
+        }
+        card {
+            primaryKeyColumn1: ID
+        }
+        title {
+            column: USER_NAME
+        }
+        subtitle {
+            column: POST_DATE
+        }
+        body {
+            column: COMMENT_TEXT
+        }
+        iconAndBadge {
+            iconSource: initials
+            iconColumn: USER_NAME
+        }
+        media {
+            source: blobColumn
+            blobColumn: FILE_BLOB
+            position: first
+            appearance: widescreen
+            sizing: cover
+            cssClasses: selectDisable
+            imageDescription: &COMMENT_TEXT.
+        }
+        blobAttributes {
+            mimeTypeColumn: FILE_MIME
+        }
+        performance {
+            lazyLoading: true
+        }
+
+        action action-2 (
+            label: Delete
+            layout {
+                position: secondary
+                sequence: 20
+            }
+            behavior {
+                type: redirectUrl
+                targetUrl: #action$delete?id=&ID.
+            }
+            appearance {
+                displayType: icon
+                icon: fa-trash-o
+            }
+            serverSideCondition {
+                type: expression
+                plsqlExpression: trim(:user_name)=trim(:APP_USER)
+            }
+        )
+
+        action action-3 (
+            type: fullCard
+            layout {
+                sequence: 30
+            }
+            behavior {
+                target: {
+                    page: 2
+                    items: {
+                        P2_ID: &ID.
+                    }
+                }
+            }
+        )
+
+    )
+
+    region timeline-toolbar (
+        name: Timeline Toolbar
+        type: staticContent
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: [
+                #DEFAULT#
+                t-ButtonRegion--noPadding
+                t-ButtonRegion--noUI
+            ]
+        }
+        advanced {
+            htmlDomId: timeline-toolbar
+        }
+    )
+
+    pageItem P1_ACTION_ID (
+        type: hidden
+        settings {
+            valueProtected: false
+        }
+        layout {
+            sequence: 10
+            region: @timeline
+            slot: regionBody
+        }
+        comments {
+            comments: This ITEM has a DA on it that is set by the url's calling JS code for the purpose, which initiates the server side code aspect easily
+        }
+    )
+
+    pageItem P1_CREATED (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: CREATED
+            dataType: date
+        }
+    )
+
+    pageItem P1_CREATED_BY (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: CREATED_BY
+            dataType: varchar2
+        }
+    )
+
+    pageItem P1_EXIF_DATA (
+        type: hidden
+        layout {
+            sequence: 30
+            region: @timeline
+            slot: regionBody
+        }
+    )
+
+    pageItem P1_FILE_BLOB (
+        type: fileUpload
+        label {
+            label: Photo
+            alignment: left
+        }
+        display {
+            displayAs: blockDropzone
+            dropzoneTitle: Share a photo...
+            displayDownloadLink: false
+        }
+        storage {
+            mimeTypeColumn: FILE_MIME
+            filenameColumn: FILE_NAME
+            fileTypes: image/*
+            maxFileSize: 10000
+        }
+        layout {
+            sequence: 70
+            region: @post
+            slot: regionBody
+            alignment: left
+            labelColumnSpan: 0
+        }
+        appearance {
+            template: @/hidden
+            templateOptions: [
+                #DEFAULT#
+                t-Form-fieldContainer--stretchInputs
+            ]
+            cssClasses: file-upload
+            icon: fa-camera-retro
+            width: 30
+        }
+        source {
+            formRegion: @post
+            column: FILE_BLOB
+            dataType: blob
+        }
+    )
+
+    pageItem P1_FILE_MIME (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: FILE_MIME
+            dataType: varchar2
+        }
+    )
+
+    pageItem P1_FILE_NAME (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: FILE_NAME
+            dataType: varchar2
+        }
+    )
+
+    pageItem P1_ID (
+        type: hidden
+        layout {
+            sequence: 40
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: ID
+            dataType: number
+            queryOnly: true
+            primaryKey: true
+        }
+        security {
+            sessionStateProtection: checksumRequiredSessionLevel
+        }
+    )
+
+    pageItem P1_LAT (
+        type: hidden
+        settings {
+            valueProtected: false
+        }
+        layout {
+            sequence: 50
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: LAT
+            dataType: number
+        }
+    )
+
+    pageItem P1_LON (
+        type: hidden
+        settings {
+            valueProtected: false
+        }
+        layout {
+            sequence: 60
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: LON
+            dataType: number
+        }
+    )
+
+    pageItem P1_POST_COMMENT (
+        type: textField
+        label {
+            label: Comment
+            alignment: left
+        }
+        layout {
+            sequence: 80
+            region: @post
+            slot: regionBody
+            alignment: left
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+            width: 30
+        }
+        validation {
+            maxLength: 4000
+        }
+        source {
+            formRegion: @post
+            column: POST_COMMENT
+            dataType: varchar2
+        }
+    )
+
+    pageItem P1_UPDATED (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: UPDATED
+            dataType: date
+        }
+    )
+
+    pageItem P1_UPDATED_BY (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @post
+            slot: regionBody
+        }
+        source {
+            formRegion: @post
+            column: UPDATED_BY
+            dataType: varchar2
+        }
+    )
+
+    button add-post (
+        buttonName: ADD_POST
+        label: Add Post
+        layout {
+            sequence: 10
+            region: @timeline-toolbar
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            templateOptions: [
+                #DEFAULT#
+                t-Button--iconLeft
+            ]
+            cssClasses: new-post-button
+            icon: fa-hand-pointer-o
+        }
+        behavior {
+            action: triggerAction
+        }
+
+        triggerAction native-open-region (
+            action: openRegion
+            affectedElements {
+                selectionType: region
+                region: @post
+            }
+            execution {
+                sequence: 10
+            }
+        )
+
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Post
+        layout {
+            sequence: 10
+            region: @post
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: [
+                #DEFAULT#
+                t-Button--large
+                t-Button--stretch
+            ]
+            cssClasses: post-button
+        }
+        behavior {
+            action: triggerAction
+            executeValidations: false
+            databaseAction: insert
+        }
+
+        triggerAction native-submit-page (
+            action: submitPage
+            settings {
+                requestButtonName: SAVE
+            }
+            execution {
+                sequence: 10
+            }
+        )
+
+    )
+
+    dynamicAction action-delete (
+        name: action-delete
+        execution {
+            sequence: 90
+        }
+        when {
+            event: custom
+            customEvent: action-delete
+            selectionType: jsExpression
+            javaScriptExpression: document
+        }
+
+        action delete-confirm-dialog (
+            name: DELETE Confirm dialog
+            action: confirm
+            settings {
+                title: Are you sure?
+                message: You are about to delete this post. Are you sure?
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+        action delete-do-database-work (
+            name: DELETE - do database work
+            action: executeServerSideCode
+            settings {
+                plsqlCode: delete from MLE_DATA where id=:P1_ACTION_ID and created_by=:APP_USER;
+                itemsToSubmit: P1_ACTION_ID
+            }
+            execution {
+                sequence: 20
+                fireOnInit: false
+            }
+        )
+
+        action delete-remove-post-in-ui (
+            name: DELETE - remove post in UI
+            action: executeJsCode
+            settings {
+                jsCode: "$('[data-id='+apex.items.P1_ACTION_ID.value+']').remove();"
+            }
+            execution {
+                sequence: 30
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    dynamicAction action-open-about (
+        name: action-open-about
+        execution {
+            sequence: 120
+        }
+        when {
+            event: custom
+            customEvent: action-open-about
+            selectionType: jsExpression
+            javaScriptExpression: document
+        }
+
+        action native-open-region (
+            action: openRegion
+            affectedElements {
+                selectionType: region
+                region: @about
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    dynamicAction action-open-map (
+        name: action-open-map
+        execution {
+            sequence: 110
+        }
+        when {
+            event: custom
+            customEvent: action-open-map
+            selectionType: jsExpression
+            javaScriptExpression: document
+        }
+
+        action native-open-region (
+            action: openRegion
+            affectedElements {
+                selectionType: region
+                region: @post-locations
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+
+    )
+
+    dynamicAction get-device-location (
+        name: get device location
+        execution {
+            sequence: 150
+        }
+        when {
+            event: ready
+        }
+
+        action native-get-current-position (
+            action: getCurrentPosition
+            settings {
+                returnType: latitudeAndLongitude
+                latitudeItem: P1_LAT
+                longitudeItem: P1_LON
+            }
+            execution {
+                sequence: 10
+            }
+        )
+
+    )
+
+    process extract-validate-and-store-exif-data (
+        name: Extract validate and store EXIF data
+        type: executeCode
+        source {
+            language: javaScript-mle
+            javaScriptCode:
+                ```javascript-mle
+                // Load the EXIF library from the MLE environment.
+                const { default: exifr } = await import('exifr-module');
+                
+                // get the post ID from the APEX page
+                const postId = apex.env.P1_ID;
+                
+                // Fetch the uploaded image as a byte stream, so exifr can read it.
+                const photo = apex.conn.execute(
+                    `
+                    select file_blob
+                    from mle_data
+                    where id = :id
+                    `,
+                    {
+                        id: { val: postId }
+                    },
+                    {
+                        fetchInfo: {
+                            FILE_BLOB: {
+                                type: oracledb.UINT8ARRAY
+                            }
+                        }
+                    });
+                
+                if (photo.rows.length !== 1) {
+                    throw new Error('no photo found on this page');
+                }
+                
+                // Parse EXIF metadata with the JavaScript library.
+                const exifData = await exifr.parse(photo.rows[0].FILE_BLOB.buffer);
+                
+                if (!exifData) {
+                    return;
+                }
+                
+                // Store the EXIF JSON and GPS coordinates back in the database.
+                const updateResult = apex.conn.execute(
+                    `
+                    update mle_data
+                    set exif_data = :data,
+                        lon = :lon,
+                        lat = :lat
+                    where id = :id
+                    `,
+                    {
+                        data: {
+                            type: oracledb.DB_TYPE_JSON,
+                            val: exifData
+                        },
+                        lon: {
+                            type: oracledb.NUMBER,
+                            val: exifData.longitude === undefined ? null : exifData.longitude
+                        },
+                        lat: {
+                            type: oracledb.NUMBER,
+                            val: exifData.latitude === undefined ? null : exifData.latitude
+                        },
+                        id: { val: postId }
+                    }
+                );
+                ```
+        }
+        execution {
+            sequence: 20
+        }
+        successMessage {
+            successMessage: EXIF Data successfully stored in the database
+        }
+        error {
+            errorMessage: Something went wrong extracting/storing the EXIF information
+        }
+        advanced {
+            executionMappingIdentifier: 16427949220127701
+        }
+    )
+
+    process init-form (
+        name: init form
+        type: formInitialization
+        formRegion: @post
+        execution {
+            sequence: 20
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 233102855739719930240
+        }
+    )
+
+    process insert-post (
+        name: insert post
+        type: formAutoRowProcessing
+        formRegion: @post
+        execution {
+            sequence: 10
+        }
+        successMessage {
+            successMessage: Posted!
+        }
+        advanced {
+            executionMappingIdentifier: 233102857554117930258
+        }
+        serverSideCondition {
+            whenButtonPressed: @save
+        }
+    )
+
+)
+

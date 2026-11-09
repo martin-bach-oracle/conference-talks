@@ -1,0 +1,24 @@
+event enhancedfileuploadercomplete (
+    name: File Upload Complete
+)
+
+event enhancedfileuploadererror (
+    name: File Upload Error
+)
+
+event enhancedfileuploaderfilecancel (
+    name: FIle Upload Canceled
+)
+
+event enhancedfileuploaderfileprogress (
+    name: File Upload Progress
+)
+
+event enhancedfileuploadersuccess (
+    name: File Upload Success
+)
+
+event enhancedfileuploadertotalprogress (
+    name: Total Upload Progress
+)
+

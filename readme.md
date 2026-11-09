@@ -1,30 +1,21 @@
 # Conference talks
 
-This repository contains code I used during my various conference talks since 10/2024. Please let me know if you have questions or comments.
+## DOAG Conference 2026: APEX and server-side JavaScript demo
 
-The easiest way to do so is by creating an issue, citing the branch.
+This branch contains a photo metadata application built with Oracle APEX and server-side JavaScript in the Oracle Database Multilingual Engine (MLE). It draws on the Oracle LiveLabs workshop [APEX + Server-Side JavaScript (MLE)](https://livelabs.oracle.com/ords/r/dbpm/livelabs/view-workshop?wid=822). The workshop provides the background and guided exercises; this repository contains the application as exported for the demo.
 
-## Overview
+The application lets users upload photos, extracts EXIF metadata with JavaScript, stores the metadata and available GPS coordinates, and displays photos and locations. The Photon library is used during the upload to generate a thumbnail of the photo. The application's photo details page also requests an AI assessment of whether an image looks camera-captured or AI-generated. This assessment is an approximation, and its displayed score is not a calibrated probability or proof of authenticity.
 
-Instead of a "main" repository containing a subdirectory per presentation, you will now find a branch per conference talk. This makes a great many things easier, especially with regards to JavaScript and Python environments.
+### Repository contents
 
-Please use the relevant branch if you want to see the code. Main _won't_ contain code, it remains empty except for the readme (this file) and a license.
+- [`app/mlelivelab120111/`](app/mlelivelab120111/) contains the APEXlang application export, including pages, shared components, static files and supporting objects. Its metadata targets APEXlang 26.1; the deployment file specifies application ID 100.
+- [`app/mlelivelab120111/supporting-objects/install-scripts/`](app/mlelivelab120111/supporting-objects/install-scripts/) contains scripts for the `MLE_DATA` table and trigger, MLE modules, and the MLE environment. The export also contains a deinstallation script.
+- The livelab cannot feature any third party code. [`stage_files.sh`](stage_files.sh) downloads EXIFR 7.1.3 and Photon 0.3.3 JavaScript and WebAssembly files from jsDelivr into `stage/`. The staging directory is ignored by Git. Staging these files does not itself install them into the database or application.
 
-| Date | Event | Branch Name |
-| -- | -- | -- |
-| 10-OCT-2024 | POUG: Annual Meeting of the [Polish Oracle User Group](https://poug.org/en/edycja/poug2024/) | `241011_poug` |
-| 21-MAR-2025 | APEX World: [Do you need to know about server-side JavaScript and APEX? Definitely, maybe](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=354&clear=3&cs=3uSlna8VgNLAF5hclrS14Aj-rkHAgxKHLIlKvJhBbGfou98gtiM9yLlCfMAVdSMEj9g-esDcFegedZK-WWDb58Q) | `250321_apex_world` |
-| 18-NOV-2025 | DOAG Konferenz: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6588) | `251118_doag_git` |
-| 19-NOV-2025 | DOAG Konferenz: [Dafuer habe ich keine Zeit, lass uns das automatisieren](https://meine.doag.org/events/anwenderkonferenz/2025/agenda/#agendaId.6355) | `251119_doag_automate` |
-| 10-DEC-2025 | Frankfurter IT Tage: [Datenbank Tuning für Java Entwickler](https://www.ittage.informatik-aktuell.de/programm/2025/datenbank-tuning-fuer-java-entwickler.html) | `251210_ittage_java_db_tuning_update` |
-| 11-DEC-2025 | Frankfurter IT Tage: [Ohne Git kein DevOps, ohne DevOps keine moderne Softwareentwicklung](https://www.ittage.informatik-aktuell.de/programm/2025/ohne-git-kein-devops-ohne-devops-keine-moderne-softwareentwicklung.html) | `251118_doag_git` |
-| 27-MAR-2026 | NLOUG APEX World [PL/SQL vs JavaScript (in the database)](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=488) | `260327_apexworld` |
-| 15-SEP-2026 | [AskTom Office Hours](https://www.youtube.com/watch?v=hAYcfS0djzk): deciding between PL/SQL vs JavaScript in the database | `260915_asktom_office_hours` |
-| 05-NOV-2026 | Heapcon 2026: [MCP Supercharges APEX: Less Clicking, More Kicking — Straight to Git Push Done](https://heapcon.io/2026/speakers/martin-bach-sonja-meyer) | `261105_heapcon` |
+### Setup considerations
 
-Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
+Use an APEX 26.1 environment with an Oracle Database supporting MLE and the required database privileges. Follow the linked LiveLabs workshop for environment setup and the JavaScript library installation. Review the supporting-object scripts before installing them: the exported `MLE_EXIFR_MODULE` contains a placeholder rather than the EXIFR library, so EXIF extraction requires the library to be installed separately. You can find it in the `stage` directory. The export's supporting objects list table and trigger privileges, and creating MLE modules and an environment requires appropriate privileges as well.
 
-> [!CAUTION]
-> This repository provides code, and although every effort has been undertaken to ensure it works and does not break anything, it's provided _as is_ without any guarantees or warranties. Refer to the LICENSE.txt file for more details.
+The AI implementation currently calls `APEX_AI.GENERATE` with the APEX AI service static ID `google-gemini` and sends the photo as an attachment. Configure a compatible image-capable service and credentials under that static ID for the assessment to work. The code currently references Gemini; Cohere was discussed as an alternative but is not configured by this export. Keep credentials outside the repository.
 
-Furthermore, I won't update the demos, they are supposed to reflect the talk, they aren't living and breathing projects. If a talk is given another time, there will be another branch with the presentation date.
+The APEXlang export and supporting-object scripts are source artifacts; their presence alone does not confirm a successful import or a working runtime in another environment.

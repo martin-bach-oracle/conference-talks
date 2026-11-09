@@ -1,0 +1,77 @@
+app MLELIVELAB120111 (
+    name: Full-Stack JavaScript with Oracle APEX and MLE completed
+    logo {
+        type: text
+        text: Full-Stack JavaScript with Oracle APEX and MLE
+    }
+    navigation {
+        homeUrl: {
+            page: 1
+        }
+        loginUrl: {
+            page: LOGIN
+        }
+    }
+    navigationMenu {
+        listTemplate: @/side-navigation-menu
+        templateOptions: [
+            #DEFAULT#
+            js-defaultCollapsed
+            js-navCollapsed--hidden
+            t-TreeNav--styleA
+        ]
+        list: @navigation-menu
+    }
+    navigationBar {
+        list: @navigation-bar
+        listTemplate: @/navigation-bar
+        templateOptions: #DEFAULT#
+    }
+    userInterface {
+        currentTheme: @universal-theme
+        globalPage: 0
+    }
+    appFormatMasks {
+        date: DS
+        timestamp: DS
+        timestampTimeZone: DS
+    }
+    authentication {
+        scheme: @apex-accounts
+        publicUser: APEX_PUBLIC_USER
+    }
+    sessionStateProtection {
+        checksumSalt: 90BDCEEAC89CBC80D89ADAD9A7AF6BD736DDE3B597794D0B8ADD1B0D536C5C53
+    }
+    sessionManagement {
+        sessionStateCommits: immediate
+    }
+    databaseSession {
+        mleEnvironment: MLE_EXIF_ENV
+    }
+    globalization {
+        documentDirection: leftToRight
+    }
+    progressiveWebApp {
+        installable: true
+    }
+    reportPrinting {
+        type: useInstanceSettings
+    }
+    runtime {
+        allowFeedback: true
+        compatibilityMode: 21.2
+        accessibleReadOnlyItems: false
+    }
+    advanced {
+        passEcid: false
+    }
+
+    substitution APP_NAME (
+        value {
+            staticValue: MLE Live Lab
+        }
+    )
+
+)
+

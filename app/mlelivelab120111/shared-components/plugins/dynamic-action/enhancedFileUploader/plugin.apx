@@ -1,0 +1,216 @@
+plugin enhancedFileUploader (
+    name: Enhanced File Uploader
+    staticId: COM.ORACLE.APEX.ENHANCED_FILE_UPLOADER
+    type: dynamicAction
+    component {
+        standardAttributes: [
+            forItem
+            affectedElementRequired
+            stopExecutionOnErrorAttr
+            waitForResultAttr
+        ]
+    }
+    source {
+        plsqlCode:
+            ```plsql
+            function render(
+                         p_dynamic_action in apex_plugin.t_dynamic_action,
+                         p_plugin         in apex_plugin.t_plugin )
+                return apex_plugin.t_dynamic_action_render_result is
+            
+                l_result                    apex_plugin.t_dynamic_action_render_result;
+            
+                c_enable_image_resize       constant boolean          := case when p_dynamic_action.attribute_01 = 'Y' then true else false end;
+                c_max_image_size            constant number           := p_dynamic_action.attribute_02;
+                c_enable_image_preview      constant boolean          := case when p_dynamic_action.attribute_03 = 'Y' then true else false end;
+                c_preview_container         constant varchar2( 255 )  := p_dynamic_action.attribute_04;
+                c_items_to_submit           constant varchar2( 4000 ) := p_dynamic_action.attribute_08;
+                c_show_processing           constant boolean          := case when p_dynamic_action.attribute_09 = 'Y' then true else false end;
+                c_cancel_uploads_esc        constant boolean          := case when p_dynamic_action.attribute_10 = 'Y' then true else false end;
+                c_file_processing_function  constant varchar2( 4000 ) := coalesce( p_dynamic_action.attribute_11, 'null' );
+            
+                l_component_config_json     clob := empty_clob();
+            
+                function get_da_item_element( p_action_id in number ) return varchar2 is
+                  l_da_element  apex_application_page_da.when_element%type;
+                  c_app_id      constant number := nv( 'APP_ID' );
+            
+                  cursor l_cur_da_element is
+                    select aapda.affected_elements
+                      from apex_application_page_da_acts aapda
+                     where aapda.application_id = c_app_id
+                       and aapda.action_id = p_action_id
+                       and aapda.affected_elements_type_code = 'ITEM';
+                begin
+                  open l_cur_da_element;
+                  fetch l_cur_da_element
+                    into l_da_element;
+                  close l_cur_da_element;
+            
+                  return l_da_element;
+            
+                end get_da_item_element;
+            
+              begin
+                -- build component config json
+                apex_json.initialize_clob_output;
+                apex_json.open_object();
+                
+                apex_json.write( 'affectedElement',
+                                 get_da_item_element( p_action_id => p_dynamic_action.id ) );
+                apex_json.write( 'enableImageResize',
+                                 c_enable_image_resize );
+                apex_json.write( 'maxImageSize',
+                                 c_max_image_size );
+                apex_json.write( 'enableImagePreview',
+                                 c_enable_image_preview );
+                apex_json.write( 'previewContainer',
+                                 c_preview_container );
+                apex_json.write( 'itemsToSubmit',
+                                 c_items_to_submit );
+                apex_json.write( 'showProcessing',
+                                 c_show_processing );
+                apex_json.write( 'cancelWithEscape',
+                                 c_cancel_uploads_esc );
+                apex_json.write( 'ajaxIdentifier',
+                                 apex_plugin.get_ajax_identifier );
+                apex_json.close_object();
+                --
+                l_component_config_json := apex_json.get_clob_output;
+                apex_json.free_output;
+                -- da javascript function
+                l_result.javascript_function := 'function(){apex.da.enhancedFileUpload(this,' || l_component_config_json ||
+                                                ',' || c_file_processing_function || ');}';
+                --
+                return l_result;
+                --
+              end render;
+            
+            function ajax(
+                         p_dynamic_action in apex_plugin.t_dynamic_action,
+                         p_plugin         in apex_plugin.t_plugin )
+              return apex_plugin.t_dynamic_action_ajax_result is
+            
+              l_result               apex_plugin.t_dynamic_action_ajax_result;
+            
+              c_storage_collection   constant varchar2( 50 ) := 'COLLECTION';
+              c_storage_plsql        constant varchar2( 50 ) := 'PLSQL';
+            
+              c_save_in              constant varchar2( 50 )   := coalesce( p_dynamic_action.attribute_05, c_storage_collection );
+              c_collection_name      constant varchar2( 255 )  := p_dynamic_action.attribute_06;
+              c_plsql_code           constant varchar2( 4000 ) := p_dynamic_action.attribute_07;
+              c_items_to_submit      constant varchar2( 4000 ) := p_dynamic_action.attribute_08;
+              c_apex_storage_name    constant varchar2( 255 )  := apex_application.g_f01(1);
+              c_file_metadata        constant varchar2( 4000 ) := apex_application.g_x03;
+              c_plsql_code_upper     constant varchar2( 4000 ) := upper( c_plsql_code );
+              
+              l_parameters           apex_exec.t_parameters;
+              l_items_to_submit_arr  apex_t_varchar2;
+            
+            begin
+              -- save in APEX collection
+              if c_save_in = c_storage_collection then
+                  if not apex_collection.collection_exists( p_collection_name => c_collection_name ) then
+                      apex_collection.create_collection( p_collection_name => c_collection_name );
+                  end if;
+            
+                  for l_rec_file in ( select aaf.filename,
+                                             aaf.mime_type,
+                                             aaf.doc_size,
+                                             aaf.blob_content
+                                        from apex_application_files aaf
+                                       where aaf.name = c_apex_storage_name ) loop
+            
+                      apex_collection.add_member(
+                          p_collection_name => c_collection_name,
+                          p_c001            => l_rec_file.filename,
+                          p_c002            => l_rec_file.mime_type,
+                          p_c003            => c_file_metadata,
+                          p_d001            => sysdate,
+                          p_n001            => l_rec_file.doc_size,
+                          p_blob001         => l_rec_file.blob_content
+                      );
+            
+                end loop;
+            
+              end if;
+            
+              -- save using custom PL/SQL
+              if c_save_in = c_storage_plsql then
+                  -- add parameters / bind variables
+                  l_items_to_submit_arr := apex_string.split( p_str => c_items_to_submit, p_sep => ',' );
+                  for i in 1..l_items_to_submit_arr.count
+                  loop
+                      if instr( c_plsql_code_upper, l_items_to_submit_arr(i) ) > 0 then
+                          apex_exec.add_parameter(
+                              p_parameters => l_parameters,
+                              p_name       => l_items_to_submit_arr(i),
+                              p_value      => v( l_items_to_submit_arr(i) ) );
+                      end if;
+                  end loop;
+                  
+                  if instr( c_plsql_code_upper, 'APEX$STORAGENAME' ) > 0 then
+                      apex_exec.add_parameter(
+                          p_parameters => l_parameters,
+                          p_name       => 'APEX$STORAGENAME',
+                          p_value      => c_apex_storage_name );
+                  end if;
+                  if instr( c_plsql_code_upper, 'APEX$FILENAME' ) > 0 then
+                      apex_exec.add_parameter(
+                          p_parameters => l_parameters,
+                          p_name       => 'APEX$FILENAME',
+                          p_value      => apex_application.g_x01 );
+                  end if;
+                  if instr( c_plsql_code_upper, 'APEX$MIMETYPE' ) > 0 then
+                      apex_exec.add_parameter(
+                          p_parameters => l_parameters,
+                          p_name       => 'APEX$MIMETYPE',
+                          p_value      => apex_application.g_x02 );
+                  end if;
+                  if instr( c_plsql_code_upper, 'APEX$METADATA' ) > 0 then
+                      apex_exec.add_parameter(
+                          p_parameters => l_parameters,
+                          p_name       => 'APEX$METADATA',
+                          p_value      => c_file_metadata );
+                  end if;
+                
+                  -- execute pl/sql
+                  apex_exec.execute_plsql(
+                      p_plsql_code      => c_plsql_code,
+                      p_auto_bind_items => false,
+                      p_sql_parameters  => l_parameters );
+              end if;
+            
+              -- delete original file
+              delete from apex_application_files aaf
+                 where aaf.name = c_apex_storage_name;
+              
+              sys.htp.init;
+              sys.htp.p( '{"success":true}' );
+            
+              return l_result;
+            exception when others then
+                sys.htp.init;
+                sys.htp.p( '{"success":false}' );
+            end ajax;
+            ```
+    }
+    callbacks {
+        apiInterface: function
+        renderProcedureName: render
+        ajaxProcedureName: ajax
+    }
+    advanced {
+        category: execute
+        substituteAttributeValues: true
+    }
+    javaScript {
+        fileUrls: #PLUGIN_FILES#enhancedFileUpload#MIN#.js
+    }
+    information {
+        version: 1.0.0
+        aboutUrl: https://oracle.github.io/apex/
+        helpText: Dynamic Action plugin which enhances the functionality of the built-in File Browse item and uploads files using AJAX.
+    }
+)
+
