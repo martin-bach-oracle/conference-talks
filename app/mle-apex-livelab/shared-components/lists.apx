@@ -134,5 +134,43 @@ list navigation-menu (
         }
     )
 
+    entry webassembly (
+        label: WebAssembly
+        icon {
+            imageIconCssClasses: fa-code
+        }
+        layout {
+            sequence: 30
+        }
+        isCurrent {
+            type: pages
+            pages: 3
+        }
+        link {
+            target: {
+                page: 3
+            }
+        }
+    )
+
+    entry webassembly-ela (
+        label: WebAssembly ELA
+        icon {
+            imageIconCssClasses: fa-code
+        }
+        layout {
+            sequence: 40
+        }
+        isCurrent {
+            type: pages
+            pages: 4
+        }
+        link {
+            target: {
+                page: 4
+            }
+        }
+    )
+
 )
 

@@ -227,4 +227,3 @@ function clamp(value) {
 }
 /
 
-  CREATE OR REPLACE MLE ENV "MLE_EXIF_ENV" IMPORTS ('realness-score-module' MODULE "MLE_REALNESS_SCORE_MODULE", 'exifr-module' MODULE "MLE_EXIFR_MODULE", 'gemini-ai-verify-module' MODULE "MLE_GEMINI_AI_VERIFY_MODULE");

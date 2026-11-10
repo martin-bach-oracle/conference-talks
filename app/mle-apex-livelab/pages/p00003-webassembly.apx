@@ -1,0 +1,120 @@
+page 3 (
+    name: WebAssembly
+    alias: WEBASSEMBLY
+    title: WebAssembly
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    navigation {
+        cursorFocus: doNotFocusCursor
+    }
+
+    region breadcrumb (
+        name: Breadcrumb
+        type: breadcrumb
+        source {
+            breadcrumb: @breadcrumb
+        }
+        layout {
+            sequence: 10
+            slot: breadcrumbBar
+        }
+        appearance {
+            template: @/title-bar
+            templateOptions: [
+                #DEFAULT#
+                t-BreadcrumbRegion--useBreadcrumbTitle
+            ]
+        }
+        componentAppearance {
+            breadcrumbTemplate: @/breadcrumb
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region thumbnails (
+        name: Timeline
+        type: cards
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select p.id,
+                       p.created_by as user_name,
+                       p.post_comment as comment_text,
+                       p.thumbnail,
+                       'image/png' as thumbnail_mime,
+                       'Original: ' || coalesce(photo_dimensions(p.file_blob), '–') ||
+                       ' / ' || coalesce(to_char(dbms_lob.getlength(p.file_blob)), '–') || ' Bytes' ||
+                       ' | Thumbnail: ' || coalesce(photo_dimensions(p.thumbnail), '–') ||
+                       ' / ' || coalesce(to_char(dbms_lob.getlength(p.thumbnail)), '–') || ' Bytes' as image_info,
+                       apex_util.get_since(p.created) as post_date
+                  from mle_data p
+                 order by p.created desc
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/cards-container
+            templateOptions: #DEFAULT#
+            cssClasses: t-Chat
+        }
+        card {
+            primaryKeyColumn1: ID
+        }
+        title {
+            column: USER_NAME
+        }
+        subtitle {
+            column: POST_DATE
+        }
+        body {
+            column: COMMENT_TEXT
+        }
+        secondaryBody {
+            column: IMAGE_INFO
+        }
+        iconAndBadge {
+            iconSource: initials
+            iconColumn: USER_NAME
+        }
+        media {
+            source: blobColumn
+            blobColumn: THUMBNAIL
+            position: first
+            appearance: widescreen
+            sizing: cover
+            cssClasses: selectDisable
+            imageDescription: &COMMENT_TEXT.
+        }
+        blobAttributes {
+            mimeTypeColumn: THUMBNAIL_MIME
+        }
+        performance {
+            lazyLoading: true
+        }
+
+        action details (
+            type: fullCard
+            layout {
+                sequence: 30
+            }
+            behavior {
+                target: {
+                    page: 2
+                    items: {
+                        P2_ID: &ID.
+                    }
+                }
+            }
+        )
+
+    )
+
+)
+

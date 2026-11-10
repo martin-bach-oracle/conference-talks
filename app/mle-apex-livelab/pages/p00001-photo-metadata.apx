@@ -6,9 +6,6 @@ page 1 (
         pageTemplate: @/standard
         templateOptions: #DEFAULT#
     }
-    navigationMenu {
-        overrideUserInterfaceLevel: true
-    }
     navigation {
         cursorFocus: doNotFocusCursor
     }
@@ -873,6 +870,28 @@ page 1 (
             }
         )
 
+    )
+
+    process create-thumbnail (
+        name: Create thumbnail with Photon
+        type: executeCode
+        source {
+            language: javaScript-mle
+            javaScriptCode:
+                ```javascript-mle
+                const { createThumbnail } = await import('photon-thumbnail');
+                createThumbnail(apex.env.P1_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+        }
+        advanced {
+            executionMappingIdentifier: 9988619923269524
+        }
+        serverSideCondition {
+            whenButtonPressed: @save
+        }
     )
 
     process extract-validate-and-store-exif-data (

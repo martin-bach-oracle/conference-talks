@@ -1,5 +1,5 @@
-app MLELIVELAB120111 (
-    name: Full-Stack JavaScript with Oracle APEX and MLE completed
+app MLE-APEX-LIVELAB (
+    name: Full-Stack JavaScript with Oracle APEX and MLE
     logo {
         type: text
         text: Full-Stack JavaScript with Oracle APEX and MLE

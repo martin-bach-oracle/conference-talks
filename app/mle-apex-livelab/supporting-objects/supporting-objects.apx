@@ -7,9 +7,6 @@ supportingObject (
             createView
         ]
     }
-    deinstall {
-        scriptFile: deinstall-script.sql
-    }
     advanced {
         includeInAppExport: true
     }

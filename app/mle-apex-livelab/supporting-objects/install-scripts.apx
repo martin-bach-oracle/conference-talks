@@ -54,3 +54,19 @@ installScript "Table MLE_DATA" (
 
 )
 
+installScript webAssembly (
+    execution {
+        sequence: 30
+    }
+    script {
+        contentFile: webassembly.sql
+    }
+
+    databaseObject (
+        owner: EMILY
+        type: table
+        name: WASM_MODULES
+    )
+
+)
+
