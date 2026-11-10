@@ -21,6 +21,7 @@ Please use the relevant branch if you want to see the code. Main _won't_ contain
 | 27-MAR-2026 | NLOUG APEX World [PL/SQL vs JavaScript (in the database)](https://apps.nloug.nl/ords/r/nloug/event/session-details?p3_id=488) | `260327_apexworld` |
 | 15-SEP-2026 | [AskTom Office Hours](https://www.youtube.com/watch?v=hAYcfS0djzk): deciding between PL/SQL vs JavaScript in the database | `260915_asktom_office_hours` |
 | 05-NOV-2026 | Heapcon 2026: [MCP Supercharges APEX: Less Clicking, More Kicking — Straight to Git Push Done](https://heapcon.io/2026/speakers/martin-bach-sonja-meyer) | `261105_heapcon` |
+| 18-NOV-2026 | DOAG 2026: [APEX, MLE und EXIF: was, wenn JavaScript echte Bilder von Fakes trennt](https://meine.doag.org/events/anwenderkonferenz/2026/agenda/#agendaId.8621) | `261118_doag_apex_exif_wasm` |
 
 Whenever I deliver a presentation featuring demos, you should find another branch added to the repository. Feel free to come back and browse the repository at your convenience.
 
