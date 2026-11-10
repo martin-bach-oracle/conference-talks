@@ -15,8 +15,11 @@ curl --fail --show-error --location -L "https://cdn.jsdelivr.net/npm/exifr@7.1.3
 
 cat <<'EOF'
 
-Files have been successfully staged. The EXIFR module is already present in the database, but empty. Use the files in the stage directory to load them into the database
+Files have been successfully staged. Use your favourite tool
+to load the following files into the database's WASM_MODULES
+table.
 
+- exifr.js version 7.1.3 must be loaded into wasm_modules
 - photon_rs.js, version 0.3.3 must be loaded into wasm_modules
 - photon_rs_bg.wasm, version 0.3.3 must be loaded into wasm_modules
 

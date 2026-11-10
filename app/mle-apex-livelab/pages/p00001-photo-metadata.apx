@@ -879,7 +879,7 @@ page 1 (
             language: javaScript-mle
             javaScriptCode:
                 ```javascript-mle
-                const { createThumbnail } = await import('photon-thumbnail');
+                const { createThumbnail } = await import('photon-module');
                 createThumbnail(apex.env.P1_ID);
                 ```
         }

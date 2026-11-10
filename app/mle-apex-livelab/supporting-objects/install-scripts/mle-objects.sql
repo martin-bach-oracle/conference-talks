@@ -1,9 +1,22 @@
-  CREATE OR REPLACE MLE MODULE "MLE_EXIFR_MODULE" 
-   LANGUAGE JAVASCRIPT AS 
-   
-// Get this JavaScript module from your preferred Content Delivery Network as described in the LiveLab
-// For License reasons it cannot be bundled with the complete solution
+  CREATE TABLE if not exists "WASM_MODULES" 
+   (	"MODULE_NAME" VARCHAR2(255) NOT NULL ENABLE, 
+	"MODULE_VERSION" VARCHAR2(255), 
+	"MODULE_BLOB" BLOB, 
+	"MODULE_COMMENT" VARCHAR2(255), 
+	 CONSTRAINT "PK_WASM_MODULES" PRIMARY KEY ("MODULE_NAME", "MODULE_VERSION")
+  USING INDEX  ENABLE
+   ) ; 
 
+CREATE OR REPLACE MLE MODULE "MLE_EXIFR_MODULE" 
+   LANGUAGE JAVASCRIPT
+    using blob
+    select
+        module_blob
+    from
+        wasm_modules
+    where
+        module_name = 'exifr.js'
+        and module_version = '7.1.3';
 /
 
   CREATE OR REPLACE MLE MODULE "MLE_GEMINI_AI_VERIFY_MODULE" 
