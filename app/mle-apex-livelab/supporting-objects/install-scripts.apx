@@ -5,7 +5,6 @@ installScript "MLE objects" (
     script {
         contentFile: mle-objects.sql
     }
-
 )
 
 installScript "Table MLE_DATA" (
@@ -15,8 +14,6 @@ installScript "Table MLE_DATA" (
     script {
         contentFile: table-mle-data.sql
     }
-
-
 )
 
 installScript webAssembly (
@@ -26,7 +23,5 @@ installScript webAssembly (
     script {
         contentFile: webassembly.sql
     }
-
-
 )
 

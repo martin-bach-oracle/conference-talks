@@ -93,12 +93,13 @@ export function imageDimensions(blob) {
 }
 /
 
-CREATE OR REPLACE MLE ENV "MLE_EXIF_ENV" IMPORTS (
-  'photon-module' MODULE "MLE_PHOTON_MODULE",
-  'realness-score-module' MODULE "MLE_REALNESS_SCORE_MODULE",
-  'exifr-module' MODULE "MLE_EXIFR_MODULE",
-  'gemini-ai-verify-module' MODULE "MLE_GEMINI_AI_VERIFY_MODULE",
-  'photon' MODULE "PHOTON"
+  CREATE OR REPLACE MLE ENV "MLE_EXIF_ENV" IMPORTS (
+    'photon_wasm' MODULE "PHOTON_WASM",
+    'realness-score-module' MODULE "MLE_REALNESS_SCORE_MODULE",
+    'exifr-module' MODULE "MLE_EXIFR_MODULE",
+    'gemini-ai-verify-module' MODULE "MLE_GEMINI_AI_VERIFY_MODULE",
+    'photon-module' MODULE "MLE_PHOTON_MODULE",
+    'photon' MODULE "PHOTON"
 );
 
 create or replace function photo_dimensions(p_image blob) 

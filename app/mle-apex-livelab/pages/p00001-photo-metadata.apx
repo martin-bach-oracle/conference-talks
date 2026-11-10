@@ -880,7 +880,16 @@ page 1 (
             javaScriptCode:
                 ```javascript-mle
                 const { createThumbnail } = await import('photon-module');
-                createThumbnail(apex.env.P1_ID);
+                
+                const rawId = apex.env.P1_ID;
+                const id = Number(rawId);
+                
+                if (rawId == null || String(rawId).trim() === '' ||
+                    !Number.isSafeInteger(id) || id <= 0) {
+                    throw new Error('P1_ID must contain a valid numeric photo ID');
+                }
+                
+                createThumbnail(id);
                 ```
         }
         execution {
