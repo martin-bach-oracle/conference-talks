@@ -335,7 +335,7 @@ page 1 (
                 p.id,
                 p.created_by AS user_name,
                 p.post_comment AS comment_text,
-                p.file_blob,
+                nvl(p.thumbnail, p.file_blob) file_blob,
                 p.file_mime,
                 apex_util.get_since(p.created) post_date
                 from MLE_DATA p
@@ -872,9 +872,24 @@ page 1 (
 
     )
 
+    process thumbnail-background (
+        name: Generate thumbnail in background
+        type: executionChain
+        backgroundExecution {
+            runInBackground: true
+        }
+        execution {
+            sequence: 30
+        }
+        serverSideCondition {
+            whenButtonPressed: @save
+        }
+    )
+
     process create-thumbnail (
         name: Create thumbnail with Photon
         type: executeCode
+        executionChain: @thumbnail-background
         source {
             language: javaScript-mle
             javaScriptCode:
@@ -893,13 +908,10 @@ page 1 (
                 ```
         }
         execution {
-            sequence: 30
+            sequence: 10
         }
         advanced {
             executionMappingIdentifier: 9988619923269524
-        }
-        serverSideCondition {
-            whenButtonPressed: @save
         }
     )
 
