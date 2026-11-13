@@ -59,42 +59,122 @@ export function errorLevelImage(blob) {
     }
 }
 
+/**
+ * Creates a PNG thumbnail at 10% of the original image dimensions.
+ *
+ * The thumbnail, image dimensions, and encoded BLOB sizes are stored in
+ * MLE_DATA. If the row does not exist, already has a thumbnail, or has no
+ * source BLOB, this function returns without making changes.
+ *
+ * The caller controls the transaction. A selected row remains locked until
+ * the caller commits or rolls back.
+ *
+ * @param {number} id - ID of the MLE_DATA row to process.
+ * @returns {void}
+ * @throws {Error} If the source BLOB is empty, image processing fails,
+ *   or the thumbnail update does not affect exactly one row.
+ */
 export function createThumbnail(id) {
+    // Lock the row while creating the thumbnail.
     const result = session.execute(
-        'select file_blob from mle_data where id = :id and thumbnail is null for update',
-        { id: { val: id, type: oracledb.NUMBER } }
+        `select file_blob
+           from mle_data
+          where id = :id
+            and thumbnail is null
+          for update`,
+        {
+            id: { val: id, type: oracledb.NUMBER }
+        }
     );
-    if (result.rows.length !== 1 || !result.rows[0].FILE_BLOB) return;
+
+    if (result.rows.length !== 1 || !result.rows[0].FILE_BLOB) {
+        return;
+    }
+
     const blob = result.rows[0].FILE_BLOB;
-    if (blob.length() === 0) throw new Error('Uploaded photo is empty');
+    const originalBytes = blob.length();
+
+    if (originalBytes === 0) {
+        throw new Error('Uploaded photo is empty');
+    }
+
+    // Initialize Photon and decode the source BLOB into a WASM image.
     photon.initSync({ module: photonWasm });
     const image = photon.PhotonImage.new_from_byteslice(blob.getData());
+
     let resized;
     let thumbnail;
+
     try {
-        resized = photon.resize(image, Math.max(1, Math.floor(image.get_width() * 0.1)),
-            Math.max(1, Math.floor(image.get_height() * 0.1)), photon.SamplingFilter.Lanczos3);
+        const width = image.get_width();
+        const height = image.get_height();
+        const imageDimension = `${width} \u00D7 ${height} px`;
+
+        // Scale each dimension to 10%, keeping it at least one pixel.
+        resized = photon.resize(
+            image,
+            Math.max(1, Math.floor(width * 0.1)),
+            Math.max(1, Math.floor(height * 0.1)),
+            photon.SamplingFilter.Lanczos3
+        );
+
+        const thumbnailDimension =
+            `${resized.get_width()} \u00D7 ${resized.get_height()} px`;
+
+        // get_bytes() encodes the resized image as PNG.
         thumbnail = OracleBlob.createTemporary(false);
         thumbnail.write(1, resized.get_bytes());
-        const imageDimension = 'Original: ' + image.get_width() + ' × ' + image.get_height() +
-            ' px / ' + blob.length() + ' Bytes | Thumbnail: ' +
-            resized.get_width() + ' × ' + resized.get_height() + ' px / ' +
-            thumbnail.length() + ' Bytes';
+
+        // BLOB lengths are the sizes of the encoded images in bytes.
+        const thumbnailBytes = thumbnail.length();
+        const dimensions =
+            `Original: ${imageDimension} / ${originalBytes} bytes | ` +
+            `Thumbnail: ${thumbnailDimension} / ${thumbnailBytes} bytes`;
+
         const update = session.execute(
-            'update mle_data set thumbnail = :thumbnail, image_dimension = :image_dimension where id = :id and thumbnail is null',
-            {thumbnail: {val: thumbnail, type: oracledb.ORACLE_BLOB},
-             image_dimension: {val: imageDimension}, id: {val: id, type: oracledb.NUMBER}});
-        if (update.rowsAffected !== 1) throw new Error('Thumbnail update failed');
+            `update mle_data
+                set thumbnail = :thumbnail,
+                    image_dimension = :dimension
+              where id = :id
+                and thumbnail is null`,
+            {
+                thumbnail: {
+                    val: thumbnail,
+                    type: oracledb.ORACLE_BLOB
+                },
+                dimension: {
+                    val: dimensions,
+                    type: oracledb.STRING
+                },
+                id: {
+                    val: id,
+                    type: oracledb.NUMBER
+                }
+            }
+        );
+
+        if (update.rowsAffected !== 1) {
+            throw new Error('Thumbnail update failed');
+        }
     } finally {
-        try { if (thumbnail) thumbnail.freeTemporary(); }
-        finally { try { if (resized) resized.free(); } finally { image.free(); } }
+        // Attempt each cleanup even if an earlier cleanup operation fails.
+        try {
+            if (thumbnail) thumbnail.freeTemporary();
+        } finally {
+            try {
+                if (resized) resized.free();
+            } finally {
+                image.free();
+            }
+        }
     }
 }
+
 export function imageDimensions(blob) {
     if (!blob || blob.length() === 0) return null;
     photon.initSync({ module: photonWasm });
     const image = photon.PhotonImage.new_from_byteslice(blob.getData());
-    try { return image.get_width() + ' Ã ' + image.get_height() + ' px'; }
+    try { return image.get_width() + ' x ' + image.get_height() + ' px'; }
     finally { image.free(); }
 }
 /

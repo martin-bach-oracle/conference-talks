@@ -872,20 +872,6 @@ page 1 (
 
     )
 
-    process thumbnail-background (
-        name: Generate thumbnail in background
-        type: executionChain
-        backgroundExecution {
-            runInBackground: true
-        }
-        execution {
-            sequence: 30
-        }
-        serverSideCondition {
-            whenButtonPressed: @save
-        }
-    )
-
     process create-thumbnail (
         name: Create thumbnail with Photon
         type: executeCode
@@ -1023,6 +1009,23 @@ page 1 (
         }
         advanced {
             executionMappingIdentifier: 233102857554117930258
+        }
+        serverSideCondition {
+            whenButtonPressed: @save
+        }
+    )
+
+    process thumbnail-background (
+        name: Generate thumbnail in background
+        type: executionChain
+        backgroundExecution {
+            runInBackground: true
+        }
+        execution {
+            sequence: 30
+        }
+        advanced {
+            executionMappingIdentifier: 11193108796538804
         }
         serverSideCondition {
             whenButtonPressed: @save

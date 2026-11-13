@@ -46,10 +46,7 @@ page 3 (
                        p.post_comment as comment_text,
                        p.thumbnail,
                        'image/png' as thumbnail_mime,
-                       'Original: ' || coalesce(photo_dimensions(p.file_blob), '-') ||
-                       ' / ' || coalesce(to_char(dbms_lob.getlength(p.file_blob)), '-') || ' Bytes' ||
-                       ' | Thumbnail: ' || coalesce(photo_dimensions(p.thumbnail), '-') ||
-                       ' / ' || coalesce(to_char(dbms_lob.getlength(p.thumbnail)), '-') || ' Bytes' as image_info,
+                       image_dimension as image_info,
                        apex_util.get_since(p.created) as post_date
                   from mle_data p
                  order by p.created desc
