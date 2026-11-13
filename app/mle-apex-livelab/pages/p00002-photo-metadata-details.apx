@@ -24,13 +24,13 @@ page 2 (
                 display: none;
             }
             
-            /* Alle sichtbaren Kartenregionen: einheitlicher grauer Header. */
+            /* Alle sichtbaren Kartenregionen: einheitlicher Header. */
             #exif-photo .t-Region-header,
             #exif-data .t-Region-header,
             #exif-map .t-Region-header,
             #google-ai-analysis .t-Region-header {
-                background: #f1f3f5;
-                border-block-end: 1px solid rgba(31, 41, 55, .14);
+                background: var(--slide-surface);
+                border-block-end: 1px solid var(--slide-border);
             }
             
             /* Alle sichtbaren Kartenregionen: einheitlicher fetter Titel. */
@@ -116,7 +116,7 @@ page 2 (
                 background: transparent !important;
                 border: 0 !important;
                 box-shadow: none !important;
-                color: #111827;
+                color: var(--slide-text);
                 display: block !important;
                 font-size: 1rem;
                 font-weight: 400 !important;
@@ -133,15 +133,15 @@ page 2 (
             
             /* Region EXIF Data: eingerahmte Listenoptik. */
             #exif-data .t-AVPList {
-                border: 1px solid rgba(31, 41, 55, .14);
+                border: 1px solid var(--slide-border);
                 border-radius: 8px;
                 overflow: hidden;
             }
             
             /* Region EXIF Data: linke Label-Spalte. */
             #exif-data .t-AVPList-label {
-                background: #f7f8fa;
-                color: #111827;
+                background: var(--slide-raised);
+                color: var(--slide-text);
                 font-weight: 700;
             }
             
@@ -153,8 +153,8 @@ page 2 (
             
             /* Region Realness Score: compact score derived from the Google Gemini assessment. */
             #realness-score .t-Region-header {
-                background: #f1f3f5;
-                border-block-end: 1px solid rgba(31, 41, 55, .14);
+                background: var(--slide-surface);
+                border-block-end: 1px solid var(--slide-border);
                 text-align: center;
             }
             
@@ -186,7 +186,7 @@ page 2 (
                 background: transparent !important;
                 border: 0 !important;
                 box-shadow: none !important;
-                color: #111827;
+                color: var(--slide-text);
                 font-size: 1.7rem;
                 font-weight: 800;
                 margin: 0 !important;

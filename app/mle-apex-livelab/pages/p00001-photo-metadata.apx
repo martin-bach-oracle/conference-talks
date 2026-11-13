@@ -98,12 +98,12 @@ page 1 (
                 --a-button-padding-y: 0;
                 --a-button-padding-x: 1.45rem;
                 align-items: center;
-                background: linear-gradient(135deg, #2d2c29 0%, #242320 52%, #1f1e1c 100%);
+                background: var(--slide-coral);
                 block-size: var(--timeline-control-height);
-                border: 1px solid rgba(255, 255, 255, .12);
+                border: 1px solid var(--slide-coral);
                 border-radius: 8px;
-                box-shadow: 0 .65rem 1.35rem rgba(31, 30, 28, .22), inset 0 1px 0 rgba(255, 255, 255, .14);
-                color: #ffffff;
+                box-shadow: none;
+                color: #102e33;
                 display: inline-flex;
                 font-weight: 700;
                 justify-content: center;
@@ -122,11 +122,11 @@ page 1 (
             #timeline-toolbar .new-post-button .t-Icon,
             #timeline-toolbar .new-post-button .fa {
                 align-items: center;
-                background: rgba(255, 255, 255, .12);
-                border: 1px solid rgba(255, 255, 255, .22);
+                background: rgba(255, 255, 255, .25);
+                border: 1px solid rgba(0, 49, 62, .2);
                 border-radius: 999px;
-                box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .18);
-                color: #ffffff;
+                box-shadow: none;
+                color: #102e33;
                 display: inline-flex;
                 font-size: 2.2rem;
                 inline-size: 2.8rem;
