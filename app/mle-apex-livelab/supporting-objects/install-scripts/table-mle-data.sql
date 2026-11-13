@@ -12,20 +12,10 @@
 	"UPDATED" DATE, 
 	"UPDATED_BY" VARCHAR2(255 CHAR),
     "EXIF_DATA" JSON,
+    "IMAGE_DIMENSION" varchar2(4000),
     CONSTRAINT "MLE_DATA_ID_PK" PRIMARY KEY ("ID")
    ) ;
 
--- CREATE TABLE IF NOT EXISTS does not change an existing table.
-declare
-    l_count integer;
-begin
-    select count(*) into l_count from user_tab_columns
-    where table_name = 'MLE_DATA' and column_name = 'THUMBNAIL';
-    if l_count = 0 then
-        execute immediate 'alter table mle_data add (thumbnail blob)';
-    end if;
-end;
-/
 
   CREATE OR REPLACE EDITIONABLE TRIGGER "MLE_DATA_BIU" 
 before insert or update on MLE_DATA

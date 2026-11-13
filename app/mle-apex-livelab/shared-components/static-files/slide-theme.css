@@ -1,0 +1,102 @@
+/* Palette inspired by the DOAG presentation. */
+:root {
+    --slide-ink: #00313e;
+    --slide-deep: #002b38;
+    --slide-aqua: #8bb9b7;
+    --slide-coral: #ff6b60;
+    --slide-paper: #f5f9f8;
+    --ut-palette-primary: #006579;
+}
+
+.t-Header,
+.t-Body-nav,
+.t-Login-container {
+    background-color: var(--slide-deep);
+    color: #fff;
+}
+
+.t-Header-branding,
+.t-Header-nav,
+.t-Body-nav {
+    background-color: var(--slide-deep);
+    border-color: rgba(139, 185, 183, .25);
+}
+
+.t-Header-logo-link,
+.t-Header .t-Button,
+.t-TreeNav .a-TreeView-label,
+.t-TreeNav .a-Icon {
+    color: #fff;
+}
+
+.t-TreeNav .a-TreeView-row.is-selected,
+.t-TreeNav .a-TreeView-row.is-hover {
+    background-color: #14505d;
+}
+
+.t-TreeNav .a-TreeView-row.is-selected {
+    box-shadow: inset 3px 0 var(--slide-coral);
+}
+
+.t-Body-main,
+.t-Body-content,
+.t-Body-contentInner {
+    background-color: var(--slide-paper);
+}
+
+.t-Body-title {
+    background: var(--slide-ink);
+    border-bottom: 3px solid var(--slide-aqua);
+    color: #fff;
+}
+
+.t-Body-title .t-Breadcrumb-label,
+.t-Body-title .t-Breadcrumb-item,
+.t-Body-title .t-Breadcrumb-item a {
+    color: #fff;
+}
+
+.t-Region,
+.a-CardView-item,
+.t-Login-region {
+    border-color: #d4e5e3;
+    border-radius: 8px;
+}
+
+.t-Region-header {
+    border-bottom-color: #d4e5e3;
+}
+
+.t-Region-title,
+.a-CardView-title {
+    color: var(--slide-ink);
+}
+
+.t-Button--hot,
+#timeline-toolbar .new-post-button {
+    background: var(--slide-coral);
+    border-color: #d84c43;
+    box-shadow: none;
+    color: #172f35;
+}
+
+.t-Button--hot:hover,
+#timeline-toolbar .new-post-button:hover {
+    background: #ff8177;
+    color: #172f35;
+}
+
+#timeline-toolbar .new-post-button .t-Icon,
+#timeline-toolbar .new-post-button .fa {
+    color: #172f35;
+    background: rgba(255, 255, 255, .35);
+    border-color: rgba(0, 49, 62, .2);
+    box-shadow: none;
+}
+
+.t-Body a:not(.t-Button):focus-visible,
+.t-Button:focus-visible,
+.apex-item-text:focus-visible {
+    outline: 3px solid #25819a;
+    outline-offset: 2px;
+}

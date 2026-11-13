@@ -76,8 +76,14 @@ export function createThumbnail(id) {
             Math.max(1, Math.floor(image.get_height() * 0.1)), photon.SamplingFilter.Lanczos3);
         thumbnail = OracleBlob.createTemporary(false);
         thumbnail.write(1, resized.get_bytes());
-        const update = session.execute('update mle_data set thumbnail = :thumbnail where id = :id and thumbnail is null',
-            {thumbnail: {val: thumbnail, type: oracledb.ORACLE_BLOB}, id: {val: id, type: oracledb.NUMBER}});
+        const imageDimension = 'Original: ' + image.get_width() + ' × ' + image.get_height() +
+            ' px / ' + blob.length() + ' Bytes | Thumbnail: ' +
+            resized.get_width() + ' × ' + resized.get_height() + ' px / ' +
+            thumbnail.length() + ' Bytes';
+        const update = session.execute(
+            'update mle_data set thumbnail = :thumbnail, image_dimension = :image_dimension where id = :id and thumbnail is null',
+            {thumbnail: {val: thumbnail, type: oracledb.ORACLE_BLOB},
+             image_dimension: {val: imageDimension}, id: {val: id, type: oracledb.NUMBER}});
         if (update.rowsAffected !== 1) throw new Error('Thumbnail update failed');
     } finally {
         try { if (thumbnail) thumbnail.freeTemporary(); }
