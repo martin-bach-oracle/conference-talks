@@ -4,29 +4,55 @@
 
 This branch contains a photo metadata application built with Oracle APEX and server-side JavaScript in the Oracle Database Multilingual Engine (MLE). It draws on the Oracle LiveLabs workshop [APEX + Server-Side JavaScript (MLE)](https://livelabs.oracle.com/ords/r/dbpm/livelabs/view-workshop?wid=822). The workshop provides the background and guided exercises; this repository contains the application as exported for the demo.
 
-The application lets users upload photos, extract EXIF metadata with JavaScript, store available GPS coordinates, and display photos and locations. It uses Photon for thumbnail generation. The WebAssembly pages display original and thumbnail dimensions and sizes, and provide error level analysis (ELA) for JPEG images. Bright areas in an ELA image indicate compression differences, not proof of manipulation.
+The application lets users upload photos, extract EXIF metadata with JavaScript, store available GPS coordinates, and display photos and locations. It uses Photon, running as WebAssembly through MLE, to create thumbnails and perform error level analysis (ELA) on JPEG images. Bright areas in an ELA image indicate compression differences, not proof of manipulation.
 
 The photo details page also requests an AI assessment of whether an image looks camera-captured or AI-generated. This assessment is an approximation, and its displayed score is not a calibrated probability or proof of authenticity.
+
+### Application pages
+
+- **Photo Metadata (page 1):** Upload a photo using **Add Post** and browse the timeline. The page extracts available EXIF data and GPS coordinates. Thumbnail creation runs in a background execution chain; JPEG uploads also start a separate ELA chain. JPEG is recommended to see both demonstrations.
+- **Photo Metadata Details (page 2):** View the photo, extracted EXIF fields and map location. The page requests a Google Gemini assessment through the configured APEX AI service and displays a realness score and explanation. For a `real` classification the score uses the model's confidence; for `ai-generated` it uses 100 minus that confidence. An inconclusive result displays a neutral 50%. These values are not a forensic determination.
+- **WebAssembly (page 3):** Browse generated PNG thumbnails with the original and thumbnail dimensions and encoded BLOB sizes. The information is read from `MLE_DATA.IMAGE_DIMENSION`, which is populated during thumbnail creation. A message indicates when photos have no thumbnail; it cannot distinguish an unfinished job from a failed one.
+- **WebAssembly ELA (page 4):** Compare one randomly selected original JPEG with its stored ELA PNG. The page selects completed results from `MLE_DATA_ELA` and reports pending and failed counts when none is ready. Refresh the page to select another available result.
+
+The page heroes and the application-wide `slide-theme.css` use a dark palette inspired by the presentation slides.
+
+### Background image processing
+
+The page 1 thumbnail chain creates a PNG at 10% of the original width and height, with each dimension at least one pixel. It stores the image in `MLE_DATA.THUMBNAIL` and the dimensions and byte sizes in `MLE_DATA.IMAGE_DIMENSION`. The separate ELA chain processes eligible new JPEG uploads, so the thumbnail job can finish independently. Jobs may still be queued by APEX, and a page refresh may be needed to see a completed thumbnail.
+
+`MLE_DATA_ELA` stores at most one result per photo, with a foreign key to `MLE_DATA` that cascades on deletion. It contains the PNG, JSON metadata and a `PENDING`, `READY` or `FAILED` status; an error message is stored for failures handled by the ELA step. Existing photos are not automatically backfilled. If a background job does not reach the ELA step, a row can remain pending; check the APEX background execution for details.
+
+ELA decodes the original image, recompresses it as JPEG at quality 90, compares RGB pixels and amplifies differences by a factor of 10. It accepts JPEG uploads and limits decoded images to 16 megapixels. Processing can be slow and the resulting PNG can be large. A dark image can contain differences too small to see and does not establish that a photo is authentic or unmodified.
+
+In APEX App Builder, use the Debug Viewer with **View: Background Executions** to inspect jobs. The following query lists the most recent page 1 background executions when run in the appropriate APEX workspace context:
+
+```sql
+select execution_id, process_name, current_process_name,
+       status_code, status_message
+  from apex_appl_page_bg_proc_status
+ where application_id = 100 and page_id = 1
+ order by execution_id desc
+ fetch first 20 rows only;
+```
+
+ELA failures caught by the application are recorded in `MLE_DATA_ELA.ERROR_MESSAGE` and do not necessarily mark the overall background execution as failed.
 
 ### Repository contents
 
 - [`app/mle-apex-livelab/`](app/mle-apex-livelab/) contains the APEXlang application export, including pages, shared components, static files and supporting objects. Its alias is `MLE-APEX-LIVELAB`, its metadata targets APEXlang 26.1, and its deployment file specifies application ID 100.
-- [`app/mle-apex-livelab/supporting-objects/install-scripts/`](app/mle-apex-livelab/supporting-objects/install-scripts/) contains scripts for the `MLE_DATA` and `WASM_MODULES` tables, the trigger, JavaScript modules, and WebAssembly objects. `webassembly.sql` defines the Photon library modules, `MLE_EXIF_ENV`, and the photo function and procedure call specifications.
+- [`app/mle-apex-livelab/supporting-objects/install-scripts/`](app/mle-apex-livelab/supporting-objects/install-scripts/) contains scripts for `MLE_DATA`, `MLE_DATA_ELA`, `WASM_MODULES`, the trigger, JavaScript modules, and WebAssembly objects. `webassembly.sql` defines the Photon library modules, `MLE_EXIF_ENV`, and the photo function and procedure call specifications.
 - [`stage_files.sh`](stage_files.sh) downloads EXIFR 7.1.3 and Photon 0.3.3 JavaScript and WebAssembly files from jsDelivr into `stage/`. Third-party library code is not included in the repository; the staging directory is ignored by Git.
 
 ### Setup considerations
 
-Use an APEX 26.1 environment with an Oracle Database supporting MLE and WebAssembly, and the required privileges. Follow the linked LiveLabs workshop for environment setup and library installation. Run `./stage_files.sh` to download the library files. Staging does not load them into the database: load `stage/exifr.js` into `WASM_MODULES` as a BLOB with version `7.1.3`, and load `stage/photon_rs.js` and `stage/photon_rs_bg.wasm` with version `0.3.3`. Use the filename as `MODULE_NAME` for each row.
+Use an APEX 26.1 environment with an Oracle Database supporting MLE and WebAssembly, and the required privileges, including those needed for APEX background jobs. Follow the linked LiveLabs workshop for environment setup and library installation. Run `./stage_files.sh` to download the library files. Staging does not load them into the database: load `stage/exifr.js` into `WASM_MODULES` as a BLOB with version `7.1.3`, and load `stage/photon_rs.js` and `stage/photon_rs_bg.wasm` with version `0.3.3`. Use the filename as `MODULE_NAME` for each row.
 
 Review the supporting scripts before installation. `mle-objects.sql` creates `WASM_MODULES` and immediately attempts to create `MLE_EXIFR_MODULE` from its rows, with no file-loading step between those operations. `webassembly.sql` then creates the Photon library modules from rows in the same table. The table and all three files must be in place before the corresponding module statements run; staging alone does not arrange this.
 
-`webassembly.sql` now also creates `MLE_PHOTON_MODULE` and the `PHOTO_DIMENSIONS`, `PHOTO_ELA`, and `GENERATE_PHOTO_THUMBNAIL` call specifications that depend on it. The application-referenced objects identified in the connected schema have corresponding creation statements in the supporting scripts.
+`webassembly.sql` also creates `MLE_PHOTON_MODULE` and the `PHOTO_DIMENSIONS`, `PHOTO_ELA`, and `GENERATE_PHOTO_THUMBNAIL` call specifications that depend on it.
 
-The schema also contains `PHOTON_ENV`, `PHOTON_UTILITIES`, `PHOTON_API`, and `UPLOADED_FILES`, none of which is created by the supporting scripts. The inspected application source does not directly reference them; their presence in the schema alone does not establish that the application needs them.
-
-The supporting-object metadata associates `MLE_EXIF_ENV` with `mle-objects.sql`, but its creation statement is in `webassembly.sql`. It also associates `WASM_MODULES` with `webassembly.sql` under the hard-coded owner `EMILY`, although the table creation statement is in `mle-objects.sql`. Review these associations when correcting the export.
-
-The page 1 thumbnail process imports `photon-module`, which `webassembly.sql` and the `MLE_EXIF_ENV` inspected through the `doag-demo` connection map to `MLE_PHOTON_MODULE`. The other page imports—`exifr-module`, `gemini-ai-verify-module`, and `realness-score-module`—also match the inspected environment; it maps `photon` to the Photon JavaScript bindings.
+The page 1 thumbnail process imports `photon-module`, which the scripted `MLE_EXIF_ENV` maps to `MLE_PHOTON_MODULE`. The environment also maps the page imports `exifr-module`, `gemini-ai-verify-module`, and `realness-score-module`, as well as `photon` to the Photon JavaScript bindings.
 
 `MLE_PHOTON_MODULE` loads the WebAssembly module with `import source photonWasm from "photon_wasm"` and imports the Photon JavaScript bindings separately. The supporting script creates `PHOTON_WASM` from the staged WebAssembly binary.
 
