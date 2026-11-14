@@ -9,6 +9,39 @@ page 3 (
     navigation {
         cursorFocus: doNotFocusCursor
     }
+    css {
+        inline:
+            ```css
+            .thumbnail-hero {
+                padding: clamp(1rem, 3vw, 2.5rem);
+                color: #fff;
+            }
+            .thumbnail-hero__eyebrow {
+                color: #b8d9d8;
+                font-size: .8rem;
+                font-weight: 700;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+            }
+            .thumbnail-hero h2 {
+                color: #fff;
+                font-size: clamp(1.75rem, 3vw, 2.75rem);
+                line-height: 1.15;
+                margin: .75rem 0 1rem;
+            }
+            .thumbnail-hero p {
+                color: #fff;
+                font-size: 1rem;
+                line-height: 1.6;
+                max-width: 70rem;
+            }
+            .thumbnail-hero__note {
+                border-left: 3px solid #f47c6c;
+                margin-bottom: 0;
+                padding-left: 1rem;
+            }
+            ```
+    }
 
     region breadcrumb (
         name: Breadcrumb
@@ -30,6 +63,27 @@ page 3 (
         componentAppearance {
             breadcrumbTemplate: @/breadcrumb
             templateOptions: #DEFAULT#
+        }
+    )
+
+    region thumbnail-intro (
+        name: Thumbnail generation
+        type: staticContent
+        source {
+            htmlCode:
+                ```html
+                <section class="thumbnail-hero" aria-labelledby="thumbnail-hero-title">
+                  <div class="thumbnail-hero__eyebrow">Oracle APEX · MLE · WebAssembly</div>
+                  <h2 id="thumbnail-hero-title">Smaller images, processed inside the database</h2>
+                  <p>This page shows thumbnails generated from uploaded photos using Photon, an image-processing library running as WebAssembly inside Oracle Database through MLE.</p>
+                  <p>Each thumbnail is resized to 10% of the original image’s width and height and stored as a PNG. The cards show the original and thumbnail dimensions and file sizes, so you can compare the results. Select a card to view the photo’s details.</p>
+                  <p class="thumbnail-hero__note"><strong>Note:</strong> A smaller image does not always mean a smaller file. The result depends on the original format, its compression, and the image content.</p>
+                </section>
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
         }
     )
 
