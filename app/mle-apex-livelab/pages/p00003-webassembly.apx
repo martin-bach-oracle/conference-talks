@@ -71,9 +71,6 @@ page 3 (
             column: POST_DATE
         }
         body {
-            column: COMMENT_TEXT
-        }
-        secondaryBody {
             column: IMAGE_INFO
         }
         iconAndBadge {
