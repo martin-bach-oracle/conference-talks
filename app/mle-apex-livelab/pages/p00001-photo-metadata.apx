@@ -55,7 +55,7 @@ page 1 (
             }
             .photo-hero h2 {
                 color: #fff;
-                font-size: clamp(1.75rem, 3vw, 2.75rem);
+                font-size: clamp(1.75rem, 3.6vw, 2.75rem);
                 line-height: 1.15;
                 margin: .75rem 0 1rem;
             }

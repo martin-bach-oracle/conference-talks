@@ -1,5 +1,6 @@
 /* Oracle AI Database slide palette: navy surfaces, white text and coral accents. */
 :root {
+    font-size: 120%;
     --slide-deep: #102c3a;
     --slide-surface: #193b4c;
     --slide-raised: #285267;

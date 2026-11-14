@@ -25,7 +25,7 @@ page 3 (
             }
             .thumbnail-hero h2 {
                 color: #fff;
-                font-size: clamp(1.75rem, 3vw, 2.75rem);
+                font-size: clamp(1.75rem, 3.6vw, 2.75rem);
                 line-height: 1.15;
                 margin: .75rem 0 1rem;
             }
@@ -39,6 +39,9 @@ page 3 (
                 border-left: 3px solid #f47c6c;
                 margin-bottom: 0;
                 padding-left: 1rem;
+            }
+            .thumbnail-info {
+                color: var(--slide-coral);
             }
             ```
     }
@@ -129,7 +132,13 @@ page 3 (
                        p.post_comment as comment_text,
                        p.thumbnail,
                        'image/png' as thumbnail_mime,
-                       image_dimension as image_info,
+                       case when instr(p.image_dimension, '|') > 0
+                            then rtrim(substr(p.image_dimension, 1, instr(p.image_dimension, '|') - 1))
+                            else p.image_dimension
+                       end as original_info,
+                       case when instr(p.image_dimension, '|') > 0
+                            then ltrim(substr(p.image_dimension, instr(p.image_dimension, '|') + 1))
+                       end as thumbnail_info,
                        apex_util.get_since(p.created) as post_date
                   from mle_data p
                  order by p.created desc
@@ -154,7 +163,8 @@ page 3 (
             column: POST_DATE
         }
         body {
-            column: IMAGE_INFO
+            advancedFormatting: true
+            htmlExpression: <span class="u-text-body-lg">&ORIGINAL_INFO!HTML.<br><span class="thumbnail-info">&THUMBNAIL_INFO!HTML.</span></span>
         }
         iconAndBadge {
             iconSource: initials
