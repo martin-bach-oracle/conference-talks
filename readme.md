@@ -13,7 +13,7 @@ The photo details page also requests an AI assessment of whether an image looks 
 - **Photo Metadata (page 1):** Upload a photo using **Add Post** and browse the timeline. The page extracts available EXIF data and GPS coordinates. Thumbnail creation runs in a background execution chain; JPEG uploads also start a separate ELA chain. JPEG is recommended to see both demonstrations.
 - **Photo Metadata Details (page 2):** View the photo, extracted EXIF fields and map location. The page requests a Google Gemini assessment through the configured APEX AI service and displays a realness score and explanation. For a `real` classification the score uses the model's confidence; for `ai-generated` it uses 100 minus that confidence. An inconclusive result displays a neutral 50%. These values are not a forensic determination.
 - **WebAssembly (page 3):** Browse generated PNG thumbnails with the original and thumbnail dimensions and encoded BLOB sizes. The information is read from `MLE_DATA.IMAGE_DIMENSION`, which is populated during thumbnail creation. A message indicates when photos have no thumbnail; it cannot distinguish an unfinished job from a failed one.
-- **WebAssembly ELA (page 4):** Compare the photo most recently opened on page 2 with its stored ELA PNG. The page reads the selected photo ID from session state and shows whether its ELA result is pending, failed or unavailable.
+- **WebAssembly ELA (page 4):** Compare the photo most recently opened on page 2 with its stored ELA PNG. The page reads the selected photo ID from session state and shows whether its ELA result is pending, failed or unavailable. When a result is ready, it sends the original JPEG and ELA PNG to the configured AI service for an explanation below the images.
 
 The page heroes and the application-wide `slide-theme.css` use a dark palette inspired by the presentation slides.
 
@@ -56,6 +56,6 @@ The page 1 thumbnail process imports `photon-module`, which the scripted `MLE_EX
 
 `MLE_PHOTON_MODULE` loads the WebAssembly module with `import source photonWasm from "photon_wasm"` and imports the Photon JavaScript bindings separately. The supporting script creates `PHOTON_WASM` from the staged WebAssembly binary.
 
-The AI implementation currently calls `APEX_AI.GENERATE` with the APEX AI service static ID `google-gemini` and sends the photo as an attachment. Configure a compatible image-capable service and credentials under that static ID for the assessment to work. The code currently references Gemini; Cohere was discussed as an alternative but is not configured by this export. Keep credentials outside the repository.
+The AI implementation calls `APEX_AI.GENERATE` with the APEX AI service static ID `google-gemini`. Page 2 sends the photo as an attachment; page 4 sends both the original photo and its ELA image. Configure a compatible image-capable service and credentials under that static ID. Keep credentials outside the repository.
 
 The APEXlang export and supporting-object scripts are source artifacts; their presence alone does not confirm a successful import or a working runtime in another environment.

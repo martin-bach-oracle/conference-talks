@@ -44,6 +44,23 @@ page 4 (
                 max-width: 70rem;
                 margin-inline: auto;
             }
+            #ela-ai-explanation {
+                max-width: 70rem;
+                margin-inline: auto;
+            }
+            #P4_ELA_EXPLANATION_CONTAINER .t-Form-labelContainer {
+                display: none;
+            }
+            #P4_ELA_EXPLANATION_CONTAINER .display_only {
+                color: var(--slide-text);
+                display: block;
+                font-size: 1rem;
+                height: auto;
+                line-height: 1.6;
+                max-height: none;
+                overflow: visible;
+                white-space: pre-wrap;
+            }
             ```
     }
 
@@ -212,12 +229,143 @@ page 4 (
         }
     )
 
+    region ela-ai-explanation (
+        name: AI explanation
+        type: staticContent
+        layout {
+            sequence: 50
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        advanced {
+            htmlDomId: ela-ai-explanation
+        }
+    )
+
     pageItem P4_PHOTO_ID (
         type: hidden
         layout {
             sequence: 10
             slot: body
         }
+    )
+
+    pageItem P4_ELA_EXPLANATION (
+        type: displayOnly
+        label {
+            label: AI explanation
+            alignment: left
+        }
+        settings {
+            format: plainText
+            basedOn: value
+            showLineBreaks: true
+        }
+        layout {
+            sequence: 10
+            region: @ela-ai-explanation
+            slot: regionBody
+            alignment: left
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional-floating
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction explain-ela (
+        name: Explain ELA with AI
+        execution {
+            sequence: 10
+        }
+        when {
+            event: ready
+        }
+
+        action show-progress (
+            name: Show analysis progress
+            action: executeJsCode
+            settings {
+                jsCode: apex.item("P4_ELA_EXPLANATION").setValue("Preparing AI explanation…");
+            }
+            execution {
+                sequence: 10
+            }
+        )
+
+        action generate-explanation (
+            name: Generate AI explanation
+            action: executeServerSideCode
+            settings {
+                plsqlCode:
+                    ```plsql
+                    declare
+                        l_original blob;
+                        l_ela blob;
+                        l_response clob;
+                        l_attachments apex_ai.t_attachments := apex_ai.t_attachments();
+                    begin
+                        begin
+                            select p.file_blob, e.ela_image
+                              into l_original, l_ela
+                              from mle_data p join mle_data_ela e on e.mle_data_id = p.id
+                             where p.id = :P4_PHOTO_ID
+                               and e.status = 'READY'
+                               and p.file_blob is not null
+                               and e.ela_image is not null;
+                        exception
+                            when no_data_found then
+                                :P4_ELA_EXPLANATION := 'Select a photo with a completed ELA result to generate an explanation.';
+                                return;
+                        end;
+
+                        l_attachments.extend(2);
+                        l_attachments(1).mime_type := 'image/jpeg';
+                        l_attachments(1).content_blob := l_original;
+                        l_attachments(1).file_name := 'original.jpg';
+                        l_attachments(1).detail_level := apex_ai.c_detail_level_high;
+                        l_attachments(2).mime_type := 'image/png';
+                        l_attachments(2).content_blob := l_ela;
+                        l_attachments(2).file_name := 'ela-difference.png';
+                        l_attachments(2).detail_level := apex_ai.c_detail_level_high;
+
+                        l_response := apex_ai.generate(
+                            p_service_static_id => 'google-gemini',
+                            p_system_prompt => 'Explain image processing in clear language suitable for a presentation. Use concise plain text.',
+                            p_prompt => q'~Explain the supplied Error Level Analysis (ELA) result to an audience unfamiliar with image processing.
+
+The first attachment is the original JPEG. The second attachment is an ELA difference image derived from it: the original was recompressed as a JPEG at quality 90, then pixel differences were amplified by a factor of 10. The ELA difference image is encoded as PNG.
+
+In 3–4 sentences:
+1. Briefly explain what the difference image represents.
+2. Describe two or three visible patterns in the ELA image and, where you can identify them confidently, relate them to locations in the original image.
+3. Explain what the relative brightness of those areas means.
+
+Only describe details you can actually see. If the difference image is too dark or small to identify a feature confidently, say so. Do not claim that brightness or darkness proves that the computation succeeded or failed. Do not judge whether the original image is authentic, manipulated, edited, or AI-generated.
+
+Use clear language suitable for a presentation.~',
+                            p_temperature => 0.2,
+                            p_attachments => l_attachments
+                        );
+                        :P4_ELA_EXPLANATION := dbms_lob.substr(l_response, 4000, 1);
+                    exception
+                        when others then
+                            apex_debug.error('ELA AI explanation failed: %s', sqlerrm);
+                            :P4_ELA_EXPLANATION := 'AI explanation is currently unavailable. Check the application debug log for details.';
+                    end;
+                    ```
+                itemsToSubmit: P4_PHOTO_ID
+                itemsToReturn: P4_ELA_EXPLANATION
+                showProcessing: true
+            }
+            execution {
+                sequence: 20
+            }
+        )
     )
 
     process select-session-photo (
