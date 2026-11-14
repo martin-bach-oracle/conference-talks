@@ -151,30 +151,61 @@ page 2 (
                 white-space: pre-wrap;
             }
             
-            /* Region Realness Score: compact score derived from the Google Gemini assessment. */
+            /* Photo details hero and live assessment. */
             #realness-score .t-Region-header {
-                background: var(--slide-surface);
-                border-block-end: 1px solid var(--slide-border);
-                text-align: center;
+                display: none;
             }
-            
-            #realness-score .t-Region-title {
-                font-weight: 700;
-                letter-spacing: 0;
-                text-align: center;
-                text-transform: none;
-                inline-size: 100%;
-            }
-            
             #realness-score .t-Region-body {
+                align-items: center;
                 display: flex;
-                justify-content: center;
-                padding: 1.25rem !important;
-                text-align: center;
+                flex-wrap: wrap;
+                gap: 1.5rem 2rem;
+                padding: clamp(1rem, 3vw, 2.5rem);
             }
-            
+            .photo-details-hero {
+                flex: 1 1 30rem;
+                min-width: 0;
+                order: 1;
+            }
+            .photo-details-hero__eyebrow {
+                color: var(--slide-mint);
+                font-size: .8rem;
+                font-weight: 700;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+            }
+            .photo-details-hero h2 {
+                color: var(--slide-text);
+                font-size: clamp(1.75rem, 3vw, 2.75rem);
+                line-height: 1.15;
+                margin: .75rem 0 1rem;
+            }
+            .photo-details-hero p {
+                color: var(--slide-text);
+                font-size: 1rem;
+                line-height: 1.6;
+                margin-bottom: 0;
+                max-width: 60rem;
+            }
+            #realness-score .t-Region-body > .container {
+                flex: 0 1 15rem;
+                order: 2;
+                width: auto;
+            }
             #P2_REALNESS_SCORE_CONTAINER .t-Form-labelContainer {
-                display: none !important;
+                display: block;
+                position: static;
+                padding: 0 0 .5rem;
+                width: auto;
+            }
+            #P2_REALNESS_SCORE_CONTAINER .t-Form-label {
+                color: var(--slide-mint);
+                display: block;
+                font-size: .85rem;
+                font-weight: 700;
+                line-height: 1.3;
+                position: static;
+                transform: none;
             }
             
             #P2_REALNESS_SCORE_CONTAINER,
@@ -191,6 +222,9 @@ page 2 (
                 font-weight: 800;
                 margin: 0 !important;
                 padding: 0 !important;
+            }
+            #P2_REALNESS_SCORE_CONTAINER {
+                display: block;
             }
             ```
     }
@@ -536,6 +570,16 @@ page 2 (
     region realness-score (
         name: Realness Score
         type: staticContent
+        source {
+            htmlCode:
+                ```html
+                <section class="photo-details-hero" aria-labelledby="photo-details-hero-title">
+                  <div class="photo-details-hero__eyebrow">Oracle APEX · MLE · AI</div>
+                  <h2 id="photo-details-hero-title">Discover the details behind your photo</h2>
+                  <p>Explore the selected photo, its extracted EXIF metadata and location from the database. Google Gemini assesses the image through an APEX AI service; the realness score is derived from that assessment and is an estimate, not proof of authenticity.</p>
+                </section>
+                ```
+        }
         layout {
             sequence: 10
             slot: body
@@ -544,6 +588,7 @@ page 2 (
             template: @/standard
             templateOptions: [
                 #DEFAULT#
+                margin-bottom-md
                 t-Region--scrollBody
             ]
         }

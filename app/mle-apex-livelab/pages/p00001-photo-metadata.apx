@@ -42,58 +42,53 @@ page 1 (
     css {
         inline:
             ```css
-            /* Ordnet Suchfeld und "Add Post"-Button in der Timeline-Toolbar an. */
-            #timeline-toolbar {
+            .photo-hero {
+                padding: clamp(1rem, 3vw, 2.5rem);
+                color: #fff;
+            }
+            .photo-hero__eyebrow {
+                color: #b8d9d8;
+                font-size: .8rem;
+                font-weight: 700;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+            }
+            .photo-hero h2 {
+                color: #fff;
+                font-size: clamp(1.75rem, 3vw, 2.75rem);
+                line-height: 1.15;
+                margin: .75rem 0 1rem;
+            }
+            .photo-hero p {
+                color: #fff;
+                font-size: 1rem;
+                line-height: 1.6;
+                max-width: 70rem;
+                margin-bottom: 0;
+            }
+
+            #photo-intro {
                 --timeline-control-height: 4.45rem;
-                margin: 1rem 1rem 2.75rem;
+                background: var(--slide-surface);
+                border: 1px solid var(--slide-border);
+                border-radius: 16px;
             }
-            
-            #timeline-toolbar .t-ButtonRegion-wrap,
-            #timeline-toolbar .t-Region-body {
-                align-items: stretch;
+            #photo-intro .t-ButtonRegion-wrap {
+                align-items: center;
                 display: flex;
-                gap: 1.5rem;
                 flex-wrap: wrap;
-                justify-content: flex-start;
+                gap: 1rem;
             }
-            
-            #timeline-toolbar .t-ButtonRegion-col,
-            #timeline-toolbar .t-ButtonRegion-buttons {
-                display: flex;
+            #photo-intro .t-ButtonRegion-col--content {
+                flex: 1 1 30rem;
+                min-width: 0;
             }
-            
-            #timeline-toolbar .t-ButtonRegion-col--right {
-                order: 1;
+            #photo-intro .t-ButtonRegion-col--right {
+                padding: 1rem clamp(1rem, 3vw, 2.5rem);
             }
-            
-            #timeline-toolbar .t-ButtonRegion-col--content {
-                flex: 1 1 28rem;
-                order: 2;
-            }
-            
-            #timeline-toolbar .t-ButtonRegion-body {
-                inline-size: 100%;
-            }
-            
-            #timeline-toolbar .t-Form-fieldContainer {
-                inline-size: 100%;
-                margin-block: 0;
-                min-inline-size: min(48rem, 100%);
-            }
-            
-            /* Macht das Suchfeld optisch gleich hoch wie den Button daneben. */
-            #timeline-toolbar .t-Form-inputContainer,
-            #timeline-toolbar .apex-item-text {
-                block-size: var(--timeline-control-height);
-            }
-            
-            #timeline-toolbar .apex-item-text {
-                font-size: 1.125rem;
-                padding-block: 1rem;
-            }
-            
+
             /* Gestaltet den "Add Post"-Button als prominente Aktion. */
-            #timeline-toolbar .new-post-button {
+            #photo-intro .new-post-button {
                 --a-button-font-size: 1.15rem;
                 --a-button-padding-y: 0;
                 --a-button-padding-x: 1.45rem;
@@ -114,13 +109,13 @@ page 1 (
                 transition: box-shadow .15s ease, filter .15s ease, transform .15s ease;
             }
             
-            #timeline-toolbar .new-post-button::after {
+            #photo-intro .new-post-button::after {
                 content: none;
             }
             
             /* Vergrößert das Finger-Icon im Button und legt es in einen Kreis. */
-            #timeline-toolbar .new-post-button .t-Icon,
-            #timeline-toolbar .new-post-button .fa {
+            #photo-intro .new-post-button .t-Icon,
+            #photo-intro .new-post-button .fa {
                 align-items: center;
                 background: rgba(255, 255, 255, .25);
                 border: 1px solid rgba(0, 49, 62, .2);
@@ -136,38 +131,29 @@ page 1 (
                 z-index: 1;
             }
             
-            #timeline-toolbar .new-post-button .t-Button-label {
+            #photo-intro .new-post-button .t-Button-label {
                 margin-inline-start: .35rem;
                 position: relative;
                 z-index: 1;
             }
             
             /* Blendet ein zusätzliches Icon rechts vom Buttontext aus. */
-            #timeline-toolbar .new-post-button .t-Button-label ~ .t-Icon,
-            #timeline-toolbar .new-post-button .t-Button-label ~ .fa {
+            #photo-intro .new-post-button .t-Button-label ~ .t-Icon,
+            #photo-intro .new-post-button .t-Button-label ~ .fa {
                 display: none;
             }
             
-            #timeline-toolbar .new-post-button:hover {
+            #photo-intro .new-post-button:hover {
                 box-shadow: 0 .85rem 1.65rem rgba(31, 30, 28, .30), inset 0 1px 0 rgba(255, 255, 255, .18);
                 filter: brightness(1.08);
                 transform: translateY(-1px);
             }
             
-            #timeline-toolbar .new-post-button:active {
+            #photo-intro .new-post-button:active {
                 box-shadow: 0 .35rem .8rem rgba(31, 30, 28, .22), inset 0 1px 0 rgba(255, 255, 255, .10);
                 transform: translateY(0);
             }
             
-            /* Hält den "Add Post"-Button auf kleinen Screens unten rechts erreichbar. */
-            @media (max-width: 640px) {
-                .new-post-button {
-                    position: fixed;
-                    bottom: 24px;
-                    right: 24px;
-                    z-index: 1000;
-                }
-            }
             ```
     }
     security {
@@ -178,6 +164,37 @@ page 1 (
         enableDuplicatePageSubmissions: false
         reloadOnSubmit: always
     }
+
+    region photo-intro (
+        name: Explore your photos
+        type: staticContent
+        source {
+            htmlCode:
+                ```html
+                <section class="photo-hero" aria-labelledby="photo-hero-title">
+                  <div class="photo-hero__eyebrow">Oracle APEX · MLE · WebAssembly</div>
+                  <h2 id="photo-hero-title">Explore the story behind your photos</h2>
+                  <p>Upload a photo to explore its metadata and see Oracle APEX, JavaScript and WebAssembly work together in the database. A thumbnail is generated in the background; JPEG uploads also get an Error Level Analysis (ELA) image. Choose JPEG for the full demonstration.</p>
+                </section>
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: [
+                #DEFAULT#
+                margin-bottom-md
+                t-ButtonRegion--noPadding
+                t-ButtonRegion--noUI
+            ]
+        }
+        advanced {
+            htmlDomId: photo-intro
+        }
+    )
 
     region about (
         name: About
@@ -426,26 +443,6 @@ page 1 (
 
     )
 
-    region timeline-toolbar (
-        name: Timeline Toolbar
-        type: staticContent
-        layout {
-            sequence: 30
-            slot: body
-        }
-        appearance {
-            template: @/buttons-container
-            templateOptions: [
-                #DEFAULT#
-                t-ButtonRegion--noPadding
-                t-ButtonRegion--noUI
-            ]
-        }
-        advanced {
-            htmlDomId: timeline-toolbar
-        }
-    )
-
     pageItem P1_ACTION_ID (
         type: hidden
         settings {
@@ -680,7 +677,7 @@ page 1 (
         label: Add Post
         layout {
             sequence: 10
-            region: @timeline-toolbar
+            region: @photo-intro
             slot: next
         }
         appearance {
