@@ -40,20 +40,9 @@ page 4 (
                 margin-bottom: 0;
                 padding-left: 1rem;
             }
-            #P4_ORIGINAL_IMAGE_CONTAINER .t-Form-labelContainer,
-            #P4_ELA_IMAGE_CONTAINER .t-Form-labelContainer {
-                display: none;
-            }
-            #P4_ORIGINAL_IMAGE_CONTAINER img,
-            #P4_ELA_IMAGE_CONTAINER img {
-                border-radius: 12px;
-                display: block;
-                height: auto;
-                max-height: 25rem;
-                max-width: min(100%, 32rem);
+            #ela-comparison {
+                max-width: 70rem;
                 margin-inline: auto;
-                object-fit: contain;
-                width: auto;
             }
             ```
     }
@@ -83,10 +72,45 @@ page 4 (
 
     region ela-images (
         name: Image comparison
-        type: staticContent
+        type: cards
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select p.id as photo_id,
+                       image_type.image_kind,
+                       case image_type.image_kind
+                           when 1 then 'Original JPEG'
+                           else 'ELA difference'
+                       end as image_title,
+                       case image_type.image_kind
+                           when 1 then p.file_blob
+                           else e.ela_image
+                       end as image_blob,
+                       case image_type.image_kind
+                           when 1 then 'image/jpeg'
+                           else 'image/png'
+                       end as image_mime
+                  from mle_data p
+                  join mle_data_ela e on e.mle_data_id = p.id
+                  cross join (select 1 as image_kind from dual
+                              union all
+                              select 2 from dual) image_type
+                 where p.id = :P4_PHOTO_ID
+                   and e.status = 'READY'
+                   and p.file_blob is not null
+                   and e.ela_image is not null
+                 order by image_type.image_kind
+                ```
+        }
         layout {
             sequence: 40
             slot: body
+        }
+        appearance {
+            template: @/cards-container
+            templateOptions: #DEFAULT#
         }
         advanced {
             htmlDomId: ela-comparison
@@ -95,36 +119,27 @@ page 4 (
             type: itemIsNotNull
             item: P4_PHOTO_ID
         }
-    )
-
-    region original-photo (
-        name: Original JPEG
-        type: staticContent
-        layout {
-            sequence: 10
-            parentRegion: @ela-images
-            slot: subRegions
-            columnSpan: 6
+        componentAppearance {
+            layout: grid
+            gridColumns: 2
         }
-        appearance {
-            template: @/standard
-            templateOptions: #DEFAULT#
+        card {
+            primaryKeyColumn1: PHOTO_ID
+            primaryKeyColumn2: IMAGE_KIND
         }
-    )
-
-    region ela-photo (
-        name: ELA difference
-        type: staticContent
-        layout {
-            sequence: 20
-            parentRegion: @ela-images
-            slot: subRegions
-            startNewRow: false
-            columnSpan: 6
+        title {
+            column: IMAGE_TITLE
         }
-        appearance {
-            template: @/standard
-            templateOptions: #DEFAULT#
+        media {
+            source: blobColumn
+            blobColumn: IMAGE_BLOB
+            position: first
+            appearance: widescreen
+            sizing: fit
+            imageDescription: &IMAGE_TITLE.
+        }
+        blobAttributes {
+            mimeTypeColumn: IMAGE_MIME
         }
     )
 
@@ -181,52 +196,6 @@ page 4 (
         layout {
             sequence: 10
             slot: body
-        }
-    )
-
-    pageItem P4_ORIGINAL_IMAGE (
-        type: displayImage
-        label {
-            label: Original JPEG
-            alignment: left
-        }
-        settings {
-            basedOn: blobColSql
-            sqlQuery: select file_blob from mle_data where id = :P4_PHOTO_ID
-        }
-        layout {
-            sequence: 10
-            region: @original-photo
-            slot: regionBody
-            alignment: left
-            columnSpan: 12
-        }
-        appearance {
-            template: @/optional-floating
-            templateOptions: #DEFAULT#
-        }
-    )
-
-    pageItem P4_ELA_IMAGE (
-        type: displayImage
-        label {
-            label: ELA difference
-            alignment: left
-        }
-        settings {
-            basedOn: blobColSql
-            sqlQuery: select ela_image from mle_data_ela where mle_data_id = :P4_PHOTO_ID and status = 'READY'
-        }
-        layout {
-            sequence: 20
-            region: @ela-photo
-            slot: regionBody
-            alignment: left
-            columnSpan: 12
-        }
-        appearance {
-            template: @/optional-floating
-            templateOptions: #DEFAULT#
         }
     )
 
