@@ -51,7 +51,7 @@ export function errorLevelImage(blob) {
         }
         result = new photon.PhotonImage(diff, width, height);
         const output = OracleBlob.createTemporary(false);
-        output.write(1, result.get_bytes());
+        output.write(1, result.get_bytes_jpeg(95));
         return output;
     } finally {
         try { if (result) result.free(); }
@@ -170,6 +170,32 @@ export function createThumbnail(id) {
     }
 }
 
+/** Create a bounded PNG preview for an AI image attachment. */
+export function imageAiPreview(blob) {
+    if (!blob || blob.length() === 0) return null;
+    photon.initSync({ module: photonWasm });
+    const image = photon.PhotonImage.new_from_byteslice(blob.getData());
+    let resized;
+    let output;
+    try {
+        const width = image.get_width();
+        const height = image.get_height();
+        const scale = Math.min(1, 1024 / Math.max(width, height));
+        const source = scale < 1
+            ? (resized = photon.resize(image, Math.max(1, Math.floor(width * scale)),
+                Math.max(1, Math.floor(height * scale)), photon.SamplingFilter.Lanczos3))
+            : image;
+        output = OracleBlob.createTemporary(false);
+        output.write(1, source.get_bytes());
+        return output;
+    } catch (error) {
+        if (output) output.freeTemporary();
+        throw error;
+    } finally {
+        try { if (resized) resized.free(); } finally { image.free(); }
+    }
+}
+
 export function imageDimensions(blob) {
     if (!blob || blob.length() === 0) return null;
     photon.initSync({ module: photonWasm });
@@ -200,6 +226,13 @@ return blob as
     mle module mle_photon_module
     env mle_exif_env
     signature 'errorLevelImage';
+/
+
+create or replace function photo_ai_preview(p_image blob)
+return blob as
+    mle module mle_photon_module
+    env mle_exif_env
+    signature 'imageAiPreview';
 /
 
 create or replace procedure generate_photo_thumbnail(p_id number) as

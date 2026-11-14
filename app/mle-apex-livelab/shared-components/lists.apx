@@ -172,5 +172,24 @@ list navigation-menu (
         }
     )
 
+    entry background-jobs (
+        label: Background Jobs
+        icon {
+            imageIconCssClasses: fa-clock-o
+        }
+        layout {
+            sequence: 50
+        }
+        isCurrent {
+            type: pages
+            pages: 5
+        }
+        link {
+            target: {
+                page: 5
+            }
+        }
+    )
+
 )
 

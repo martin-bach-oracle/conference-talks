@@ -1,0 +1,306 @@
+page 5 (
+    name: Background Jobs
+    alias: BACKGROUND-JOBS
+    title: Background Jobs
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    navigation {
+        cursorFocus: doNotFocusCursor
+    }
+    css {
+        inline:
+            ```css
+            .t-Report-report th.t-Report-colHead {
+                background-color: var(--slide-raised);
+                color: var(--slide-text);
+            }
+            .t-Body-content .t-Report-colHead a:not(.t-Button) {
+                color: var(--slide-text);
+            }
+            ```
+    }
+
+    region breadcrumb (
+        name: Breadcrumb
+        type: breadcrumb
+        source {
+            breadcrumb: @breadcrumb
+        }
+        layout {
+            sequence: 10
+            slot: breadcrumbBar
+        }
+        appearance {
+            template: @/title-bar
+            templateOptions: [
+                #DEFAULT#
+                t-BreadcrumbRegion--useBreadcrumbTitle
+            ]
+        }
+        componentAppearance {
+            breadcrumbTemplate: @/breadcrumb
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region jobs-intro (
+        name: Background processing
+        type: staticContent
+        source {
+            htmlCode:
+                ```html
+                <h2>See what is processing</h2>
+                <p>Photo thumbnails and JPEG error level analysis run in separate background jobs. This page shows the application's queued and running jobs and photos whose ELA result is pending or failed.</p>
+                <p>A pending ELA result can remain after a job stops. ELA errors can be recorded even when the background job reports success. Refresh to see the latest status.</p>
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region active-jobs (
+        name: Queued and running jobs
+        type: classicReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select execution_id, page_id, process_name, current_process_name,
+                       status_code, status_message, created_on, last_updated_on
+                  from apex_appl_page_bg_proc_status
+                 where application_id = :APP_ID
+                   and status_code in ('ENQUEUED', 'SCHEDULED', 'EXECUTING')
+                 order by created_on desc
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        componentAppearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        messages {
+            whenNoDataFound: No background jobs are queued or running.
+        }
+
+        column EXECUTION_ID (
+            reportColumnQueryId: 1
+            derivedColumn: N
+            heading {
+                heading: Job ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+        column PAGE_ID (
+            reportColumnQueryId: 2
+            derivedColumn: N
+            heading {
+                heading: Page
+            }
+            layout {
+                sequence: 20
+            }
+        )
+        column PROCESS_NAME (
+            reportColumnQueryId: 3
+            derivedColumn: N
+            heading {
+                heading: Background job
+            }
+            layout {
+                sequence: 30
+            }
+        )
+        column CURRENT_PROCESS_NAME (
+            reportColumnQueryId: 4
+            derivedColumn: N
+            heading {
+                heading: Current step
+            }
+            layout {
+                sequence: 40
+            }
+        )
+        column STATUS_CODE (
+            reportColumnQueryId: 5
+            derivedColumn: N
+            heading {
+                heading: Status
+            }
+            layout {
+                sequence: 50
+            }
+        )
+        column STATUS_MESSAGE (
+            reportColumnQueryId: 6
+            derivedColumn: N
+            heading {
+                heading: Message
+            }
+            layout {
+                sequence: 60
+            }
+        )
+        column CREATED_ON (
+            reportColumnQueryId: 7
+            derivedColumn: N
+            heading {
+                heading: Submitted
+            }
+            layout {
+                sequence: 70
+            }
+        )
+        column LAST_UPDATED_ON (
+            reportColumnQueryId: 8
+            derivedColumn: N
+            heading {
+                heading: Last updated
+            }
+            layout {
+                sequence: 80
+            }
+        )
+    )
+
+    region ela-results (
+        name: Pending or failed ELA results
+        type: classicReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select p.id photo_id, p.file_name, e.status, p.created, e.error_message
+                  from mle_data_ela e join mle_data p on p.id = e.mle_data_id
+                 where e.status in ('PENDING', 'FAILED')
+                 order by p.created desc
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        componentAppearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        messages {
+            whenNoDataFound: No ELA results are pending or failed.
+        }
+
+        column PHOTO_ID (
+            reportColumnQueryId: 1
+            derivedColumn: N
+            heading {
+                heading: Photo ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+        column FILE_NAME (
+            reportColumnQueryId: 2
+            derivedColumn: N
+            heading {
+                heading: Photo
+            }
+            layout {
+                sequence: 20
+            }
+        )
+        column STATUS (
+            reportColumnQueryId: 3
+            derivedColumn: N
+            heading {
+                heading: Status
+            }
+            layout {
+                sequence: 30
+            }
+        )
+        column CREATED (
+            reportColumnQueryId: 4
+            derivedColumn: N
+            heading {
+                heading: Uploaded
+            }
+            layout {
+                sequence: 40
+            }
+        )
+        column ERROR_MESSAGE (
+            reportColumnQueryId: 5
+            derivedColumn: N
+            heading {
+                heading: Error
+            }
+            layout {
+                sequence: 50
+            }
+        )
+    )
+
+    button refresh-status (
+        buttonName: REFRESH_STATUS
+        label: Refresh status
+        layout {
+            sequence: 10
+            region: @jobs-intro
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            templateOptions: [
+                #DEFAULT#
+                t-Button--iconLeft
+            ]
+            icon: fa-refresh
+        }
+        behavior {
+            action: triggerAction
+        }
+
+        triggerAction refresh-jobs (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @active-jobs
+            }
+            execution {
+                sequence: 10
+            }
+        )
+        triggerAction refresh-ela-results (
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @ela-results
+            }
+            execution {
+                sequence: 20
+            }
+        )
+    )
+)

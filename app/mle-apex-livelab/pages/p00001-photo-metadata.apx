@@ -1035,7 +1035,8 @@ page 1 (
                     end if;
                     update mle_data_ela
                        set ela_image = l_result,
-                           metadata = json_object('jpeg_quality' value 90, 'amplification' value 10),
+                           metadata = json_object('jpeg_quality' value 90, 'amplification' value 10,
+                                                  'output_mime' value 'image/jpeg', 'output_jpeg_quality' value 95),
                            status = 'READY', error_message = null
                      where mle_data_id = :P1_ID and status = 'PENDING';
                     if dbms_lob.istemporary(l_result) = 1 then
