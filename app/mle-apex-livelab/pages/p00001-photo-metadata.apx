@@ -774,7 +774,10 @@ page 1 (
             name: DELETE - do database work
             action: executeServerSideCode
             settings {
-                plsqlCode: delete from MLE_DATA where id=:P1_ACTION_ID and created_by=:APP_USER;
+                plsqlCode: ```
+                delete from MLE_DATA where id=:P1_ACTION_ID and created_by=:APP_USER;
+                delete from MLE_DATA_ELA where MLE_DATA_ID =:P1_ACTION_ID;
+                ```
                 itemsToSubmit: P1_ACTION_ID
             }
             execution {
@@ -984,6 +987,79 @@ page 1 (
         }
     )
 
+    process prepare-ela (
+        name: Prepare ELA for JPEG
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                insert into mle_data_ela (mle_data_id, status)
+                select id, 'PENDING'
+                  from mle_data
+                 where id = :P1_ID
+                   and lower(file_mime) in ('image/jpeg', 'image/jpg')
+                   and file_blob is not null
+                   and not exists (select 1 from mle_data_ela e where e.mle_data_id = mle_data.id);
+                ```
+        }
+        execution {
+            sequence: 25
+        }
+        serverSideCondition {
+            whenButtonPressed: @save
+        }
+    )
+
+    process create-ela (
+        name: Generate ELA image
+        type: executeCode
+        executionChain: @ela-background
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                    l_original blob;
+                    l_result blob;
+                    l_error varchar2(1000);
+                begin
+                    begin
+                        select p.file_blob into l_original
+                          from mle_data p join mle_data_ela e on e.mle_data_id = p.id
+                         where p.id = :P1_ID and e.status = 'PENDING';
+                    exception
+                        when no_data_found then return;
+                    end;
+
+                    l_result := photo_ela(l_original);
+                    if l_result is null then
+                        raise_application_error(-20001, 'ELA did not produce an image');
+                    end if;
+                    update mle_data_ela
+                       set ela_image = l_result,
+                           metadata = json_object('jpeg_quality' value 90, 'amplification' value 10),
+                           status = 'READY', error_message = null
+                     where mle_data_id = :P1_ID and status = 'PENDING';
+                    if dbms_lob.istemporary(l_result) = 1 then
+                        dbms_lob.freetemporary(l_result);
+                    end if;
+                exception
+                    when others then
+                        l_error := substr(sqlerrm, 1, 1000);
+                        if l_result is not null and dbms_lob.istemporary(l_result) = 1 then
+                            dbms_lob.freetemporary(l_result);
+                        end if;
+                        update mle_data_ela set status = 'FAILED', error_message = l_error
+                         where mle_data_id = :P1_ID and status = 'PENDING';
+                end;
+                ```
+        }
+        execution {
+            sequence: 20
+        }
+    )
+
     process init-form (
         name: init form
         type: formInitialization
@@ -1026,6 +1102,20 @@ page 1 (
         }
         advanced {
             executionMappingIdentifier: 11193108796538804
+        }
+        serverSideCondition {
+            whenButtonPressed: @save
+        }
+    )
+
+    process ela-background (
+        name: Generate ELA in background
+        type: executionChain
+        backgroundExecution {
+            runInBackground: true
+        }
+        execution {
+            sequence: 40
         }
         serverSideCondition {
             whenButtonPressed: @save

@@ -87,6 +87,35 @@ page 3 (
         }
     )
 
+    region thumbnail-status (
+        name: Thumbnail status
+        type: plSqlDynamicContent
+        source {
+            plsqlCode:
+                ```plsql
+                declare
+                    l_missing number;
+                begin
+                    select count(*) into l_missing
+                      from mle_data
+                     where file_blob is not null and thumbnail is null;
+
+                    if l_missing > 0 then
+                        sys.htp.p('<p>Photos without a completed thumbnail: ' || l_missing || '. New uploads are processed in the background. Processing may still be running or may have failed; check the background process if a thumbnail remains unavailable.</p>');
+                    end if;
+                end;
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
     region thumbnails (
         name: Timeline
         type: cards

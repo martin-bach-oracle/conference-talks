@@ -16,6 +16,15 @@ installScript "Table MLE_DATA" (
     }
 )
 
+installScript "Table MLE_DATA_ELA" (
+    execution {
+        sequence: 15
+    }
+    script {
+        contentFile: table-mle-data-ela.sql
+    }
+)
+
 installScript webAssembly (
     execution {
         sequence: 30
