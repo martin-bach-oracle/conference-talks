@@ -420,12 +420,10 @@ l_attachments(2).detail_level := apex_ai.c_detail_level_high;
 
 l_response := apex_ai.generate(
     p_service_static_id => 'google-gemini',
-    p_system_prompt => 'Describe ELA patterns. Do not judge authenticity or AI generation. Return JSON only.',
-    p_prompt => q'~The first image is the original JPEG; the second is its ELA image: differences after JPEG quality-90 recompression, amplified by 10. JPEG compression or resizing may alter details; image dimensions may differ.
+    p_system_prompt => 'Describe visible ELA differences without judging authenticity or AI generation. Return JSON only.',
+    p_prompt => q'~Image 1 is the original JPEG. Image 2 is its ELA difference after quality-90 JPEG recompression, amplified 10 times. The ELA image may be compressed or resized.
 
-Return JSON strings "summary" (one or two sentences with a next step) and "detail" (three or four sentences on visible patterns and brightness).
-
-Identify regions unlike nearby textures and suggest comparison with the original. If none are visible or the image is unclear, say so. Do not invent details or infer a cause.~',
+Return JSON strings "summary" and "detail". In one or two summary sentences, locate the clearest ELA difference, compare its brightness with similar nearby areas, and suggest where to look in the original. If none is clear, say so and suggest viewing the ELA at higher contrast. In three or four detail sentences describe visible patterns and locations. Do not invent details or infer causes.~',
     p_temperature => 0.2,
     p_attachments => l_attachments
 );
